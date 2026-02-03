@@ -1,0 +1,35 @@
+package com.telecom.usage.web.dto;
+
+import jakarta.validation.constraints.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+/**
+ * Request DTO for recording usage via REST API
+ * Represents external mediation or network system sending usage data
+ */
+public record RecordUsageRequest(
+    @NotBlank(message = "Session ID is required for idempotency")
+    String sessionId,
+    
+    @NotNull(message = "Contract ID is required")
+    @Positive(message = "Contract ID must be positive")
+    Long contratId,
+    
+    @NotNull(message = "Service ID is required")
+    @Positive(message = "Service ID must be positive")
+    Long serviceId,
+    
+    @NotNull(message = "Quantity is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Quantity must be greater than 0")
+    BigDecimal quantity,
+    
+    @NotNull(message = "Usage date is required")
+    LocalDateTime dateUsage,
+    
+    @NotBlank(message = "CDR source is required")
+    String cdrSource,
+    
+    String correlationId,
+    String rawCdrData
+) {}
