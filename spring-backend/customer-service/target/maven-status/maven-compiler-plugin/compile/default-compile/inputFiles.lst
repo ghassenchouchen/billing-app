@@ -1,0 +1,17 @@
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\domain\repository\ClientRepository.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\application\AuthService.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\web\dto\RegisterRequest.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\application\CustomerService.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\domain\entity\Client.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\web\controller\CustomerController.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\web\dto\LoginRequest.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\domain\entity\UserAccount.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\infrastructure\security\SecurityConfig.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\web\controller\AuthController.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\domain\repository\UserAccountRepository.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\web\dto\ClientDto.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\web\dto\LoginResponse.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\CustomerServiceApplication.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\infrastructure\security\JwtService.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\infrastructure\kafka\CustomerEventPublisher.java
+C:\Users\ghass\Downloads\billing-app\microservices\customer-service\src\main\java\com\telecom\customer\web\dto\CreateClientRequest.java
