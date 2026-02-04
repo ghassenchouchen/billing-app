@@ -1,7 +1,7 @@
 package com.telecom.customer.application;
 
-import com.telecom.customer.domain.entity.Client;
-import com.telecom.customer.domain.repository.ClientRepository;
+import com.telecom.customer.domain.entity.Customer;
+import com.telecom.customer.domain.repository.CustomerRepository;
 import com.telecom.customer.infrastructure.kafka.CustomerEventPublisher;
 import com.telecom.customer.web.dto.ClientDto;
 import com.telecom.customer.web.dto.CreateClientRequest;
@@ -10,104 +10,215 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * CUSTOMER SERVICE - Core business logic for customer management
+ * 
+ * FOCUS: Customer identity, account management, lifecycle
+ * DOES NOT HANDLE: Subscriptions, SIM cards, Phone numbers, Invoices
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class CustomerService {
     
-    private final ClientRepository clientRepository;
+    private final CustomerRepository customerRepository;
     private final CustomerEventPublisher eventPublisher;
+    
+    // === QUERY OPERATIONS ===
     
     @Transactional(readOnly = true)
     public List<ClientDto> getAllCustomers() {
-        return clientRepository.findAll().stream()
+        return customerRepository.findAll().stream()
             .map(this::toDto)
             .toList();
     }
     
     @Transactional(readOnly = true)
+    public List<ClientDto> getAllActiveCustomers() {
+        return customerRepository.findAllActive().stream()
+            .map(this::toDto)
+            .toList();
+    }
+    
+    // BACKWARD COMPATIBLE: Get by internal id
+    @Transactional(readOnly = true)
     public ClientDto getCustomerById(Long id) {
-        return clientRepository.findById(id)
+        return customerRepository.findById(id)
             .map(this::toDto)
             .orElseThrow(() -> new RuntimeException("Customer not found: " + id));
     }
     
+    // NEW: Get by public UUID identifier
+    @Transactional(readOnly = true)
+    public ClientDto getCustomerByRef(String customerRef) {
+        return customerRepository.findByCustomerRef(customerRef)
+            .map(this::toDto)
+            .orElseThrow(() -> new RuntimeException("Customer not found: " + customerRef));
+    }
+    
     @Transactional(readOnly = true)
     public ClientDto getCustomerByEmail(String email) {
-        return clientRepository.findByEmail(email)
+        return customerRepository.findByEmail(email)
             .map(this::toDto)
             .orElseThrow(() -> new RuntimeException("Customer not found: " + email));
     }
     
+    // === COMMAND OPERATIONS ===
+    
     @Transactional
     public ClientDto createCustomer(CreateClientRequest request) {
-        if (clientRepository.existsByEmail(request.email())) {
+        if (customerRepository.existsByEmail(request.email())) {
             throw new RuntimeException("Email already exists: " + request.email());
         }
         
-        Client client = Client.builder()
+        Customer customer = Customer.builder()
             .nom(request.nom())
             .prenom(request.prenom())
             .email(request.email())
             .telephone(request.telephone())
             .adresse(request.adresse())
-            .type(Client.ClientType.valueOf(request.type()))
-            .status(Client.ClientStatus.ACTIVE)
+            .ville(request.ville())
+            .codePostal(request.codePostal())
+            .pays(request.pays() != null ? request.pays() : "France")
+            .type(Customer.ClientType.valueOf(request.type()))
+            .status(Customer.ClientStatus.ACTIVE)
+            .paymentType(Customer.PaymentType.valueOf(request.paymentType()))
+            .accountBalance(BigDecimal.ZERO)
+            .creditLimit(request.creditLimit() != null ? request.creditLimit() : BigDecimal.valueOf(500))
             .build();
         
-        client = clientRepository.save(client);
-        log.info("Created customer: {}", client.getId());
+        customer = customerRepository.save(customer);
+        log.info("Created customer: {} (ref: {})", customer.getId(), customer.getCustomerRef());
         
-        // Publish event
-        eventPublisher.publishCustomerCreated(client);
+        eventPublisher.publishCustomerCreated(customer);
         
-        return toDto(client);
+        return toDto(customer);
     }
     
     @Transactional
     public ClientDto updateCustomer(Long id, CreateClientRequest request) {
-        Client client = clientRepository.findById(id)
+        Customer customer = customerRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Customer not found: " + id));
         
-        client.setNom(request.nom());
-        client.setPrenom(request.prenom());
-        client.setTelephone(request.telephone());
-        client.setAdresse(request.adresse());
+        // customerRef is immutable - cannot be changed
+        customer.setNom(request.nom());
+        customer.setPrenom(request.prenom());
+        customer.setTelephone(request.telephone());
+        customer.setAdresse(request.adresse());
+        customer.setVille(request.ville());
+        customer.setCodePostal(request.codePostal());
+        if (request.pays() != null) {
+            customer.setPays(request.pays());
+        }
         
-        client = clientRepository.save(client);
-        log.info("Updated customer: {}", client.getId());
+        customer = customerRepository.save(customer);
+        log.info("Updated customer: {} (ref: {})", customer.getId(), customer.getCustomerRef());
         
-        // Publish event
-        eventPublisher.publishCustomerUpdated(client);
+        eventPublisher.publishCustomerUpdated(customer);
         
-        return toDto(client);
+        return toDto(customer);
     }
     
     @Transactional
-    public void suspendCustomer(Long id) {
-        Client client = clientRepository.findById(id)
+    public void suspendCustomer(Long id, String reason) {
+        Customer customer = customerRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Customer not found: " + id));
         
-        client.setStatus(Client.ClientStatus.SUSPENDED);
-        clientRepository.save(client);
-        log.info("Suspended customer: {}", id);
+        customer.setStatus(Customer.ClientStatus.SUSPENDED);
+        customerRepository.save(customer);
+        log.warn("Suspended customer: {} (ref: {}) - Reason: {}", 
+            id, customer.getCustomerRef(), reason);
         
-        eventPublisher.publishCustomerSuspended(client);
+        eventPublisher.publishCustomerSuspended(customer);
     }
     
-    private ClientDto toDto(Client client) {
+    @Transactional
+    public ClientDto reactivateCustomer(Long id) {
+        Customer customer = customerRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Customer not found: " + id));
+        
+        customer.setStatus(Customer.ClientStatus.ACTIVE);
+        customer = customerRepository.save(customer);
+        log.info("Reactivated customer: {} (ref: {})", id, customer.getCustomerRef());
+        
+        return toDto(customer);
+    }
+    
+    // === ACCOUNT OPERATIONS ===
+    
+    @Transactional(readOnly = true)
+    public BigDecimal getBalance(String customerRef) {
+        Customer customer = customerRepository.findByCustomerRef(customerRef)
+            .orElseThrow(() -> new RuntimeException("Customer not found: " + customerRef));
+        return customer.getAccountBalance();
+    }
+    
+    @Transactional
+    public ClientDto addCredit(String customerRef, BigDecimal amount, String description) {
+        Customer customer = customerRepository.findByCustomerRef(customerRef)
+            .orElseThrow(() -> new RuntimeException("Customer not found: " + customerRef));
+        
+        customer.addCredit(amount);
+        customer = customerRepository.save(customer);
+        log.info("Added credit to customer {}: {} ({})", customerRef, amount, description);
+        
+        return toDto(customer);
+    }
+    
+    @Transactional
+    public ClientDto deductCredit(String customerRef, BigDecimal amount, String description) {
+        Customer customer = customerRepository.findByCustomerRef(customerRef)
+            .orElseThrow(() -> new RuntimeException("Customer not found: " + customerRef));
+        
+        customer.deductCredit(amount);
+        customer = customerRepository.save(customer);
+        log.info("Deducted credit from customer {}: {} ({})", customerRef, amount, description);
+        
+        return toDto(customer);
+    }
+    
+    @Transactional
+    public ClientDto updateCreditLimit(String customerRef, BigDecimal newLimit) {
+        Customer customer = customerRepository.findByCustomerRef(customerRef)
+            .orElseThrow(() -> new RuntimeException("Customer not found: " + customerRef));
+        
+        customer.setCreditLimit(newLimit);
+        customer = customerRepository.save(customer);
+        log.info("Updated credit limit for customer {}: {}", customerRef, newLimit);
+        
+        return toDto(customer);
+    }
+    
+    @Transactional(readOnly = true)
+    public boolean canCharge(String customerRef, BigDecimal amount) {
+        Customer customer = customerRepository.findByCustomerRef(customerRef)
+            .orElseThrow(() -> new RuntimeException("Customer not found: " + customerRef));
+        return customer.canCharge(amount);
+    }
+    
+    // === MAPPER ===
+    
+    private ClientDto toDto(Customer customer) {
         return new ClientDto(
-            client.getId(),
-            client.getNom(),
-            client.getPrenom(),
-            client.getEmail(),
-            client.getTelephone(),
-            client.getAdresse(),
-            client.getType().name(),
-            client.getStatus().name(),
-            client.getCreatedAt()
+            customer.getId(),
+            customer.getCustomerRef(),
+            customer.getNom(),
+            customer.getPrenom(),
+            customer.getEmail(),
+            customer.getTelephone(),
+            customer.getAdresse(),
+            customer.getVille(),
+            customer.getCodePostal(),
+            customer.getPays(),
+            customer.getType().name(),
+            customer.getStatus().name(),
+            customer.getPaymentType().name(),
+            customer.getAccountBalance(),
+            customer.getCreditLimit(),
+            customer.getCreatedAt()
         );
     }
 }

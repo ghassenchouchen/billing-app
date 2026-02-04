@@ -1,3 +1,4 @@
+/*THIS IS TEMPORARY */
 package com.telecom.customer.domain.entity;
 
 import jakarta.persistence.*;
