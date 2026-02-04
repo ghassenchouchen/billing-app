@@ -39,11 +39,14 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.getAllActiveCustomers());
     }
     
+    // Will be removed in future version
+    @Deprecated
     @GetMapping("/{id}")
     public ResponseEntity<ClientDto> getCustomerById(@PathVariable Long id) {
         return ResponseEntity.ok(customerService.getCustomerById(id));
     }
     
+    // PRIMARY ENDPOINT - Use this for customer lookup
     @GetMapping("/ref/{customerRef}")
     public ResponseEntity<ClientDto> getCustomerByRef(@PathVariable String customerRef) {
         return ResponseEntity.ok(customerService.getCustomerByRef(customerRef));
@@ -62,6 +65,8 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(customer);
     }
     
+    // INTERNAL USE ONLY - Will be removed
+    @Deprecated
     @PutMapping("/{id}")
     public ResponseEntity<ClientDto> updateCustomer(
             @PathVariable Long id,
@@ -69,7 +74,16 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.updateCustomer(id, request));
     }
     
+    // PRIMARY ENDPOINT - Use customerRef
+    @PutMapping("/ref/{customerRef}")
+    public ResponseEntity<ClientDto> updateCustomerByRef(
+            @PathVariable String customerRef,
+            @RequestBody CreateClientRequest request) {
+        return ResponseEntity.ok(customerService.updateCustomerByRef(customerRef, request));
+    }
     
+    // INTERNAL USE ONLY - Will be removed
+    @Deprecated
     @PostMapping("/{id}/suspend")
     public ResponseEntity<Void> suspendCustomer(
             @PathVariable Long id,
@@ -78,6 +92,16 @@ public class CustomerController {
         return ResponseEntity.ok().build();
     }
     
+    // PRIMARY ENDPOINT - Use customerRef for suspension
+    @PostMapping("/ref/{customerRef}/suspend")
+    public ResponseEntity<Void> suspendCustomerByRef(
+            @PathVariable String customerRef,
+            @RequestParam(required = false, defaultValue = "Manual suspension") String reason) {
+        customerService.suspendCustomerByRef(customerRef, reason);
+        return ResponseEntity.ok().build();
+    }
+    
+    @Deprecated
     @PostMapping("/{id}/reactivate")
     public ResponseEntity<ClientDto> reactivateCustomer(@PathVariable Long id) {
         return ResponseEntity.ok(customerService.reactivateCustomer(id));

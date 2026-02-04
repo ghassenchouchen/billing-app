@@ -122,6 +122,14 @@ public class CustomerService {
         return toDto(customer);
     }
     
+    // PRIMARY - Use customerRef
+    @Transactional
+    public ClientDto updateCustomerByRef(String customerRef, CreateClientRequest request) {
+        Customer customer = customerRepository.findByCustomerRef(customerRef)
+            .orElseThrow(() -> new RuntimeException("Customer not found: " + customerRef));
+        return updateCustomer(customer.getId(), request);
+    }
+    
     @Transactional
     public void suspendCustomer(Long id, String reason) {
         Customer customer = customerRepository.findById(id)
@@ -133,6 +141,14 @@ public class CustomerService {
             id, customer.getCustomerRef(), reason);
         
         eventPublisher.publishCustomerSuspended(customer);
+    }
+    
+    // PRIMARY - Use customerRef
+    @Transactional
+    public void suspendCustomerByRef(String customerRef, String reason) {
+        Customer customer = customerRepository.findByCustomerRef(customerRef)
+            .orElseThrow(() -> new RuntimeException("Customer not found: " + customerRef));
+        suspendCustomer(customer.getId(), reason);
     }
     
     @Transactional
@@ -202,9 +218,9 @@ public class CustomerService {
     // === MAPPER ===
     
     private ClientDto toDto(Customer customer) {
+        // DESIGN: Only expose customerRef, never internal database id
         return new ClientDto(
-            customer.getId(),
-            customer.getCustomerRef(),
+            customer.getCustomerRef(),  // PUBLIC identifier only
             customer.getNom(),
             customer.getPrenom(),
             customer.getEmail(),
