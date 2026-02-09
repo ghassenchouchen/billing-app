@@ -1,7 +1,6 @@
 package com.telecom.usage.infrastructure.cdr;
 
 import com.telecom.usage.domain.entity.CdrRecord;
-import com.telecom.usage.domain.entity.RawUsageRecord;
 import com.telecom.usage.domain.entity.UsageRecord;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -28,7 +27,7 @@ public class CdrNormalizer {
         DateTimeFormatter.ofPattern("dd/MM/yyyy")        
     };
     
-    /**
+    /*
      * Normalize CDR record to UsageRecord entity
      */
     public NormalizedUsage normalize(CdrRecord cdr, String sessionId) {
@@ -85,9 +84,7 @@ public class CdrNormalizer {
         return NormalizedUsage.success(cdr.externalId(), usageRecord);
     }
     
-    /**
-     * Parse date time from various formats
-     */
+   
     private LocalDateTime parseDateTime(String dateStr) {
         if (dateStr == null || dateStr.isEmpty()) {
             return null;
@@ -97,7 +94,6 @@ public class CdrNormalizer {
             try {
                 return LocalDateTime.parse(dateStr, formatter);
             } catch (DateTimeParseException e) {
-                // Try next formatter
             }
         }
         
@@ -105,9 +101,7 @@ public class CdrNormalizer {
         return null;
     }
     
-    /**
-     * Result of normalization - either success or failure
-     */
+ 
     public static class NormalizedUsage {
         private final String externalId;
         private final boolean success;

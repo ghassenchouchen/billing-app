@@ -44,6 +44,27 @@ public interface UsageRecordRepository extends JpaRepository<UsageRecord, Long> 
     );
     
     /**
+     * Find by subscription ID
+     */
+    List<UsageRecord> findBySubscriptionId(Long subscriptionId);
+    
+    /**
+     * Find by subscription ID and period
+     */
+    @Query("SELECT u FROM UsageRecord u WHERE u.subscriptionId = :subscriptionId " +
+           "AND u.dateUsage >= :startDate AND u.dateUsage < :endDate")
+    List<UsageRecord> findBySubscriptionIdAndPeriod(
+        @Param("subscriptionId") Long subscriptionId,
+        @Param("startDate") LocalDateTime startDate,
+        @Param("endDate") LocalDateTime endDate
+    );
+    
+    /**
+     * Find by usage type
+     */
+    List<UsageRecord> findByUsageType(com.telecom.usage.domain.entity.UsageType usageType);
+    
+    /**
      * Find by CDR source for auditing
      */
     List<UsageRecord> findByCdrSource(String cdrSource);

@@ -30,41 +30,40 @@ public class CustomerEventPublisher {
     
     private final KafkaTemplate<String, Object> kafkaTemplate;
     
-    /**
-     * KEY: customerRef (ensures all events for same customer go to same partition)
-     */
+ 
     public void publishCustomerCreated(Customer customer) {
-        Map<String, Object> event = buildCustomerCreatedEvent(customer);
-        
-        kafkaTemplate.send(TOPIC_CUSTOMER_CREATED, customer.getCustomerRef(), event);
-        
-        log.info("Published customer.created event for customerRef: {} (id: {})", 
-            customer.getCustomerRef(), customer.getId());
+        try {
+            Map<String, Object> event = buildCustomerCreatedEvent(customer);
+            kafkaTemplate.send(TOPIC_CUSTOMER_CREATED, customer.getCustomerRef(), event);
+            log.info("Published customer.created event for customerRef: {} (id: {})", 
+                customer.getCustomerRef(), customer.getId());
+        } catch (Exception e) {
+            log.warn("Failed to publish customer.created event (Kafka unavailable): {}", e.getMessage());
+        }
     }
     
-    /**
-     * Publish customer update event
-     */
+    
     public void publishCustomerUpdated(Customer customer) {
-        Map<String, Object> event = buildCustomerUpdatedEvent(customer);
-        
-        kafkaTemplate.send(TOPIC_CUSTOMER_UPDATED, customer.getCustomerRef(), event);
-        
-        log.info("Published customer.updated event for customerRef: {} (id: {})", 
-            customer.getCustomerRef(), customer.getId());
+        try {
+            Map<String, Object> event = buildCustomerUpdatedEvent(customer);
+            kafkaTemplate.send(TOPIC_CUSTOMER_UPDATED, customer.getCustomerRef(), event);
+            log.info("Published customer.updated event for customerRef: {} (id: {})", 
+                customer.getCustomerRef(), customer.getId());
+        } catch (Exception e) {
+            log.warn("Failed to publish customer.updated event (Kafka unavailable): {}", e.getMessage());
+        }
     }
     
-    /**
-     * Publish customer suspension event
-     * CRITICAL: Downstream services must react immediately
-     */
+    
     public void publishCustomerSuspended(Customer customer) {
-        Map<String, Object> event = buildCustomerSuspendedEvent(customer);
-        
-        kafkaTemplate.send(TOPIC_CUSTOMER_SUSPENDED, customer.getCustomerRef(), event);
-        
-        log.warn("Published customer.suspended event for customerRef: {} (id: {})", 
-            customer.getCustomerRef(), customer.getId());
+        try {
+            Map<String, Object> event = buildCustomerSuspendedEvent(customer);
+            kafkaTemplate.send(TOPIC_CUSTOMER_SUSPENDED, customer.getCustomerRef(), event);
+            log.warn("Published customer.suspended event for customerRef: {} (id: {})", 
+                customer.getCustomerRef(), customer.getId());
+        } catch (Exception e) {
+            log.warn("Failed to publish customer.suspended event (Kafka unavailable): {}", e.getMessage());
+        }
     }
     
     /**

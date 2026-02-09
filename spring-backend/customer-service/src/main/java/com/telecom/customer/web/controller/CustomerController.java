@@ -107,6 +107,12 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.reactivateCustomer(id));
     }
     
+    // PRIMARY ENDPOINT - Use customerRef for reactivation
+    @PostMapping("/ref/{customerRef}/reactivate")
+    public ResponseEntity<ClientDto> reactivateCustomerByRef(@PathVariable String customerRef) {
+        return ResponseEntity.ok(customerService.reactivateCustomerByRef(customerRef));
+    }
+    
     
     @GetMapping("/ref/{customerRef}/balance")
     public ResponseEntity<Map<String, Object>> getBalance(@PathVariable String customerRef) {

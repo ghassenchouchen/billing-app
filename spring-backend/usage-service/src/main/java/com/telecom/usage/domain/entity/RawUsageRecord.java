@@ -51,6 +51,7 @@ public class RawUsageRecord {
      */
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
+    @Builder.Default
     private CdrStatus status = CdrStatus.RECEIVED;
     
     /**

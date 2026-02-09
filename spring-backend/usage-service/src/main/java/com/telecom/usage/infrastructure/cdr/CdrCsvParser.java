@@ -11,30 +11,19 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-/**
- * Service to parse CDR CSV files
- * Supports standard telecom CDR formats with customizable field mappings
- */
+
 @Component
 @Slf4j
 public class CdrCsvParser {
     
-    /**
-     * Standard CDR CSV Header: external_id,contrat_id,service_id,quantity,date_usage,msisdn
-     */
-    private static final String[] EXPECTED_HEADERS = {
-        "external_id", "contrat_id", "service_id", "quantity", "date_usage", "msisdn"
-    };
-    
-    /**
-     * Parse CDR CSV file and return list of CdrRecord
-     */
+  
     public List<CdrRecord> parseCsvFile(File cdrFile, String cdrSource) throws IOException {
         List<CdrRecord> records = new ArrayList<>();
         
         try (Reader reader = new BufferedReader(new InputStreamReader(
             new FileInputStream(cdrFile), StandardCharsets.UTF_8))) {
             
+            @SuppressWarnings("deprecation")
             CSVFormat csvFormat = CSVFormat.DEFAULT
                 .withFirstRecordAsHeader()
                 .withIgnoreEmptyLines()
@@ -63,9 +52,7 @@ public class CdrCsvParser {
         return records;
     }
     
-    /**
-     * Parse individual CSV record into CdrRecord
-     */
+   
     private CdrRecord parseCsvRecord(CSVRecord record, String cdrSource, String lineReference) {
         try {
             String externalId = record.get("external_id");
@@ -102,9 +89,7 @@ public class CdrCsvParser {
         }
     }
     
-    /**
-     * Parse CDR line string (for API requests)
-     */
+  
     public CdrRecord parseCdrLine(String csvLine, String cdrSource, String externalId) {
         String[] fields = csvLine.split(",");
         if (fields.length < 5) {

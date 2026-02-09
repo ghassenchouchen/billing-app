@@ -16,15 +16,10 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.*;
 
-/**
- * Scheduled component to ingest CDR files from /incoming directory
- * Validates, normalizes, and persists usage records
- */
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -48,11 +43,10 @@ public class CdrFileIngestionService {
     private final CdrCsvParser cdrCsvParser;
     private final CdrNormalizer cdrNormalizer;
     private final UsageService usageService;
-    private final IdempotencyService idempotencyService;
     private final RawUsageRecordRepository rawUsageRecordRepository;
     private final UsageEventPublisher eventPublisher;
     
-    /**
+    /*
      * Scan incoming directory and process CDR files
      * Scheduled to run every 5 minutes
      */
@@ -93,9 +87,7 @@ public class CdrFileIngestionService {
         }
     }
     
-    /**
-     * Process single CDR file
-     */
+  
     @Transactional
     public void processCdrFile(File cdrFile) throws IOException {
         String cdrSource = cdrFile.getName().replaceAll("\\.csv$", "");
@@ -104,7 +96,6 @@ public class CdrFileIngestionService {
         log.info("Processing CDR file: {} with sessionId: {}", cdrFile.getName(), sessionId);
         
         try {
-            // Parse CSV file
             List<CdrRecord> cdrRecords = cdrCsvParser.parseCsvFile(cdrFile, cdrSource);
             log.info("Parsed {} records from CDR file: {}", cdrRecords.size(), cdrFile.getName());
             
@@ -114,14 +105,12 @@ public class CdrFileIngestionService {
                 return;
             }
             
-            // Process CDR records in batches
             int successCount = 0;
             int failureCount = 0;
             int duplicateCount = 0;
             
             for (CdrRecord cdrRecord : cdrRecords) {
                 try {
-                    // Create raw usage record
                     RawUsageRecord rawRecord = RawUsageRecord.builder()
                         .externalId(cdrRecord.externalId())
                         .cdrSource(cdrSource)
@@ -130,7 +119,6 @@ public class CdrFileIngestionService {
                         .status(RawUsageRecord.CdrStatus.RECEIVED)
                         .build();
                     
-                    // Check for duplicate
                     Optional<RawUsageRecord> existing = rawUsageRecordRepository.findByExternalId(cdrRecord.externalId());
                     if (existing.isPresent()) {
                         rawRecord.setStatus(RawUsageRecord.CdrStatus.DUPLICATE);
@@ -140,7 +128,6 @@ public class CdrFileIngestionService {
                         continue;
                     }
                     
-                    // Normalize CDR record
                     CdrNormalizer.NormalizedUsage normalizedUsage = cdrNormalizer.normalize(cdrRecord, sessionId);
                     
                     if (!normalizedUsage.isSuccess()) {
@@ -152,11 +139,9 @@ public class CdrFileIngestionService {
                         continue;
                     }
                     
-                    // Save normalized usage record
                     UsageRecord usageRecord = normalizedUsage.getUsageRecord();
                     usageRecord = usageService.saveUsageRecord(usageRecord);
                     
-                    // Update raw record with reference to usage record
                     rawRecord.setStatus(RawUsageRecord.CdrStatus.MAPPED);
                     rawRecord.setUsageRecordId(usageRecord.getId());
                     rawUsageRecordRepository.save(rawRecord);
@@ -173,10 +158,8 @@ public class CdrFileIngestionService {
                 }
             }
             
-            // Publish batch completion event
             eventPublisher.publishCdrBatchProcessed(sessionId, successCount, cdrSource, sessionId);
             
-            // Move processed file
             moveToDirWithRename(cdrFile, processedDirectory, "");
             
             log.info("CDR file processing complete - file: {}, success: {}, failure: {}, duplicate: {}", 
@@ -189,25 +172,19 @@ public class CdrFileIngestionService {
         }
     }
     
-    /**
-     * Ensure required directories exist
-     */
+   
     private void ensureDirectoriesExist() throws IOException {
         Files.createDirectories(Paths.get(incomingDirectory));
         Files.createDirectories(Paths.get(processedDirectory));
         Files.createDirectories(Paths.get(failedDirectory));
     }
     
-    /**
-     * CSV file filter for file listing
-     */
+ 
     private FileFilter csvFileFilter() {
         return file -> file.isFile() && file.getName().toLowerCase().endsWith(".csv");
     }
     
-    /**
-     * Move file to target directory with optional prefix
-     */
+    
     private void moveToDirWithRename(File file, String targetDir, String prefix) {
         try {
             File targetDirectory = new File(targetDir);
@@ -228,17 +205,13 @@ public class CdrFileIngestionService {
         }
     }
     
-    /**
-     * Manual trigger for CDR file ingestion (for testing)
-     */
+  
     public void manualTriggerIngestion() {
         log.info("Manual CDR ingestion trigger");
         scanAndIngestCdrFiles();
     }
     
-    /**
-     * Retry failed CDR files
-     */
+    
     public void retryFailedCdrs() {
         log.info("Retrying failed CDR files");
         try {
@@ -266,7 +239,6 @@ public class CdrFileIngestionService {
                 }
             }
             
-            // Trigger ingestion scan
             scanAndIngestCdrFiles();
         } catch (Exception e) {
             log.error("Error retrying failed CDRs", e);

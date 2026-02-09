@@ -163,7 +163,14 @@ public class CustomerService {
         return toDto(customer);
     }
     
-    // === ACCOUNT OPERATIONS ===
+    // PRIMARY - Use customerRef
+    @Transactional
+    public ClientDto reactivateCustomerByRef(String customerRef) {
+        Customer customer = customerRepository.findByCustomerRef(customerRef)
+            .orElseThrow(() -> new RuntimeException("Customer not found: " + customerRef));
+        return reactivateCustomer(customer.getId());
+    }
+    
     
     @Transactional(readOnly = true)
     public BigDecimal getBalance(String customerRef) {
@@ -215,7 +222,6 @@ public class CustomerService {
         return customer.canCharge(amount);
     }
     
-    // === MAPPER ===
     
     private ClientDto toDto(Customer customer) {
         // DESIGN: Only expose customerRef, never internal database id

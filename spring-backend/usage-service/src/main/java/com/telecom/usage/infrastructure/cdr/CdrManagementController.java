@@ -5,9 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Management endpoints for CDR file ingestion
- */
+
 @RestController
 @RequestMapping("/api/v1/cdr")
 @RequiredArgsConstructor
@@ -16,9 +14,7 @@ public class CdrManagementController {
     
     private final CdrFileIngestionService cdrFileIngestionService;
     
-    /**
-     * Manually trigger CDR file ingestion
-     */
+  
     @PostMapping("/scan")
     public ResponseEntity<String> triggerCdrScan() {
         log.info("Manual CDR scan triggered");
@@ -26,9 +22,7 @@ public class CdrManagementController {
         return ResponseEntity.ok("CDR ingestion scan triggered");
     }
     
-    /**
-     * Retry failed CDR files
-     */
+    
     @PostMapping("/retry-failed")
     public ResponseEntity<String> retryFailedCdrs() {
         log.info("Retry failed CDRs triggered");
@@ -36,9 +30,7 @@ public class CdrManagementController {
         return ResponseEntity.ok("Failed CDR retry triggered");
     }
     
-    /**
-     * Get CDR ingestion status/info
-     */
+   
     @GetMapping("/status")
     public ResponseEntity<String> getCdrStatus() {
         return ResponseEntity.ok("""

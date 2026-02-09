@@ -6,7 +6,7 @@ spring:
     name: customer-service
     
   datasource:
-    url: jdbc:mysql://localhost:3306/db_customer?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/db_customer?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -14,7 +14,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
@@ -27,6 +27,7 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
         spring.json.add.type.headers: false
+        max.block.ms: 1000
     consumer:
       group-id: customer-service
       auto-offset-reset: earliest
@@ -38,6 +39,15 @@ spring:
 jwt:
   secret: your-256-bit-secret-key-for-jwt-token-generation-minimum-32-chars
   expiration: 86400000 # 24 hours
+  refresh-expiration: 604800000 # 7 days
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
 
 management:
   endpoints:

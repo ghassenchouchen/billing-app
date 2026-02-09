@@ -129,9 +129,7 @@ public class UsageEventPublisher {
         }
     }
     
-    /**
-     * Publish CDR batch processed event
-     */
+ 
     public void publishCdrBatchProcessed(String sessionId, long recordCount, String cdrSource, String correlationId) {
         String eventId = UUID.randomUUID().toString();
         

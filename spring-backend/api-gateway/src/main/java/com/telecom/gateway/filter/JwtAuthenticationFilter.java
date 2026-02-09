@@ -18,23 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-/**
- * Global JWT Authentication Filter for the API Gateway.
- * 
- * Intercepts all incoming requests and performs:
- * 1. Public path bypass (login, register, health, swagger)
- * 2. Bearer token extraction from Authorization header
- * 3. JWT signature verification via HMAC-SHA256
- * 4. Token expiration validation
- * 5. Refresh token rejection (refresh tokens cannot access APIs)
- * 6. User claims extraction and forwarding to downstream services
- * 
- * Downstream services receive the following headers:
- * - X-Auth-User: the authenticated username/email
- * - X-Auth-Role: the user's role (admin/customer)
- * - X-Auth-Email: the user's email
- * - X-Auth-CustomerRef: the customer reference (customer role only)
- */
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -57,12 +41,10 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getPath().value();
         
-        // Allow public paths without authentication
         if (isPublicPath(path)) {
             return chain.filter(exchange);
         }
         
-        // Extract Authorization header
         String authHeader = exchange.getRequest().getHeaders()
             .getFirst(HttpHeaders.AUTHORIZATION);
         
@@ -77,7 +59,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             return onError(exchange, HttpStatus.UNAUTHORIZED, "Empty bearer token");
         }
         
-        // Validate JWT token: verify signature, check expiration
         Claims claims;
         try {
             claims = jwtUtil.validateToken(token);
@@ -100,7 +81,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         
         log.debug("Authenticated request from user: {} [role={}] to path: {}", subject, role, path);
         
-        // Mutate the request to add user claims as headers for downstream services
         var mutatedRequest = exchange.getRequest().mutate()
                 .header("X-Auth-User", subject != null ? subject : "")
                 .header("X-Auth-Role", role != null ? role : "")
@@ -115,9 +95,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
     }
 
-    /**
-     * Return an error response with a JSON body.
-     */
+   
     private Mono<Void> onError(ServerWebExchange exchange, HttpStatus status, String message) {
         exchange.getResponse().setStatusCode(status);
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);

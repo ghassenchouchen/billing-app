@@ -22,7 +22,7 @@ public class Customer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     // UUID
-    @Column(name = "customer_ref", nullable = false, unique=true, updatable = false, length = 28)
+    @Column(name = "customer_ref", nullable = false, unique=true, updatable = false, length = 36)
     private String customerRef;
     @Column(nullable = false)
     private String nom;
