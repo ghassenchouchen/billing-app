@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Table(name = "usage_record", uniqueConstraints = {
     @UniqueConstraint(name = "uk_usage_session", columnNames = {"session_id"})
 }, indexes = {
-    @Index(name = "idx_usage_contrat", columnList = "contrat_id"),
+    @Index(name = "idx_usage_abonnement", columnList = "abonnement_id"),
     @Index(name = "idx_usage_subscription", columnList = "subscription_id"),
     @Index(name = "idx_usage_date", columnList = "date_usage"),
     @Index(name = "idx_usage_type", columnList = "usage_type")
@@ -28,42 +28,22 @@ public class UsageRecord {
     @Column(name = "session_id", nullable = false, length = 100)
     private String sessionId;
     
-    /**
-     * Reference to the subscription (primary relationship)
-     * Usage is always linked to a subscription, not directly to a customer
-     */
     @Column(name = "subscription_id")
     private Long subscriptionId;
     
-    /**
-     * Legacy: Contract ID - kept for backward compatibility
-     * @deprecated Use subscriptionId instead
-     */
-    @Column(name = "contrat_id", nullable = false)
-    private Long contratId;
+    @Column(name = "abonnement_id", nullable = false)
+    private Long abonnementId;
     
     @Column(name = "service_id", nullable = false)
     private Long serviceId;
     
-    /**
-     * Type of usage: VOICE, SMS, DATA, etc.
-     */
     @Enumerated(EnumType.STRING)
     @Column(name = "usage_type", length = 20)
     private UsageType usageType;
     
-    /**
-     * Usage quantity - interpretation depends on usageType:
-     * - VOICE: duration in seconds
-     * - SMS: count of messages
-     * - DATA: volume in bytes
-     */
     @Column(nullable = false, precision = 15, scale = 4)
     private BigDecimal quantite;
     
-    /**
-     * Unit of measurement (seconds, count, bytes, KB, MB, GB)
-     */
     @Column(name = "unit", length = 20)
     private String unit;
     
@@ -79,34 +59,19 @@ public class UsageRecord {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
-    /**
-     * Source system that generated this CDR
-     */
     @Column(name = "cdr_source", length = 50)
     private String cdrSource;
     
-    /**
-     * Original raw CDR data for audit purposes
-     */
     @Column(name = "cdr_raw_data", columnDefinition = "TEXT")
     @Lob
     private String cdrRawData;
     
-    /**
-     * Called party number (for voice/SMS)
-     */
     @Column(name = "called_number", length = 50)
     private String calledNumber;
     
-    /**
-     * Calling party number
-     */
     @Column(name = "calling_number", length = 50)
     private String callingNumber;
     
-    /**
-     * Cell/tower ID for location tracking
-     */
     @Column(name = "cell_id", length = 50)
     private String cellId;
     
@@ -124,12 +89,11 @@ public class UsageRecord {
         if (status == null) {
             status = UsageStatus.RECORDED;
         }
-        // Sync subscriptionId with contratId for backward compatibility
-        if (subscriptionId == null && contratId != null) {
-            subscriptionId = contratId;
+        if (subscriptionId == null && abonnementId != null) {
+            subscriptionId = abonnementId;
         }
-        if (contratId == null && subscriptionId != null) {
-            contratId = subscriptionId;
+        if (abonnementId == null && subscriptionId != null) {
+            abonnementId = subscriptionId;
         }
     }
     
@@ -141,10 +105,11 @@ public class UsageRecord {
     }
     
     public enum UsageStatus {
-        RECORDED,      // Received and validated
-        NORMALIZED,    // Parsed and cleaned
-        PUBLISHED,     // Event published to Kafka
-        RATED,         // Rating applied
-        BILLED         // Included in invoice
+        RECORDED,
+        NORMALIZED,
+        PUBLISHED,
+        RATED,
+        BILLED,
+        REJECTED
     }
 }

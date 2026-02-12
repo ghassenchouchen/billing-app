@@ -26,21 +26,13 @@ public class UsageService {
     private final UsageRecordRepository usageRecordRepository;
     private final UsageEventPublisher eventPublisher;
     private final IdempotencyService idempotencyService;
+    private final PrepaidQuotaEnforcer prepaidQuotaEnforcer;
     private final Random random = new Random();
     
     // ==================== CDR INGESTION ====================
     
-    /**
-     * Ingest CDR from external system with full validation and idempotency
-     * 
-     * Design Decision: Usage is linked to Subscription (not Customer) because:
-     * 1. A customer can have multiple subscriptions
-     * 2. Each subscription has its own plan/pricing
-     * 3. Billing is calculated per subscription
-     */
     @Transactional
     public Optional<CdrIngestionResponse> ingestCdr(CdrIngestionRequest request, String correlationId) {
-        // Check for duplicate using sessionId
         if (idempotencyService.isUsageAlreadyRecorded(request.sessionId())) {
             Optional<UsageRecord> existing = idempotencyService.getExistingUsageRecord(request.sessionId());
             idempotencyService.logIdempotencyCheck(request.sessionId(), true, request.cdrSource());
@@ -53,11 +45,44 @@ public class UsageService {
             return Optional.empty();
         }
         
-        // Create new usage record from CDR
+        // Prepaid quota enforcement
+        PrepaidQuotaEnforcer.EnforcementResult quotaResult = 
+            prepaidQuotaEnforcer.enforce(request.subscriptionId(), request.usageType(), request.quantity());
+        
+        if (!quotaResult.permitted()) {
+            log.warn("CDR rejected (quota) - sessionId: {}, subscriptionId: {}, reason: {}",
+                request.sessionId(), request.subscriptionId(), quotaResult.rejectionReason());
+            
+            UsageRecord rejected = UsageRecord.builder()
+                .sessionId(request.sessionId())
+                .subscriptionId(request.subscriptionId())
+                .abonnementId(request.subscriptionId())
+                .serviceId(request.serviceId())
+                .usageType(request.usageType())
+                .quantite(request.quantity())
+                .unit(request.unit())
+                .dateUsage(request.timestamp())
+                .cdrSource(request.cdrSource())
+                .calledNumber(request.calledNumber())
+                .callingNumber(request.callingNumber())
+                .cellId(request.cellId())
+                .cdrRawData(request.rawCdrData())
+                .status(UsageRecord.UsageStatus.REJECTED)
+                .build();
+            rejected = usageRecordRepository.save(rejected);
+            
+            return Optional.of(new CdrIngestionResponse(
+                rejected.getId(), request.sessionId(), request.subscriptionId(), request.serviceId(),
+                request.usageType(), request.quantity(), request.unit(), request.timestamp(),
+                rejected.getCreatedAt(), request.cdrSource(), "REJECTED", false,
+                "Quota exhausted: " + quotaResult.rejectionReason(), correlationId
+            ));
+        }
+        
         UsageRecord usage = UsageRecord.builder()
             .sessionId(request.sessionId())
             .subscriptionId(request.subscriptionId())
-            .contratId(request.subscriptionId())  // Backward compatibility
+            .abonnementId(request.subscriptionId())
             .serviceId(request.serviceId())
             .usageType(request.usageType())
             .quantite(request.quantity())
@@ -77,16 +102,12 @@ public class UsageService {
             usage.getId(), request.sessionId(), request.subscriptionId(), 
             request.usageType(), request.quantity(), request.unit());
         
-        // Publish event for downstream processing (billing, analytics)
         eventPublisher.publishUsageRecorded(usage, correlationId, "1.0");
         idempotencyService.logIdempotencyCheck(request.sessionId(), false, request.cdrSource());
         
         return Optional.of(CdrIngestionResponse.success(usage, correlationId));
     }
     
-    /**
-     * Bulk CDR ingestion - processes each CDR independently
-     */
     @Transactional
     public List<CdrIngestionResponse> ingestCdrBulk(List<CdrIngestionRequest> requests, String correlationId) {
         List<CdrIngestionResponse> responses = new ArrayList<>();
@@ -122,16 +143,16 @@ public class UsageService {
     }
     
     @Transactional(readOnly = true)
-    public List<UsageRecordDto> getUsageByContratId(Long contratId) {
-        return usageRecordRepository.findByContratId(contratId).stream()
+    public List<UsageRecordDto> getUsageByAbonnementId(Long abonnementId) {
+        return usageRecordRepository.findByAbonnementId(abonnementId).stream()
             .map(this::toDto)
             .toList();
     }
     
     @Transactional(readOnly = true)
-    public List<UsageRecordDto> getUsageByContratIdAndPeriod(
-            Long contratId, LocalDateTime startDate, LocalDateTime endDate) {
-        return usageRecordRepository.findByContratIdAndPeriod(contratId, startDate, endDate)
+    public List<UsageRecordDto> getUsageByAbonnementIdAndPeriod(
+            Long abonnementId, LocalDateTime startDate, LocalDateTime endDate) {
+        return usageRecordRepository.findByAbonnementIdAndPeriod(abonnementId, startDate, endDate)
             .stream()
             .map(this::toDto)
             .toList();
@@ -142,7 +163,6 @@ public class UsageService {
     public Optional<RecordUsageResponse> recordUsageWithIdempotency(
             RecordUsageRequest request, String correlationId, String eventVersion) {
         
-        // Check for duplicate using sessionId
         if (idempotencyService.isUsageAlreadyRecorded(request.sessionId())) {
             Optional<UsageRecord> existing = idempotencyService.getExistingUsageRecord(request.sessionId());
             idempotencyService.logIdempotencyCheck(request.sessionId(), true, request.cdrSource());
@@ -150,14 +170,12 @@ public class UsageService {
             if (existing.isPresent()) {
                 return Optional.of(toResponse(existing.get(), true));
             }
-            
             return Optional.empty();
         }
         
-        // Create new usage record
         UsageRecord usage = UsageRecord.builder()
             .sessionId(request.sessionId())
-            .contratId(request.contratId())
+            .abonnementId(request.abonnementId())
             .serviceId(request.serviceId())
             .quantite(request.quantity())
             .dateUsage(request.dateUsage() != null ? request.dateUsage() : LocalDateTime.now())
@@ -171,7 +189,6 @@ public class UsageService {
         log.info("Recorded usage with idempotency - id: {}, sessionId: {}, cdrSource: {}", 
             usage.getId(), request.sessionId(), request.cdrSource());
         
-        // Publish event with correlation ID
         if (correlationId == null) {
             correlationId = UUID.randomUUID().toString();
         }
@@ -185,33 +202,19 @@ public class UsageService {
         return Optional.of(toResponse(usage, false));
     }
     
-    /**
-     * Save usage record (for CDR file processing)
-     */
-    @Transactional
-    public UsageRecord saveUsageRecord(UsageRecord usage) {
-        // Ensure sessionId is set
-        if (usage.getSessionId() == null || usage.getSessionId().isEmpty()) {
-            usage.setSessionId(UUID.randomUUID().toString());
-        }
-        
-        return usageRecordRepository.save(usage);
-    }
-    
     @Transactional
     public UsageRecordDto recordUsage(CreateUsageRequest request) {
         UsageRecord usage = UsageRecord.builder()
             .sessionId(UUID.randomUUID().toString())
-            .contratId(request.contratId())
+            .abonnementId(request.abonnementId())
             .serviceId(request.serviceId())
             .quantite(request.quantite())
             .dateUsage(request.dateUsage() != null ? request.dateUsage() : LocalDateTime.now())
             .build();
         
         usage = usageRecordRepository.save(usage);
-        log.info("Recorded usage: {} for contrat: {}", usage.getId(), usage.getContratId());
+        log.info("Recorded usage: {} for abonnement: {}", usage.getId(), usage.getAbonnementId());
         
-        // Publish event for billing service
         eventPublisher.publishUsageRecorded(usage);
         
         return toDto(usage);
@@ -223,7 +226,7 @@ public class UsageService {
             .map(serviceId -> {
                 UsageRecord usage = UsageRecord.builder()
                     .sessionId(UUID.randomUUID().toString())
-                    .contratId(request.contratId())
+                    .abonnementId(request.abonnementId())
                     .serviceId(serviceId)
                     .quantite(BigDecimal.valueOf(random.nextInt(100) + 1))
                     .dateUsage(LocalDateTime.now())
@@ -232,10 +235,9 @@ public class UsageService {
             })
             .toList();
         
-        log.info("Generated {} usage records for contrat: {}", 
-            generatedUsage.size(), request.contratId());
+        log.info("Generated {} usage records for abonnement: {}", 
+            generatedUsage.size(), request.abonnementId());
         
-        // Publish events
         generatedUsage.forEach(eventPublisher::publishUsageRecorded);
         
         return generatedUsage.stream().map(this::toDto).toList();
@@ -258,7 +260,7 @@ public class UsageService {
     private UsageRecordDto toDto(UsageRecord usage) {
         return new UsageRecordDto(
             usage.getId(),
-            usage.getContratId(),
+            usage.getAbonnementId(),
             usage.getServiceId(),
             usage.getQuantite(),
             usage.getPrixUnitaire(),
@@ -272,7 +274,7 @@ public class UsageService {
         return new RecordUsageResponse(
             usage.getId(),
             usage.getSessionId(),
-            usage.getContratId(),
+            usage.getAbonnementId(),
             usage.getServiceId(),
             usage.getQuantite(),
             usage.getPrixUnitaire(),

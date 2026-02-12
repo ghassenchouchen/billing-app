@@ -1,4 +1,4 @@
-external_id,contrat_id,service_id,quantity,date_usage,msisdn
+external_id,abonnement_id,service_id,quantity,date_usage,msisdn
 CDR_20240102_001,1001,1,45.5,2024-01-02T10:15:30,+21690123456
 CDR_20240102_002,1001,2,150.0,2024-01-02T10:20:45,+21690123456
 CDR_20240102_003,1002,1,32.25,2024-01-02T10:30:15,+21690654321

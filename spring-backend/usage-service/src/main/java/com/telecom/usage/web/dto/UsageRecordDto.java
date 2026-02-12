@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public record UsageRecordDto(
     Long id,
-    Long contratId,
+    Long abonnementId,
     Long serviceId,
     BigDecimal quantite,
     BigDecimal prixUnitaire,

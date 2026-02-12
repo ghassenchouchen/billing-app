@@ -4,17 +4,13 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Request DTO for recording usage via REST API
- * Represents external mediation or network system sending usage data
- */
 public record RecordUsageRequest(
     @NotBlank(message = "Session ID is required for idempotency")
     String sessionId,
     
-    @NotNull(message = "Contract ID is required")
-    @Positive(message = "Contract ID must be positive")
-    Long contratId,
+    @NotNull(message = "Subscription ID is required")
+    @Positive(message = "Subscription ID must be positive")
+    Long abonnementId,
     
     @NotNull(message = "Service ID is required")
     @Positive(message = "Service ID must be positive")

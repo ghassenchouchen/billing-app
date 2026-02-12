@@ -3,13 +3,10 @@ package com.telecom.usage.web.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Response DTO for recorded usage
- */
 public record RecordUsageResponse(
     Long id,
     String sessionId,
-    Long contratId,
+    Long abonnementId,
     Long serviceId,
     BigDecimal quantity,
     BigDecimal unitPrice,

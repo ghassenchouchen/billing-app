@@ -66,18 +66,18 @@ logging:
     org.springframework.kafka: INFO
     org.hibernate: WARN
 
-# CDR File Ingestion Configuration
-cdr:
-  ingestion:
-    enabled: true
-    incoming-directory: incoming
-    processed-directory: processed
-    failed-directory: failed²
-    batch-size: 100
-    # Scan interval in milliseconds (5 minutes)
-    scan-interval: 300000
-    # Initial delay in milliseconds (30 seconds)
-    initial-delay: 30000
+# Feign clients for inter-service calls
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+
+services:
+  customer-url: http://localhost:8081
+  catalog-url: http://localhost:8082
+  subscription-url: http://localhost:8083
 
 # Kafka Topics
 kafka:

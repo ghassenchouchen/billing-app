@@ -122,13 +122,13 @@ public record CdrIngestionRequest(
     String correlationId
 ) {
     /**
-     * Backward compatible constructor for legacy systems using contratId
+     * Backward compatible constructor for legacy systems
      */
     public static CdrIngestionRequest fromLegacy(
-            String sessionId, Long contratId, Long serviceId, 
+            String sessionId, Long abonnementId, Long serviceId, 
             BigDecimal quantity, LocalDateTime timestamp, String cdrSource) {
         return new CdrIngestionRequest(
-            sessionId, contratId, serviceId, UsageType.VOICE, quantity, 
+            sessionId, abonnementId, serviceId, UsageType.VOICE, quantity, 
             "seconds", timestamp, cdrSource, null, null, null, null, null
         );
     }

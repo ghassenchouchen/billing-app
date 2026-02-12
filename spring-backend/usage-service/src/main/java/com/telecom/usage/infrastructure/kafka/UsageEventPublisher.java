@@ -13,9 +13,6 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Publishes usage events to Kafka with proper headers for tracking and tracing
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -26,28 +23,20 @@ public class UsageEventPublisher {
     
     private final KafkaTemplate<String, Object> kafkaTemplate;
     
-    /**
-     * Publish usage recorded event with correlation ID and event version headers
-     */
     public void publishUsageRecorded(UsageRecord usage) {
         publishUsageRecorded(usage, null, EVENT_VERSION);
     }
     
-    /**
-     * Publish usage recorded event with custom correlation ID and event version
-     */
     public void publishUsageRecorded(UsageRecord usage, String correlationId, String eventVersion) {
         if (correlationId == null) {
             correlationId = UUID.randomUUID().toString();
         }
-        
         if (eventVersion == null) {
             eventVersion = EVENT_VERSION;
         }
         
         String eventId = UUID.randomUUID().toString();
         
-        // Create event payload
         Map<String, Object> event = Map.of(
             "eventId", eventId,
             "eventType", "USAGE_RECORDED",
@@ -56,7 +45,7 @@ public class UsageEventPublisher {
             "payload", Map.of(
                 "usageId", usage.getId(),
                 "sessionId", usage.getSessionId(),
-                "contratId", usage.getContratId(),
+                "abonnementId", usage.getAbonnementId(),
                 "serviceId", usage.getServiceId(),
                 "quantite", usage.getQuantite().doubleValue(),
                 "dateUsage", usage.getDateUsage().toString(),
@@ -66,7 +55,6 @@ public class UsageEventPublisher {
             )
         );
         
-        // Build message with headers for tracing
         Message<Map<String, Object>> message = MessageBuilder
             .withPayload(event)
             .setHeader("correlation-id", correlationId)
@@ -75,7 +63,7 @@ public class UsageEventPublisher {
             .setHeader("source", "usage-service")
             .setHeader("event-type", "USAGE_RECORDED")
             .setHeader(KafkaHeaders.TOPIC, TOPIC_USAGE_RECORDED)
-            .setHeader("kafka_messageKey", usage.getContratId().toString())
+            .setHeader("kafka_messageKey", usage.getAbonnementId().toString())
             .build();
         
         try {
@@ -88,9 +76,6 @@ public class UsageEventPublisher {
         }
     }
     
-    /**
-     * Publish usage validation failed event
-     */
     public void publishUsageValidationFailed(String sessionId, String reason, String correlationId) {
         String eventId = UUID.randomUUID().toString();
         
@@ -129,7 +114,6 @@ public class UsageEventPublisher {
         }
     }
     
- 
     public void publishCdrBatchProcessed(String sessionId, long recordCount, String cdrSource, String correlationId) {
         String eventId = UUID.randomUUID().toString();
         
