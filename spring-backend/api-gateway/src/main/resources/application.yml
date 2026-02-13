@@ -9,11 +9,27 @@ spring:
   cloud:
     gateway:
       routes:
-        # Customer Service Routes (controllers have NO /api/ prefix)
+        # Authentication Service Routes
+        - id: authentication-service
+          uri: http://localhost:8087
+          predicates:
+            - Path=/api/auth/**,/api/users/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+
+        # Authentication Service Swagger
+        - id: authentication-service-docs
+          uri: http://localhost:8087
+          predicates:
+            - Path=/authentication-service/v3/api-docs
+          filters:
+            - RewritePath=/authentication-service/v3/api-docs, /v3/api-docs
+
+        # Customer Service Routes 
         - id: customer-service
           uri: http://localhost:8081
           predicates:
-            - Path=/api/customers/**,/api/auth/**
+            - Path=/api/customers/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
         
@@ -25,7 +41,7 @@ spring:
           filters:
             - RewritePath=/customer-service/v3/api-docs, /v3/api-docs
             
-        # Catalog Service Routes (controllers have NO /api/ prefix)
+        # Catalog Service Routes 
         - id: catalog-service
           uri: http://localhost:8082
           predicates:
@@ -41,11 +57,11 @@ spring:
           filters:
             - RewritePath=/catalog-service/v3/api-docs, /v3/api-docs
             
-        # Subscription Service Routes (controllers have NO /api/ prefix)
+        # Subscription Service Routes 
         - id: subscription-service
           uri: http://localhost:8083
           predicates:
-            - Path=/api/subscriptions/**,/api/contrats/**
+            - Path=/api/subscriptions/**,/api/abonnements/**
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
         
@@ -57,7 +73,7 @@ spring:
           filters:
             - RewritePath=/subscription-service/v3/api-docs, /v3/api-docs
             
-        # Usage Service Routes (controllers have NO /api/ prefix)
+        # Usage Service Routes 
         - id: usage-service
           uri: http://localhost:8084
           predicates:
@@ -73,7 +89,7 @@ spring:
           filters:
             - RewritePath=/usage-service/v3/api-docs, /v3/api-docs
             
-        # Billing Service Routes (controllers HAVE /api/ prefix - NO rewrite needed)
+        # Billing Service Routes 
         - id: billing-service
           uri: http://localhost:8085
           predicates:
@@ -87,7 +103,7 @@ spring:
           filters:
             - RewritePath=/billing-service/v3/api-docs, /v3/api-docs
             
-        # Payment Service Routes (controllers HAVE /api/ prefix - NO rewrite needed)
+        # Payment Service Routes 
         - id: payment-service
           uri: http://localhost:8086
           predicates:
@@ -129,6 +145,8 @@ springdoc:
     urls:
       - name: API Gateway
         url: /v3/api-docs
+      - name: Authentication Service
+        url: /authentication-service/v3/api-docs
       - name: Customer Service
         url: /customer-service/v3/api-docs
       - name: Catalog Service

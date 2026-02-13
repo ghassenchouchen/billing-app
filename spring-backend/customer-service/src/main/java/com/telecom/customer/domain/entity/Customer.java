@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class Customer {
-    // database ID for database relations
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -48,9 +47,6 @@ public class Customer {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ClientStatus status;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private PaymentType paymentType;
     // account balance ( can be negative= need to pay money or positive = credit)
     @Column(precision = 10, scale =2 , nullable = false)
     private BigDecimal  accountBalance;
@@ -80,9 +76,6 @@ public class Customer {
         if (creditLimit == null) {
             creditLimit = BigDecimal.ZERO;
         }
-        if (paymentType == null) {
-            paymentType = PaymentType.POSTPAID;
-        }
     }
     
     @PreUpdate
@@ -92,15 +85,16 @@ public class Customer {
     }
     public boolean canCharge(BigDecimal amount)
     {
-     if (paymentType== PaymentType.PREPAID)
-        {
-            return accountBalance.compareTo(amount) >=0;
+        // Check if account balance allows the charge
+        // Positive balance = prepaid credit available
+        // Negative balance = postpaid debt — compare against credit limit
+        if (accountBalance.compareTo(amount) >= 0) {
+            return true;
         }
-        else {
-            // Postpaid: compare to credit limit (maximum data you can use)
-            BigDecimal newBalance= accountBalance.subtract(amount);
-            return newBalance.negate().compareTo(creditLimit) <=0;
-        }}
+        // Postpaid: check credit limit
+        BigDecimal newBalance = accountBalance.subtract(amount);
+        return newBalance.negate().compareTo(creditLimit) <= 0;
+    }
         public void addCredit(BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("Amount must be positive");
@@ -125,9 +119,5 @@ public class Customer {
     
     public enum ClientStatus {
         ACTIVE, SUSPENDED, CLOSED
-    }
-    public enum PaymentType {
-        PREPAID, // pay in advance, consume from balance
-        POSTPAID // consume and pay later (monthly invoice)
     }
 }

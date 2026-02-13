@@ -78,14 +78,16 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         String role = jwtUtil.getRole(claims);
         String email = jwtUtil.getEmail(claims);
         String customerRef = jwtUtil.getCustomerRef(claims);
+        String boutiqueId = jwtUtil.getBoutiqueId(claims);
         
-        log.debug("Authenticated request from user: {} [role={}] to path: {}", subject, role, path);
+        log.debug("Authenticated request from user: {} [role={}, boutiqueId={}] to path: {}", subject, role, boutiqueId, path);
         
         var mutatedRequest = exchange.getRequest().mutate()
                 .header("X-Auth-User", subject != null ? subject : "")
                 .header("X-Auth-Role", role != null ? role : "")
                 .header("X-Auth-Email", email != null ? email : "")
                 .header("X-Auth-CustomerRef", customerRef != null ? customerRef : "")
+                .header("X-Auth-Boutique-Id", boutiqueId != null ? boutiqueId : "")
                 .build();
         
         return chain.filter(exchange.mutate().request(mutatedRequest).build());

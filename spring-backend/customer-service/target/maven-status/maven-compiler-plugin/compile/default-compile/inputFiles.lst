@@ -1,13 +1,11 @@
-/home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/security/JwtService.java
 /home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/domain/repository/CustomerRepository.java
 /home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/application/CustomerService.java
 /home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/infrastructure/kafka/CustomerEventPublisher.java
 /home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/web/controller/CustomerController.java
+/home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/web/exception/GlobalExceptionHandler.java
+/home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/infrastructure/config/SecurityConfig.java
 /home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/infrastructure/config/OpenApiConfig.java
 /home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/CustomerServiceApplication.java
 /home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/web/dto/CreateClientRequest.java
-/home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/web/exception/GlobalExceptionHandler.java
-/home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/infrastructure/config/SecurityConfig.java
-/home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/web/controller/AuthController.java
 /home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/domain/entity/Customer.java
 /home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/web/dto/ClientDto.java

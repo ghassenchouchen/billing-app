@@ -12,6 +12,5 @@ public record CreateClientRequest(
     String codePostal,
     String pays,
     String type,            // SIMPLE or ENTREPRISE
-    String paymentType,     // PREPAID or POSTPAID
     BigDecimal creditLimit  // Optional, defaults to 500
 ) {}

@@ -86,6 +86,14 @@ public class JwtUtil {
     }
 
     /**
+     * Extract the boutique ID from claims (for boutique staff users).
+     */
+    public String getBoutiqueId(Claims claims) {
+        Object boutiqueId = claims.get("boutiqueId");
+        return boutiqueId != null ? boutiqueId.toString() : null;
+    }
+
+    /**
      * Check if the token is a refresh token.
      */
     public boolean isRefreshToken(Claims claims) {

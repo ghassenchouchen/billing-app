@@ -17,7 +17,7 @@ import java.util.Map;
  * 
  * ENDPOINTS:
  * - Customer CRUD operations
- * - Customer lookup by id, customerRef, email
+ * - Customer lookup by  customerRef, email
  * - Account balance operations
  * - Customer lifecycle management (suspend, reactivate)
  */
@@ -46,7 +46,6 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.getCustomerById(id));
     }
     
-    // PRIMARY ENDPOINT - Use this for customer lookup
     @GetMapping("/ref/{customerRef}")
     public ResponseEntity<ClientDto> getCustomerByRef(@PathVariable String customerRef) {
         return ResponseEntity.ok(customerService.getCustomerByRef(customerRef));
@@ -57,7 +56,6 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.getCustomerByEmail(email));
     }
     
-    // === COMMAND ENDPOINTS ===
     
     @PostMapping
     public ResponseEntity<ClientDto> createCustomer(@RequestBody CreateClientRequest request) {
@@ -65,7 +63,6 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(customer);
     }
     
-    // INTERNAL USE ONLY - Will be removed
     @Deprecated
     @PutMapping("/{id}")
     public ResponseEntity<ClientDto> updateCustomer(
@@ -74,7 +71,6 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.updateCustomer(id, request));
     }
     
-    // PRIMARY ENDPOINT - Use customerRef
     @PutMapping("/ref/{customerRef}")
     public ResponseEntity<ClientDto> updateCustomerByRef(
             @PathVariable String customerRef,
@@ -82,7 +78,6 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.updateCustomerByRef(customerRef, request));
     }
     
-    // INTERNAL USE ONLY - Will be removed
     @Deprecated
     @PostMapping("/{id}/suspend")
     public ResponseEntity<Void> suspendCustomer(
@@ -92,7 +87,6 @@ public class CustomerController {
         return ResponseEntity.ok().build();
     }
     
-    // PRIMARY ENDPOINT - Use customerRef for suspension
     @PostMapping("/ref/{customerRef}/suspend")
     public ResponseEntity<Void> suspendCustomerByRef(
             @PathVariable String customerRef,
@@ -107,7 +101,6 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.reactivateCustomer(id));
     }
     
-    // PRIMARY ENDPOINT - Use customerRef for reactivation
     @PostMapping("/ref/{customerRef}/reactivate")
     public ResponseEntity<ClientDto> reactivateCustomerByRef(@PathVariable String customerRef) {
         return ResponseEntity.ok(customerService.reactivateCustomerByRef(customerRef));

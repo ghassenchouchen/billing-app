@@ -15,7 +15,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     boolean existsByEmail(String email);
     Optional<Customer> findByCustomerRef(String customerRef);
     boolean existsByCustomerRef(String customerRef);
-    // Find active customers
     @Query("SELECT c FROM Customer c WHERE c.status = 'ACTIVE'")
     List<Customer> findAllActive();
 

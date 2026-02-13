@@ -66,9 +66,7 @@ public class CustomerEventPublisher {
         }
     }
     
-    /**
-     * Build customer.created event with complete customer profile
-     */
+   
     private Map<String, Object> buildCustomerCreatedEvent(Customer customer) {
         Map<String, Object> event = new HashMap<>();
         
@@ -96,7 +94,6 @@ public class CustomerEventPublisher {
         
         data.put("type", customer.getType().name());
         data.put("status", customer.getStatus().name());
-        data.put("paymentType", customer.getPaymentType().name());
         data.put("accountBalance", customer.getAccountBalance());
         data.put("creditLimit", customer.getCreditLimit());
         data.put("createdAt", customer.getCreatedAt().toString());

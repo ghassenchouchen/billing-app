@@ -36,11 +36,6 @@ spring:
       properties:
         spring.json.trusted.packages: com.telecom.*
 
-jwt:
-  secret: your-256-bit-secret-key-for-jwt-token-generation-minimum-32-chars
-  expiration: 86400000 # 24 hours
-  refresh-expiration: 604800000 # 7 days
-
 springdoc:
   api-docs:
     path: /v3/api-docs

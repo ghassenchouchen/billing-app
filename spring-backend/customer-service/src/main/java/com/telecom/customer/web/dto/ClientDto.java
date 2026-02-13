@@ -20,7 +20,6 @@ public record ClientDto(
     String pays,
     String type,
     String status,
-    String paymentType,
     BigDecimal accountBalance,
     BigDecimal creditLimit,
     LocalDateTime createdAt

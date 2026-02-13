@@ -13,12 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * CUSTOMER SERVICE - Core business logic for customer management
- * 
- * FOCUS: Customer identity, account management, lifecycle
- * DOES NOT HANDLE: Subscriptions, SIM cards, Phone numbers, Invoices
- */
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -27,7 +22,6 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerEventPublisher eventPublisher;
     
-    // === QUERY OPERATIONS ===
     
     @Transactional(readOnly = true)
     public List<ClientDto> getAllCustomers() {
@@ -43,7 +37,6 @@ public class CustomerService {
             .toList();
     }
     
-    // BACKWARD COMPATIBLE: Get by internal id
     @Transactional(readOnly = true)
     public ClientDto getCustomerById(Long id) {
         return customerRepository.findById(id)
@@ -51,7 +44,6 @@ public class CustomerService {
             .orElseThrow(() -> new RuntimeException("Customer not found: " + id));
     }
     
-    // NEW: Get by public UUID identifier
     @Transactional(readOnly = true)
     public ClientDto getCustomerByRef(String customerRef) {
         return customerRepository.findByCustomerRef(customerRef)
@@ -66,7 +58,6 @@ public class CustomerService {
             .orElseThrow(() -> new RuntimeException("Customer not found: " + email));
     }
     
-    // === COMMAND OPERATIONS ===
     
     @Transactional
     public ClientDto createCustomer(CreateClientRequest request) {
@@ -85,7 +76,6 @@ public class CustomerService {
             .pays(request.pays() != null ? request.pays() : "France")
             .type(Customer.ClientType.valueOf(request.type()))
             .status(Customer.ClientStatus.ACTIVE)
-            .paymentType(Customer.PaymentType.valueOf(request.paymentType()))
             .accountBalance(BigDecimal.ZERO)
             .creditLimit(request.creditLimit() != null ? request.creditLimit() : BigDecimal.valueOf(500))
             .build();
@@ -143,7 +133,6 @@ public class CustomerService {
         eventPublisher.publishCustomerSuspended(customer);
     }
     
-    // PRIMARY - Use customerRef
     @Transactional
     public void suspendCustomerByRef(String customerRef, String reason) {
         Customer customer = customerRepository.findByCustomerRef(customerRef)
@@ -163,7 +152,6 @@ public class CustomerService {
         return toDto(customer);
     }
     
-    // PRIMARY - Use customerRef
     @Transactional
     public ClientDto reactivateCustomerByRef(String customerRef) {
         Customer customer = customerRepository.findByCustomerRef(customerRef)
@@ -224,7 +212,6 @@ public class CustomerService {
     
     
     private ClientDto toDto(Customer customer) {
-        // DESIGN: Only expose customerRef, never internal database id
         return new ClientDto(
             customer.getCustomerRef(),  // PUBLIC identifier only
             customer.getNom(),
@@ -237,7 +224,6 @@ public class CustomerService {
             customer.getPays(),
             customer.getType().name(),
             customer.getStatus().name(),
-            customer.getPaymentType().name(),
             customer.getAccountBalance(),
             customer.getCreditLimit(),
             customer.getCreatedAt()
