@@ -35,6 +35,9 @@ app:
   admin:
     username: admin
     password: admin123
+  agent: 
+    username: agent
+    password: agent123  
 
   security:
     max-failed-attempts: 5

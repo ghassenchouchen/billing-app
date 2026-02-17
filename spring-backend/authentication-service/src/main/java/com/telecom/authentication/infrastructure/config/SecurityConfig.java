@@ -31,11 +31,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Auth endpoints are public (gateway handles JWT for protected routes)
                 .requestMatchers("/auth/**").permitAll()
-                // User management endpoints — protected by X-Auth-Role header check in controller
                 .requestMatchers("/users/**").permitAll()
-                // Actuator and docs
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 .anyRequest().permitAll()

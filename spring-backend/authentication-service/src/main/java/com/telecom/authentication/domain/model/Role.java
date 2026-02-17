@@ -23,10 +23,7 @@ public enum Role {
         return level;
     }
 
-    /**
-     * Check if this role has at least the given role's permissions.
-     * Example: ADMIN.hasPermission(RESPONSABLE_BOUTIQUE) → true
-     */
+     
     public boolean hasPermission(Role required) {
         return this.level >= required.level;
     }

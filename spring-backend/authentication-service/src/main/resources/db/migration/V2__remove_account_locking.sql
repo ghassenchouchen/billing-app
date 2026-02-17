@@ -1,0 +1,4 @@
+-- =====================================================
+-- V2: Remove account locking feature (placeholder)
+-- =====================================================
+-- Note: Account locking was removed in V1, this migration is a placeholder for future changes

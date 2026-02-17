@@ -64,54 +64,51 @@ public class AuthenticationService {
         String username = request.username().trim();
         String password = request.password();
 
-        // 1. Check hardcoded admin (bootstrap only)
-        if (adminUsername.equals(username) && adminPassword.equals(password)) {
-            // Check if admin exists in DB — if so, use DB credentials instead
+        log.info("Login attempt for username: {}, adminUsername value: {}, adminPassword value: {}", username, adminUsername, adminPassword != null ? "SET" : "NULL");
+
+        if (adminUsername != null && adminUsername.equals(username) && adminPassword != null && adminPassword.equals(password)) {
+            log.info("Hardcoded admin credentials matched!");
             var dbAdmin = userRepository.findByUsername(username);
             if (dbAdmin.isEmpty()) {
                 log.info("Admin login via hardcoded credentials: {}", username);
                 LoginResponse response = generateLoginResponse(username, Role.ADMIN, null);
-                // No DB user to associate refresh token with — admin refresh not supported via hardcoded creds
                 logAuthEvent(username, AuthEvent.AuthEventType.LOGIN, true, "Hardcoded admin login");
                 return response;
             }
-            // Admin exists in DB: fall through to DB validation below
+            log.info("Admin exists in DB, falling through to DB validation");
+        } else {
+            log.info("Hardcoded admin check failed. adminUsername.equals(username)={}, adminPassword.equals(password)={}", 
+                adminUsername != null ? adminUsername.equals(username) : false,
+                adminPassword != null ? adminPassword.equals(password) : false);
         }
 
-        // 2. Find user in database
         User user = userRepository.findByUsername(username).orElse(null);
         if (user == null) {
             logAuthEvent(username, AuthEvent.AuthEventType.FAILED_LOGIN, false, "User not found");
             return LoginResponse.failure("Invalid credentials");
         }
 
-        // 3. Check account status
         if (user.getStatus() == UserStatus.DISABLED) {
             logAuthEvent(username, AuthEvent.AuthEventType.FAILED_LOGIN, false, "Account disabled");
             return LoginResponse.failure("Account is disabled. Contact administrator.");
         }
 
-        // 4. Validate password
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             logAuthEvent(username, AuthEvent.AuthEventType.FAILED_LOGIN, false, "Invalid password");
             return LoginResponse.failure("Invalid credentials");
         }
 
-        // 5. Successful login
         user.recordSuccessfulLogin();
         userRepository.save(user);
 
-        // 6. Revoke all previous tokens (single session)
         refreshTokenRepository.revokeAllByUser(user);
 
-        // 7. Generate tokens
         LoginResponse response = generateLoginResponse(
                 user.getUsername(),
                 user.getRole(),
                 user.getBoutiqueId()
         );
 
-        // 8. Store refresh token hash
         storeRefreshToken(response.refreshToken(), user);
 
         logAuthEvent(username, AuthEvent.AuthEventType.LOGIN, true, "Login successful");
@@ -145,24 +142,20 @@ public class AuthenticationService {
             return LoginResponse.failure("Refresh token has been revoked");
         }
 
-        // Revoke old token
         storedToken.setRevoked(true);
         refreshTokenRepository.save(storedToken);
 
-        // Find user
         User user = storedToken.getUser();
         if (!user.canLogin()) {
             return LoginResponse.failure("Account is not active");
         }
 
-        // Generate new tokens
         LoginResponse response = generateLoginResponse(
                 user.getUsername(),
                 user.getRole(),
                 user.getBoutiqueId()
         );
 
-        // Store new refresh token
         storeRefreshToken(response.refreshToken(), user);
 
         logAuthEvent(user.getUsername(), AuthEvent.AuthEventType.REFRESH, true, "Token refreshed");

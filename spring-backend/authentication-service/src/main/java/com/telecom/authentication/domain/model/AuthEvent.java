@@ -47,7 +47,6 @@ public class AuthEvent {
         LOGOUT,
         REFRESH,
         FAILED_LOGIN,
-        ACCOUNT_LOCKED,
         PASSWORD_CHANGED,
         USER_CREATED,
         USER_UPDATED,

@@ -14,7 +14,6 @@ import java.util.Map;
 
 /**
  * Authentication endpoints: login, logout, refresh, validate.
- * All endpoints are public (no JWT required).
  */
 @RestController
 @RequestMapping("/auth")
@@ -37,9 +36,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
-    /**
-     * Backward-compatible alias for /login.
-     */
+    
     @PostMapping("/checkuser")
     public ResponseEntity<LoginResponse> checkUser(@Valid @RequestBody LoginRequest request) {
         return login(request);
@@ -47,7 +44,6 @@ public class AuthController {
 
     /**
      * Refresh an access token using a valid refresh token.
-     * The old refresh token is revoked and a new one is issued (rotation).
      */
     @PostMapping("/refresh")
     public ResponseEntity<LoginResponse> refresh(
@@ -67,9 +63,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
-    /**
-     * Logout: revoke all refresh tokens for the user.
-     */
+    
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(
             @RequestHeader(value = "Authorization", required = false) String authHeader) {
@@ -80,9 +74,7 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
 
-    /**
-     * Validate a JWT token and return its claims.
-     */
+  
     @GetMapping("/validate")
     public ResponseEntity<Map<String, Object>> validate(
             @RequestHeader(value = "Authorization", required = false) String authHeader) {

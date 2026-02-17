@@ -23,9 +23,6 @@ public record CreateUserRequest(
         @NotNull(message = "Role is required")
         Role role,
 
-        /**
-         * Required for RESPONSABLE_BOUTIQUE and AGENT_COMMERCIAL.
-         * Null for ADMIN.
-         */
+      
         Long boutiqueId
 ) {}

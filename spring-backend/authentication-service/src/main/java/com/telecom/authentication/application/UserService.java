@@ -22,7 +22,6 @@ import java.util.List;
  * - Username uniqueness
  * - RESPONSABLE_BOUTIQUE and AGENT_COMMERCIAL must have a boutiqueId
  * - ADMIN cannot have a boutiqueId
- * - Cannot create ADMIN users (only one hardcoded admin)
  */
 @Service
 @RequiredArgsConstructor
@@ -79,7 +78,7 @@ public class UserService {
      */
     @Transactional
     public UserDto createUser(CreateUserRequest request) {
-        // Validate role — cannot create another ADMIN
+        // Validate role - cannot create another ADMIN
         if (request.role() == Role.ADMIN) {
             throw new IllegalArgumentException("Cannot create additional ADMIN users");
         }
@@ -103,7 +102,6 @@ public class UserService {
                 .role(request.role())
                 .status(UserStatus.ACTIVE)
                 .boutiqueId(request.boutiqueId())
-                .failedLoginAttempts(0)
                 .build();
 
         user = userRepository.save(user);

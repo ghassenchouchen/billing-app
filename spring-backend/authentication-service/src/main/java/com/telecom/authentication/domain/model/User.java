@@ -5,13 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-/**
- * User entity for authentication and authorization.
- * 
- * Users are identified by username (format: lastname.firstname).
- * Each user has exactly one role in the hierarchy:
- * ADMIN > RESPONSABLE_BOUTIQUE > AGENT_COMMERCIAL
- */
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -45,7 +39,6 @@ public class User {
     @Column(nullable = false, length = 20)
     private UserStatus status;
 
-  
     @Column(name = "boutique_id")
     private Long boutiqueId;
 
@@ -65,9 +58,6 @@ public class User {
         if (status == null) {
             status = UserStatus.ACTIVE;
         }
-        if (failedLoginAttempts == null) {
-            failedLoginAttempts = 0;
-        }
     }
 
     @PreUpdate
@@ -75,16 +65,12 @@ public class User {
         updatedAt = LocalDateTime.now();
     }
 
-    /**
-     * Check if the user can log in (active account).
-     */
+    
     public boolean canLogin() {
         return status == UserStatus.ACTIVE;
     }
 
-    /**
-     * Record a successful login: update timestamp.
-     */
+   
     public void recordSuccessfulLogin() {
         this.lastLoginAt = LocalDateTime.now();
     }

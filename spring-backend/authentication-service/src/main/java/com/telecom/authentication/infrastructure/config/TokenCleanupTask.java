@@ -21,9 +21,7 @@ public class TokenCleanupTask {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    /**
-     * Run daily at 3:00 AM to clean up old tokens.
-     */
+   
     @Scheduled(cron = "0 0 3 * * ?")
     @Transactional
     public void cleanupExpiredTokens() {
