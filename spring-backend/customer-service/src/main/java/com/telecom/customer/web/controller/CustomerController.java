@@ -14,12 +14,12 @@ import java.util.Map;
 
 /**
  * CUSTOMER CONTROLLER - REST API for customer management
- * 
+ 
  * ENDPOINTS:
- * - Customer CRUD operations
- * - Customer lookup by  customerRef, email
- * - Account balance operations
- * - Customer lifecycle management (suspend, reactivate)
+  customer CRUD operations
+  customer lookup by  customerRef, email, cin/passport
+  account balance operations
+  customer lifecycle management (suspend, reactivate)
  */
 @RestController
 @RequestMapping("/customers")
@@ -55,7 +55,11 @@ public class CustomerController {
     public ResponseEntity<ClientDto> getCustomerByEmail(@PathVariable String email) {
         return ResponseEntity.ok(customerService.getCustomerByEmail(email));
     }
-    
+    @GetMapping("/pieceIdentite/{pieceIdentite}")
+    public ResponseEntity<ClientDto> getCustomerBypieceIdentite(@PathVariable String pieceIdentite ){
+        return ResponseEntity.ok(customerService.getCustomerBypieceIdentite(pieceIdentite));
+        
+    }
     
     @PostMapping
     public ResponseEntity<ClientDto> createCustomer(@RequestBody CreateClientRequest request) {

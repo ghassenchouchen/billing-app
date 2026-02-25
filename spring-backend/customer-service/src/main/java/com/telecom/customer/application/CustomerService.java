@@ -57,7 +57,12 @@ public class CustomerService {
             .map(this::toDto)
             .orElseThrow(() -> new RuntimeException("Customer not found: " + email));
     }
-    
+    @Transactional(readOnly = true)
+    public ClientDto getCustomerBypieceIdentite(String pieceIdentite) {
+        return customerRepository.findByPieceIdentite(pieceIdentite)
+            .map(this::toDto)
+            .orElseThrow(() -> new RuntimeException("Customer not found: " + pieceIdentite));
+    }
     
     @Transactional
     public ClientDto createCustomer(CreateClientRequest request) {
@@ -70,6 +75,7 @@ public class CustomerService {
             .prenom(request.prenom())
             .email(request.email())
             .telephone(request.telephone())
+            .pieceIdentite(request.pieceIdentite())
             .adresse(request.adresse())
             .ville(request.ville())
             .codePostal(request.codePostal())
@@ -93,7 +99,6 @@ public class CustomerService {
         Customer customer = customerRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Customer not found: " + id));
         
-        // customerRef is immutable - cannot be changed
         customer.setNom(request.nom());
         customer.setPrenom(request.prenom());
         customer.setTelephone(request.telephone());
@@ -112,7 +117,6 @@ public class CustomerService {
         return toDto(customer);
     }
     
-    // PRIMARY - Use customerRef
     @Transactional
     public ClientDto updateCustomerByRef(String customerRef, CreateClientRequest request) {
         Customer customer = customerRepository.findByCustomerRef(customerRef)
@@ -218,6 +222,7 @@ public class CustomerService {
             customer.getPrenom(),
             customer.getEmail(),
             customer.getTelephone(),
+            customer.getPieceIdentite(),
             customer.getAdresse(),
             customer.getVille(),
             customer.getCodePostal(),

@@ -7,10 +7,11 @@ public record CreateClientRequest(
     String prenom,
     String email,
     String telephone,
+    String pieceIdentite,   // CIN / Passport number
     String adresse,
     String ville,
     String codePostal,
     String pays,
-    String type,            // SIMPLE or ENTREPRISE
-    BigDecimal creditLimit  // Optional, defaults to 500
+    String type,            // INDIVIDUAL or BUSINESS
+    BigDecimal creditLimit  
 ) {}

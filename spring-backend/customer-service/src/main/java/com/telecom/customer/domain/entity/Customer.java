@@ -33,6 +33,9 @@ public class Customer {
     private String email;
     // contact phone
     private String telephone;
+
+    @Column(name = "piece_identite", length = 20)
+    private String pieceIdentite;   // CIN / Passport number
     
     private String adresse;
     private String ville;
@@ -114,7 +117,7 @@ public class Customer {
 
     
     public enum ClientType {
-        SIMPLE, ENTREPRISE
+        INDIVIDUAL, BUSINESS
     }
     
     public enum ClientStatus {

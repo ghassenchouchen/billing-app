@@ -17,6 +17,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     boolean existsByCustomerRef(String customerRef);
     @Query("SELECT c FROM Customer c WHERE c.status = 'ACTIVE'")
     List<Customer> findAllActive();
+    
+    Optional<Customer> findByPieceIdentite(String pieceIdentite);
+    
 
 
     
