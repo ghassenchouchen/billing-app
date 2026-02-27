@@ -188,6 +188,26 @@ public class UserService {
         return UserDto.from(user);
     }
 
+    /**
+     * Delete a user account permanently. Revokes all tokens and deletes the user.
+     */
+    @Transactional
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+
+        String username = user.getUsername();
+
+        // Delete all refresh tokens for this user first (to avoid foreign key constraint violation)
+        refreshTokenRepository.deleteByUser(user);
+
+        // Delete the user
+        userRepository.deleteById(id);
+
+        logAuthEvent(username, AuthEvent.AuthEventType.USER_DISABLED, "Account permanently deleted by admin");
+        log.info("User deleted: {}", username);
+    }
+
     private void logAuthEvent(String username, AuthEvent.AuthEventType eventType, String details) {
         authEventRepository.save(AuthEvent.builder()
                 .username(username)

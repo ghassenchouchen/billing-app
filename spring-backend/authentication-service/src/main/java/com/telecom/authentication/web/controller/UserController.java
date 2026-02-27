@@ -82,9 +82,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    /**
-     * Update an existing user.
-     */
+    
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> updateUser(
             @PathVariable Long id,
@@ -109,6 +107,16 @@ public class UserController {
             @RequestHeader(value = "X-Auth-Role", required = false) String role) {
         requireAdmin(role);
         return ResponseEntity.ok(userService.enableUser(id));
+    }
+
+    
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-Auth-Role", required = false) String role) {
+        requireAdmin(role);
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 
    

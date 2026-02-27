@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 /**
- * Scheduled task to clean up expired and revoked refresh tokens.
+ * Scheduled task 
  */
 @Component
 @EnableScheduling
