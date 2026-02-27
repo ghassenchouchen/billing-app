@@ -40,6 +40,10 @@ public class Offre {
     @Enumerated(EnumType.STRING)
     private OffreStatus status;
     
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_type", nullable = false)
+    private PaymentType paymentType;
+    
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "offre_service",
@@ -54,6 +58,9 @@ public class Offre {
         if (status == null) {
             status = OffreStatus.ACTIVE;
         }
+        if (paymentType == null) {
+            paymentType = PaymentType.POSTPAID;
+        }
     }
     
     public boolean isValid() {
@@ -65,5 +72,10 @@ public class Offre {
     
     public enum OffreStatus {
         ACTIVE, INACTIVE, DISCONTINUED
+    }
+    
+    public enum PaymentType {
+        PREPAID,
+        POSTPAID
     }
 }

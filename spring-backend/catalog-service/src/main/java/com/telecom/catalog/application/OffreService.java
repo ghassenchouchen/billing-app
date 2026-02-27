@@ -1,6 +1,7 @@
 package com.telecom.catalog.application;
 
 import com.telecom.catalog.domain.entity.Offre;
+import com.telecom.catalog.domain.entity.Offre.PaymentType;
 import com.telecom.catalog.domain.entity.ServiceEntity;
 import com.telecom.catalog.domain.repository.OffreRepository;
 import com.telecom.catalog.domain.repository.ServiceRepository;
@@ -60,6 +61,7 @@ public class OffreService {
             .dateDebut(request.dateDebut())
             .dateFin(request.dateFin())
             .status(Offre.OffreStatus.ACTIVE)
+            .paymentType(request.paymentType() != null ? PaymentType.valueOf(request.paymentType()) : PaymentType.POSTPAID)
             .services(services)
             .build();
         
@@ -79,6 +81,7 @@ public class OffreService {
         if (request.prixMensuel() != null) offre.setPrixMensuel(request.prixMensuel());
         if (request.dateDebut() != null) offre.setDateDebut(request.dateDebut());
         if (request.dateFin() != null) offre.setDateFin(request.dateFin());
+        if (request.paymentType() != null) offre.setPaymentType(PaymentType.valueOf(request.paymentType()));
         
         if (request.serviceIds() != null) {
             Set<ServiceEntity> services = new HashSet<>(serviceRepository.findAllById(request.serviceIds()));
@@ -109,6 +112,7 @@ public class OffreService {
             offre.getDateDebut(),
             offre.getDateFin(),
             offre.getStatus().name(),
+            offre.getPaymentType() != null ? offre.getPaymentType().name() : "POSTPAID",
             offre.getServices().stream().map(ServiceEntity::getId).toList()
         );
     }

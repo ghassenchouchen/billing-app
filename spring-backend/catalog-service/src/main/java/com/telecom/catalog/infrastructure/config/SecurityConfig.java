@@ -14,10 +14,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Security configuration for Catalog Service
- * Permits all endpoints for development
- */
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

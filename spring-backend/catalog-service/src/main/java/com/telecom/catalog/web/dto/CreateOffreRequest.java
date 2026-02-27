@@ -11,5 +11,6 @@ public record CreateOffreRequest(
     BigDecimal prixMensuel,
     LocalDate dateDebut,
     LocalDate dateFin,
+    String paymentType,
     List<Long> serviceIds
 ) {}

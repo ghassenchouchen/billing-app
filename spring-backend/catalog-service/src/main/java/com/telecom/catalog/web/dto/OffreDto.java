@@ -13,5 +13,6 @@ public record OffreDto(
     LocalDate dateDebut,
     LocalDate dateFin,
     String status,
+    String paymentType,
     List<Long> serviceIds
 ) {}
