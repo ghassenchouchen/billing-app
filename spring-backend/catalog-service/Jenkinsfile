@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'built-in' }
 
     stages {
         stage('Build') {
@@ -18,13 +18,13 @@ pipeline {
             }
         }
 
-        stage('Docker Build') {
-            steps {
-                dir('spring-backend/catalog-service') {
-                    sh 'docker build -t billing-app/catalog-service:${BUILD_NUMBER} .'
-                }
-            }
-        }
+        // stage('Docker Build') {
+        //     steps {
+        //         dir('spring-backend/catalog-service') {
+        //             sh 'docker build -t billing-app/catalog-service:${BUILD_NUMBER} .'
+        //         }
+        //     }
+        // }
     }
 
     post {
@@ -36,14 +36,14 @@ pipeline {
                 keepAll              : true,
                 reportDir            : 'spring-backend/catalog-service/target/site/jacoco',
                 reportFiles          : 'index.html',
-                reportName           : 'JaCoCo Coverage - Catalog Service'
+                reportName           : 'JaCoCo Coverage - Service Catalogue'
             ])
         }
         success {
             echo 'Pipeline succeeded.'
         }
         failure {
-            echo 'Pipeline failed. Check the logs above.'
+            echo 'Pipeline failed.'
         }
     }
 }
