@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                dir('spring-backend/catalog-service') {
+                    sh 'mvn clean package -DskipTests -B'
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir('spring-backend/catalog-service') {
+                    sh 'mvn test -B'
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                dir('spring-backend/catalog-service') {
+                    sh 'docker build -t billing-app/catalog-service:${BUILD_NUMBER} .'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            junit 'spring-backend/catalog-service/target/surefire-reports/*.xml'
+            publishHTML([
+                allowMissing         : false,
+                alwaysLinkToLastBuild: true,
+                keepAll              : true,
+                reportDir            : 'spring-backend/catalog-service/target/site/jacoco',
+                reportFiles          : 'index.html',
+                reportName           : 'JaCoCo Coverage - Catalog Service'
+            ])
+        }
+        success {
+            echo 'Pipeline succeeded.'
+        }
+        failure {
+            echo 'Pipeline failed. Check the logs above.'
+        }
+    }
+}

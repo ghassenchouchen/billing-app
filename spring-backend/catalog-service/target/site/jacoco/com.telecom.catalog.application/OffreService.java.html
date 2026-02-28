@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OffreService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Catalog Service</a> &gt; <a href="index.source.html" class="el_package">com.telecom.catalog.application</a> &gt; <span class="el_source">OffreService.java</span></div><h1>OffreService.java</h1><pre class="source lang-java linenums">package com.telecom.catalog.application;
+
+import com.telecom.catalog.domain.entity.Offre;
+import com.telecom.catalog.domain.entity.Offre.PaymentType;
+import com.telecom.catalog.domain.entity.ServiceEntity;
+import com.telecom.catalog.domain.repository.OffreRepository;
+import com.telecom.catalog.domain.repository.ServiceRepository;
+import com.telecom.catalog.web.dto.OffreDto;
+import com.telecom.catalog.web.dto.CreateOffreRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@Service
+@RequiredArgsConstructor
+<span class="fc" id="L21">@Slf4j</span>
+public class OffreService {
+    
+    private final OffreRepository offreRepository;
+    private final ServiceRepository serviceRepository;
+    
+    @Transactional(readOnly = true)
+    public List&lt;OffreDto&gt; getAllOffres() {
+<span class="fc" id="L29">        return offreRepository.findAll().stream()</span>
+<span class="fc" id="L30">            .map(this::toDto)</span>
+<span class="fc" id="L31">            .toList();</span>
+    }
+    
+    @Transactional(readOnly = true)
+    public List&lt;OffreDto&gt; getActiveOffres() {
+<span class="fc" id="L36">        return offreRepository.findByStatus(Offre.OffreStatus.ACTIVE).stream()</span>
+<span class="fc" id="L37">            .filter(Offre::isValid)</span>
+<span class="fc" id="L38">            .map(this::toDto)</span>
+<span class="fc" id="L39">            .toList();</span>
+    }
+    
+    @Transactional(readOnly = true)
+    public OffreDto getOffreById(Long id) {
+<span class="fc" id="L44">        return offreRepository.findById(id)</span>
+<span class="fc" id="L45">            .map(this::toDto)</span>
+<span class="fc" id="L46">            .orElseThrow(() -&gt; new RuntimeException(&quot;Offre not found: &quot; + id));</span>
+    }
+    
+    @Transactional
+    public OffreDto createOffre(CreateOffreRequest request) {
+<span class="fc" id="L51">        Set&lt;ServiceEntity&gt; services = new HashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if (request.serviceIds() != null) {</span>
+<span class="fc" id="L53">            services.addAll(serviceRepository.findAllById(request.serviceIds()));</span>
+        }
+        
+<span class="fc" id="L56">        Offre offre = Offre.builder()</span>
+<span class="fc" id="L57">            .code(request.code())</span>
+<span class="fc" id="L58">            .libelle(request.libelle())</span>
+<span class="fc" id="L59">            .description(request.description())</span>
+<span class="fc" id="L60">            .prixMensuel(request.prixMensuel())</span>
+<span class="fc" id="L61">            .dateDebut(request.dateDebut())</span>
+<span class="fc" id="L62">            .dateFin(request.dateFin())</span>
+<span class="fc" id="L63">            .status(Offre.OffreStatus.ACTIVE)</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">            .paymentType(request.paymentType() != null ? PaymentType.valueOf(request.paymentType()) : PaymentType.POSTPAID)</span>
+<span class="fc" id="L65">            .services(services)</span>
+<span class="fc" id="L66">            .build();</span>
+        
+<span class="fc" id="L68">        offre = offreRepository.save(offre);</span>
+<span class="fc" id="L69">        log.info(&quot;Created offre: {}&quot;, offre.getId());</span>
+        
+<span class="fc" id="L71">        return toDto(offre);</span>
+    }
+    
+    @Transactional
+    public OffreDto updateOffre(Long id, CreateOffreRequest request) {
+<span class="fc" id="L76">        Offre offre = offreRepository.findById(id)</span>
+<span class="fc" id="L77">            .orElseThrow(() -&gt; new RuntimeException(&quot;Offre not found: &quot; + id));</span>
+        
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if (request.libelle() != null) offre.setLibelle(request.libelle());</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if (request.description() != null) offre.setDescription(request.description());</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (request.prixMensuel() != null) offre.setPrixMensuel(request.prixMensuel());</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">        if (request.dateDebut() != null) offre.setDateDebut(request.dateDebut());</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">        if (request.dateFin() != null) offre.setDateFin(request.dateFin());</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (request.paymentType() != null) offre.setPaymentType(PaymentType.valueOf(request.paymentType()));</span>
+        
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (request.serviceIds() != null) {</span>
+<span class="fc" id="L87">            Set&lt;ServiceEntity&gt; services = new HashSet&lt;&gt;(serviceRepository.findAllById(request.serviceIds()));</span>
+<span class="fc" id="L88">            offre.setServices(services);</span>
+        }
+        
+<span class="fc" id="L91">        offre = offreRepository.save(offre);</span>
+<span class="fc" id="L92">        log.info(&quot;Updated offre: {}&quot;, offre.getId());</span>
+        
+<span class="fc" id="L94">        return toDto(offre);</span>
+    }
+    
+    @Transactional
+    public void deleteOffre(Long id) {
+<span class="fc" id="L99">        Offre offre = offreRepository.findById(id)</span>
+<span class="fc" id="L100">            .orElseThrow(() -&gt; new RuntimeException(&quot;Offre not found: &quot; + id));</span>
+<span class="fc" id="L101">        offreRepository.delete(offre);</span>
+<span class="fc" id="L102">        log.info(&quot;Deleted offre: {}&quot;, id);</span>
+<span class="fc" id="L103">    }</span>
+    
+    private OffreDto toDto(Offre offre) {
+<span class="fc" id="L106">        return new OffreDto(</span>
+<span class="fc" id="L107">            offre.getId(),</span>
+<span class="fc" id="L108">            offre.getCode(),</span>
+<span class="fc" id="L109">            offre.getLibelle(),</span>
+<span class="fc" id="L110">            offre.getDescription(),</span>
+<span class="fc" id="L111">            offre.getPrixMensuel(),</span>
+<span class="fc" id="L112">            offre.getDateDebut(),</span>
+<span class="fc" id="L113">            offre.getDateFin(),</span>
+<span class="fc" id="L114">            offre.getStatus().name(),</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">            offre.getPaymentType() != null ? offre.getPaymentType().name() : &quot;POSTPAID&quot;,</span>
+<span class="fc" id="L116">            offre.getServices().stream().map(ServiceEntity::getId).toList()</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

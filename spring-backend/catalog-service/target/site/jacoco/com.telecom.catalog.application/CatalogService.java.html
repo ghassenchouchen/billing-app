@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CatalogService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Catalog Service</a> &gt; <a href="index.source.html" class="el_package">com.telecom.catalog.application</a> &gt; <span class="el_source">CatalogService.java</span></div><h1>CatalogService.java</h1><pre class="source lang-java linenums">package com.telecom.catalog.application;
+
+import com.telecom.catalog.domain.entity.ServiceEntity;
+import com.telecom.catalog.domain.repository.ServiceRepository;
+import com.telecom.catalog.web.dto.ServiceDto;
+import com.telecom.catalog.web.dto.CreateServiceRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+<span class="fc" id="L16">@Slf4j</span>
+public class CatalogService {
+    
+    private final ServiceRepository serviceRepository;
+    
+    @Transactional(readOnly = true)
+    public List&lt;ServiceDto&gt; getAllServices() {
+<span class="fc" id="L23">        return serviceRepository.findAll().stream()</span>
+<span class="fc" id="L24">            .map(this::toDto)</span>
+<span class="fc" id="L25">            .toList();</span>
+    }
+    
+    @Transactional(readOnly = true)
+    public List&lt;ServiceDto&gt; getActiveServices() {
+<span class="fc" id="L30">        return serviceRepository.findByActiveTrue().stream()</span>
+<span class="fc" id="L31">            .map(this::toDto)</span>
+<span class="fc" id="L32">            .toList();</span>
+    }
+    
+    @Transactional(readOnly = true)
+    public ServiceDto getServiceById(Long id) {
+<span class="fc" id="L37">        return serviceRepository.findById(id)</span>
+<span class="fc" id="L38">            .map(this::toDto)</span>
+<span class="fc" id="L39">            .orElseThrow(() -&gt; new RuntimeException(&quot;Service not found: &quot; + id));</span>
+    }
+    
+    @Transactional(readOnly = true)
+    public ServiceDto getServiceByCode(String code) {
+<span class="fc" id="L44">        return serviceRepository.findByCode(code)</span>
+<span class="fc" id="L45">            .map(this::toDto)</span>
+<span class="fc" id="L46">            .orElseThrow(() -&gt; new RuntimeException(&quot;Service not found: &quot; + code));</span>
+    }
+    
+    @Transactional
+    public ServiceDto createService(CreateServiceRequest request) {
+<span class="fc" id="L51">        ServiceEntity service = ServiceEntity.builder()</span>
+<span class="fc" id="L52">            .code(request.code())</span>
+<span class="fc" id="L53">            .libelle(request.libelle())</span>
+<span class="fc" id="L54">            .unite(request.unite())</span>
+<span class="fc" id="L55">            .prixUnitaire(request.prixUnitaire())</span>
+<span class="fc" id="L56">            .category(ServiceEntity.ServiceCategory.valueOf(request.category()))</span>
+<span class="fc" id="L57">            .active(true)</span>
+<span class="fc" id="L58">            .build();</span>
+        
+<span class="fc" id="L60">        service = serviceRepository.save(service);</span>
+<span class="fc" id="L61">        log.info(&quot;Created service: {}&quot;, service.getId());</span>
+        
+<span class="fc" id="L63">        return toDto(service);</span>
+    }
+    
+    @Transactional
+    public ServiceDto updateService(Long id, CreateServiceRequest request) {
+<span class="fc" id="L68">        ServiceEntity service = serviceRepository.findById(id)</span>
+<span class="fc" id="L69">            .orElseThrow(() -&gt; new RuntimeException(&quot;Service not found: &quot; + id));</span>
+        
+<span class="fc" id="L71">        service.setLibelle(request.libelle());</span>
+<span class="fc" id="L72">        service.setUnite(request.unite());</span>
+<span class="fc" id="L73">        service.setPrixUnitaire(request.prixUnitaire());</span>
+<span class="fc" id="L74">        service.setCategory(ServiceEntity.ServiceCategory.valueOf(request.category()));</span>
+        
+<span class="fc" id="L76">        service = serviceRepository.save(service);</span>
+<span class="fc" id="L77">        log.info(&quot;Updated service: {}&quot;, service.getId());</span>
+        
+<span class="fc" id="L79">        return toDto(service);</span>
+    }
+    
+    @Transactional
+    public void deleteService(Long id) {
+<span class="fc" id="L84">        ServiceEntity service = serviceRepository.findById(id)</span>
+<span class="fc" id="L85">            .orElseThrow(() -&gt; new RuntimeException(&quot;Service not found: &quot; + id));</span>
+<span class="fc" id="L86">        serviceRepository.delete(service);</span>
+<span class="fc" id="L87">        log.info(&quot;Deleted service: {}&quot;, id);</span>
+<span class="fc" id="L88">    }</span>
+    
+    private ServiceDto toDto(ServiceEntity service) {
+<span class="fc" id="L91">        return new ServiceDto(</span>
+<span class="fc" id="L92">            service.getId(),</span>
+<span class="fc" id="L93">            service.getCode(),</span>
+<span class="fc" id="L94">            service.getLibelle(),</span>
+<span class="fc" id="L95">            service.getUnite(),</span>
+<span class="fc" id="L96">            service.getPrixUnitaire(),</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">            service.getCategory() != null ? service.getCategory().name() : null,</span>
+<span class="fc" id="L98">            service.isActive()</span>
+        );
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
