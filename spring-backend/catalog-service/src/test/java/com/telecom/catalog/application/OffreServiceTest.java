@@ -91,7 +91,6 @@ class OffreServiceTest {
         assertEquals(2, result.size());
         verify(offreRepository).findAll();
     }
-
     @Test
     void getAllOffres_listeVide_retourneListeVide() {
         when(offreRepository.findAll()).thenReturn(List.of());

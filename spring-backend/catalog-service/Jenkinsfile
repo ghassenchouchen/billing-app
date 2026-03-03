@@ -1,5 +1,12 @@
 pipeline {
     agent { label 'built-in' }
+    /*
+    
+    environment {
+        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKER_IMAGE = 'ghassenchouchen/catalog-service'
+    }
+    */
 
     stages {
         stage('Build') {
@@ -18,13 +25,39 @@ pipeline {
             }
         }
 
-        // stage('Docker Build') {
-        //     steps {
-        //         dir('spring-backend/catalog-service') {
-        //             sh 'docker build -t billing-app/catalog-service:${BUILD_NUMBER} .'
-        //         }
-        //     }
-        // }
+        stage('SonarQube Analysis') {
+            steps {
+                dir('spring-backend/catalog-service') {
+                    withSonarQubeEnv('SonarQube') {
+                        sh 'mvn sonar:sonar -B'
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') { 
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        /*stage('Docker Build') {
+            steps {
+                dir('spring-backend/catalog-service') {
+                    sh 'docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest .'
+                }
+            }
+        }*/
+
+        /*stage('Docker Push') {
+            steps {
+                sh 'echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin'
+                sh 'docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}'
+                sh 'docker push ${DOCKER_IMAGE}:latest'
+            }
+        }*/
     }
 
     post {
@@ -38,12 +71,13 @@ pipeline {
                 reportFiles          : 'index.html',
                 reportName           : 'JaCoCo Coverage - Service Catalogue'
             ])
+           // sh 'docker logout'
         }
         success {
             echo 'Pipeline succeeded.'
         }
         failure {
-            echo 'Pipeline failed.'
+            echo 'Pipeline failed. Check logs above.'
         }
     }
 }
