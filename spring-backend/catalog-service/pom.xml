@@ -21,6 +21,10 @@
     <properties>
         <java.version>21</java.version>
         <lombok.version>1.18.40</lombok.version>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.exclusions>**/dto/**,**/config/**,**/CatalogServiceApplication.java</sonar.exclusions>
+        <sonar.test.exclusions>src/test/**</sonar.test.exclusions>
     </properties>
     
     <dependencies>
