@@ -116,7 +116,6 @@ class OffreServiceTest {
 
     @Test
     void getActiveOffres_exclutOffresExpirees() {
-        // offreExpiree has status=ACTIVE but dateFin is in the past → isValid() returns false → filtered out
         when(offreRepository.findByStatus(OffreStatus.ACTIVE))
                 .thenReturn(List.of(offreActive, offreExpiree));
 
@@ -227,8 +226,8 @@ class OffreServiceTest {
 
         verify(offreRepository).findById(1L);
         verify(offreRepository).save(offreActive);
-        // serviceIds est null → serviceRepository jamais appelé
         verify(serviceRepository, never()).findAllById(any());
+        
     }
 
     @Test
@@ -268,7 +267,7 @@ class OffreServiceTest {
         when(offreRepository.findById(1L)).thenReturn(Optional.of(offreActive));
 
         offreService.deleteOffre(1L);
-
+        
         verify(offreRepository).delete(offreActive);
     }
 
