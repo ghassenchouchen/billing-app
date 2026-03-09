@@ -44,7 +44,7 @@ Une User Story est considérée **Terminée** lorsque :
 | US-14 | En tant qu’administrateur, je veux consulter l’historique des paiements d’un client afin d'assurer la traçabilité des transactions | 3 | À faire |
 | US-15 | En tant qu’agent commercial, je veux créer un abonnement reliant un client à une offre afin de lui permettre d'utiliser les services télécom | 8 | Terminé |
 | US-16 | En tant que responsable boutique, je veux consulter les abonnements d’un client afin d’avoir une vue globale de son compte | 3 | Terminé |
-| US-17 | US-17: En tant qu’administrateur ou responsable boutique, je veux gérer le cycle de vie d’un abonnement (Réactiver, suspendre) afin de contrôler l’accès aux services. |
+| US-17 | US-17: En tant qu’administrateur ou responsable boutique, je veux gérer le cycle de vie d’un abonnement (Réactiver, suspendre) afin de contrôler l’accès aux services. | 5 | À faire |
 | US-18 | En tant qu’administrateur, je veux résilier un abonnement afin d'arrêter définitivement le service | 3 | En cours |
 | US-19| En tant que responsable boutique, je veux consulter les détails d’un abonnement afin de visualiser son état et ses paramètres | 3 | À faire |
 | US-20 | En tant qu'agent commercial, je veux définir la fréquence de facturation d’un abonnement choisi par le client afin d’adapter le cycle de facturation | 5 | Terminé |
