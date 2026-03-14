@@ -1,7 +1,0 @@
-/home/shadowfax/billing-app/spring-backend/api-gateway/src/main/java/com/telecom/gateway/config/SecurityConfig.java
-/home/shadowfax/billing-app/spring-backend/api-gateway/src/main/java/com/telecom/gateway/ApiGatewayApplication.java
-/home/shadowfax/billing-app/spring-backend/api-gateway/src/main/java/com/telecom/gateway/filter/JwtAuthenticationFilter.java
-/home/shadowfax/billing-app/spring-backend/api-gateway/src/main/java/com/telecom/gateway/config/OpenApiConfig.java
-/home/shadowfax/billing-app/spring-backend/api-gateway/src/main/java/com/telecom/gateway/security/JwtUtil.java
-/home/shadowfax/billing-app/spring-backend/api-gateway/src/main/java/com/telecom/gateway/config/JwtConfig.java
-/home/shadowfax/billing-app/spring-backend/api-gateway/src/main/java/com/telecom/gateway/config/GatewayConfig.java

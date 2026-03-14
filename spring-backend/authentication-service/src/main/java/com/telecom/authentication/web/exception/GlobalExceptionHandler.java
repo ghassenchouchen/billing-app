@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
         Map<String, String> fieldErrors = ex.getBindingResult().getFieldErrors().stream()
             .collect(Collectors.toMap(
                 FieldError::getField,
-                error -> error.getDefaultMessage() != null ? error.getDefaultMessage() : "Invalid value",
+                error -> error.getDefaultMessage() != null ? error.getDefaultMessage() : "Field validation failed",
                 (existing, replacement) -> existing
             ));
         
