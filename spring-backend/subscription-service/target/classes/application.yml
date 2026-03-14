@@ -1,0 +1,64 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: subscription-service
+    
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_subscription?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&useUnicode=true
+    username: root
+    password: root
+    
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+        
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        max.block.ms: 1000
+    consumer:
+      group-id: subscription-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+
+# Feign clients for REST calls
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+
+services:
+  customer-url: ${CUSTOMER_SERVICE_URL:http://localhost:8081}
+  catalog-url: ${CATALOG_SERVICE_URL:http://localhost:8082}
+
+app:
+  kafka:
+    enabled: false
+
+# OpenAPI/Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    com.telecom.subscription: DEBUG
+    org.springframework.security: WARN

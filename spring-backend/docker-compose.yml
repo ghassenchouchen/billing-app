@@ -1,0 +1,311 @@
+
+networks:
+  billing-network:
+    external: true
+    name: billing-network
+
+services:
+
+  # Infrastructure
+
+  mysql:
+    image: mysql:8.0
+    container_name: billing-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: '%'
+    ports:
+      - "3307:3307"
+    volumes:
+      - spring_backend_mysql_data:/var/lib/mysql
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - billing-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      timeout: 10s
+      retries: 10
+      interval: 10s
+   
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: billing-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka:29092,CONTROLLER://kafka:9093,PLAINTEXT_HOST://0.0.0.0:9092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+    networks:
+      - billing-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      timeout: 10s
+      retries: 10
+      interval: 15s
+
+  sonarqube-db:
+    image: postgres:15
+    container_name: billing-sonarqube-db
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonarqube
+    volumes:
+      - sonarqube_db_data:/var/lib/postgresql/data
+    networks:
+      - billing-network 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sonar"]
+      timeout: 10s
+      retries: 5
+      interval: 10s
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: billing-sonarqube
+
+    depends_on:
+      sonarqube-db:
+        condition: service_healthy
+    ports:
+      - "9000:9000"
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonarqube-db:5432/sonarqube
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: 'true'
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-logs:/opt/sonarqube/logs
+      - sonarqube-extensions:/opt/sonarqube/extensions
+    networks:
+      - billing-network
+  
+
+  jenkins:
+    build:
+      context: ../infra-config/jenkins
+      dockerfile: dockerfile
+    container_name: billing-jenkins
+    user: root
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+    networks:
+      - billing-network
+
+
+  # Microservices
+
+  customer-service:
+    build:
+      context: ./customer-service
+      dockerfile: Dockerfile
+    container_name: billing-customer-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_customer?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_USER: root
+      DB_PASSWORD: root
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SIM_LIFECYCLE_TOPIC: boutique.sim.lifecycle
+    networks:
+      - billing-network
+
+  catalog-service:
+    image: ghassenchouchen/catalog-service:latest
+    build:
+      context: ./catalog-service
+      dockerfile: Dockerfile
+    container_name: billing-catalog-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_catalog?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+    networks:
+      - billing-network
+
+  authentication-service:
+    build:
+      context: ./authentication-service
+      dockerfile: Dockerfile
+    container_name: billing-authentication-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8087:8087"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_authentication?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_USER: root
+      DB_PASSWORD: root
+      BOUTIQUE_SERVICE_URL: http://boutique-service:8088
+    networks:
+      - billing-network
+
+  boutique-service:
+    build:
+      context: ./boutique-service
+      dockerfile: Dockerfile
+    container_name: billing-boutique-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8088:8088"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_USER: root
+      DB_PASSWORD: root
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SIM_LIFECYCLE_TOPIC: boutique.sim.lifecycle
+    networks:
+      - billing-network
+
+  subscription-service:
+    build:
+      context: ./subscription-service
+      dockerfile: Dockerfile
+    container_name: billing-subscription-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_subscription?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      CUSTOMER_SERVICE_URL: http://customer-service:8081
+      CATALOG_SERVICE_URL: http://catalog-service:8082
+    networks:
+      - billing-network
+
+  usage-service:
+    build:
+      context: ./usage-service
+      dockerfile: Dockerfile
+    container_name: billing-usage-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_usage?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      CUSTOMER_SERVICE_URL: http://customer-service:8081
+      CATALOG_SERVICE_URL: http://catalog-service:8082
+      SUBSCRIPTION_SERVICE_URL: http://subscription-service:8083
+    networks:
+      - billing-network
+
+  billing-service:
+    build:
+      context: ./billing-service
+      dockerfile: Dockerfile
+    container_name: billing-billing-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_billing?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      CUSTOMER_SERVICE_URL: http://customer-service:8081
+      SUBSCRIPTION_SERVICE_URL: http://subscription-service:8083
+      CATALOG_SERVICE_URL: http://catalog-service:8082
+      USAGE_SERVICE_URL: http://usage-service:8084
+    networks:
+      - billing-network
+
+  
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: billing-api-gateway
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8090:8090"
+    environment:
+      AUTH_SERVICE_URL: http://authentication-service:8087
+      CUSTOMER_SERVICE_URL: http://customer-service:8081
+      CATALOG_SERVICE_URL: http://catalog-service:8082
+      SUBSCRIPTION_SERVICE_URL: http://subscription-service:8083
+      USAGE_SERVICE_URL: http://usage-service:8084
+      BILLING_SERVICE_URL: http://billing-service:8085
+      PAYMENT_SERVICE_URL: http://payment-service:8086
+      BOUTIQUE_SERVICE_URL: http://boutique-service:8088
+    networks:
+      - billing-network
+
+volumes:
+  spring_backend_mysql_data:
+  sonarqube-data:
+    external: true
+    name: sonarqube-data
+
+  sonarqube-logs:
+  sonarqube-extensions:
+  sonarqube_db_data:
+    external: true
+    name: sonarqube_db_data
+  jenkins_home:
+    external: true
+    name: jenkins_home
