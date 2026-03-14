@@ -3,6 +3,7 @@
 import com.telecom.catalog.application.OffreService;
 import com.telecom.catalog.web.dto.OffreDto;
 import com.telecom.catalog.web.dto.CreateOffreRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,33 +19,33 @@ public class OffreController {
     
     @GetMapping
     public ResponseEntity&lt;List&lt;OffreDto&gt;&gt; getAllOffres() {
-<span class="nc" id="L21">        return ResponseEntity.ok(offreService.getAllOffres());</span>
+<span class="nc" id="L22">        return ResponseEntity.ok(offreService.getAllOffres());</span>
     }
     
     @GetMapping(&quot;/active&quot;)
     public ResponseEntity&lt;List&lt;OffreDto&gt;&gt; getActiveOffres() {
-<span class="nc" id="L26">        return ResponseEntity.ok(offreService.getActiveOffres());</span>
+<span class="nc" id="L27">        return ResponseEntity.ok(offreService.getActiveOffres());</span>
     }
     
     @GetMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;OffreDto&gt; getOffreById(@PathVariable Long id) {
-<span class="nc" id="L31">        return ResponseEntity.ok(offreService.getOffreById(id));</span>
+<span class="nc" id="L32">        return ResponseEntity.ok(offreService.getOffreById(id));</span>
     }
     
     @PostMapping
-    public ResponseEntity&lt;OffreDto&gt; createOffre(@RequestBody CreateOffreRequest request) {
-<span class="nc" id="L36">        return ResponseEntity.ok(offreService.createOffre(request));</span>
+    public ResponseEntity&lt;OffreDto&gt; createOffre(@Valid @RequestBody CreateOffreRequest request) {
+<span class="nc" id="L37">        return ResponseEntity.ok(offreService.createOffre(request));</span>
     }
     
     @PutMapping(&quot;/{id}&quot;)
-    public ResponseEntity&lt;OffreDto&gt; updateOffre(@PathVariable Long id, @RequestBody CreateOffreRequest request) {
-<span class="nc" id="L41">        return ResponseEntity.ok(offreService.updateOffre(id, request));</span>
+    public ResponseEntity&lt;OffreDto&gt; updateOffre(@PathVariable Long id, @Valid @RequestBody CreateOffreRequest request) {
+<span class="nc" id="L42">        return ResponseEntity.ok(offreService.updateOffre(id, request));</span>
     }
     
     @DeleteMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;Void&gt; deleteOffre(@PathVariable Long id) {
-<span class="nc" id="L46">        offreService.deleteOffre(id);</span>
-<span class="nc" id="L47">        return ResponseEntity.noContent().build();</span>
+<span class="nc" id="L47">        offreService.deleteOffre(id);</span>
+<span class="nc" id="L48">        return ResponseEntity.noContent().build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

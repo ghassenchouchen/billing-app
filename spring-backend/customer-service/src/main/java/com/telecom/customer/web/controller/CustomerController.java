@@ -3,6 +3,7 @@ package com.telecom.customer.web.controller;
 import com.telecom.customer.application.CustomerService;
 import com.telecom.customer.web.dto.ClientDto;
 import com.telecom.customer.web.dto.CreateClientRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +63,7 @@ public class CustomerController {
     }
     
     @PostMapping
-    public ResponseEntity<ClientDto> createCustomer(@RequestBody CreateClientRequest request) {
+    public ResponseEntity<ClientDto> createCustomer(@Valid @RequestBody CreateClientRequest request) {
         ClientDto customer = customerService.createCustomer(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(customer);
     }
@@ -71,14 +72,14 @@ public class CustomerController {
     @PutMapping("/{id}")
     public ResponseEntity<ClientDto> updateCustomer(
             @PathVariable Long id,
-            @RequestBody CreateClientRequest request) {
+            @Valid @RequestBody CreateClientRequest request) {
         return ResponseEntity.ok(customerService.updateCustomer(id, request));
     }
     
     @PutMapping("/ref/{customerRef}")
     public ResponseEntity<ClientDto> updateCustomerByRef(
             @PathVariable String customerRef,
-            @RequestBody CreateClientRequest request) {
+            @Valid @RequestBody CreateClientRequest request) {
         return ResponseEntity.ok(customerService.updateCustomerByRef(customerRef, request));
     }
     

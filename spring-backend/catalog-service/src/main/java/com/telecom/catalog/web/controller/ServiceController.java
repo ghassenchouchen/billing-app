@@ -3,6 +3,7 @@ package com.telecom.catalog.web.controller;
 import com.telecom.catalog.application.CatalogService;
 import com.telecom.catalog.web.dto.ServiceDto;
 import com.telecom.catalog.web.dto.CreateServiceRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,14 +38,14 @@ public class ServiceController {
     }
     
     @PostMapping
-    public ResponseEntity<ServiceDto> createService(@RequestBody CreateServiceRequest request) {
+    public ResponseEntity<ServiceDto> createService(@Valid @RequestBody CreateServiceRequest request) {
         return ResponseEntity.ok(catalogService.createService(request));
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<ServiceDto> updateService(
             @PathVariable Long id,
-            @RequestBody CreateServiceRequest request) {
+            @Valid @RequestBody CreateServiceRequest request) {
         return ResponseEntity.ok(catalogService.updateService(id, request));
     }
     

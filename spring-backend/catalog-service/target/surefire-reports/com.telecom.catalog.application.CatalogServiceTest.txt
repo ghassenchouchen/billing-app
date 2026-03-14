@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.telecom.catalog.application.CatalogServiceTest
 -------------------------------------------------------------------------------
-Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.995 s -- in com.telecom.catalog.application.CatalogServiceTest
+Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.020 s -- in com.telecom.catalog.application.CatalogServiceTest

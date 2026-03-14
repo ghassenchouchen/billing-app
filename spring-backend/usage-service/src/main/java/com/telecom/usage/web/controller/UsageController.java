@@ -132,14 +132,14 @@ public class UsageController {
     @Tag(name = "Usage Management")
     @Operation(summary = "Record usage manually")
     @PostMapping("/usage")
-    public ResponseEntity<UsageRecordDto> recordUsage(@RequestBody CreateUsageRequest request) {
+    public ResponseEntity<UsageRecordDto> recordUsage(@Valid @RequestBody CreateUsageRequest request) {
         return ResponseEntity.ok(usageService.recordUsage(request));
     }
     
     @Tag(name = "Usage Management")
     @Operation(summary = "Generate test usage")
     @PostMapping("/usage/generate")
-    public ResponseEntity<List<UsageRecordDto>> generateUsage(@RequestBody GenerateUsageRequest request) {
+    public ResponseEntity<List<UsageRecordDto>> generateUsage(@Valid @RequestBody GenerateUsageRequest request) {
         return ResponseEntity.ok(usageService.generateUsage(request));
     }
     

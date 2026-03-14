@@ -11,8 +11,8 @@ com/telecom/authentication/domain/model/User.class
 com/telecom/authentication/web/dto/LoginRequest.class
 com/telecom/authentication/web/dto/CreateUserRequest.class
 com/telecom/authentication/application/AuthenticationService.class
-com/telecom/authentication/domain/model/AuthEvent$AuthEventType.class
 com/telecom/authentication/domain/repository/AuthEventRepository.class
+com/telecom/authentication/domain/model/AuthEvent$AuthEventType.class
 com/telecom/authentication/AuthenticationServiceApplication.class
 com/telecom/authentication/infrastructure/config/SecurityConfig.class
 com/telecom/authentication/domain/model/AuthEvent$AuthEventBuilder.class

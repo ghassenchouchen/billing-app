@@ -28,10 +28,10 @@ import java.util.List;
 <span class="nc" id="L28">                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))</span>
 <span class="nc" id="L29">            .authorizeHttpRequests(auth -&gt; auth</span>
 <span class="nc" id="L30">                .requestMatchers(</span>
-<span class="nc" id="L31">                    &quot;/swagger-ui/**&quot;,</span>
-<span class="nc" id="L32">                    &quot;/swagger-ui.html&quot;,</span>
-<span class="nc" id="L33">                    &quot;/v3/api-docs/**&quot;,</span>
-<span class="nc" id="L34">                    &quot;/actuator/**&quot;</span>
+                    &quot;/swagger-ui/**&quot;,
+                    &quot;/swagger-ui.html&quot;,
+                    &quot;/v3/api-docs/**&quot;,
+                    &quot;/actuator/**&quot;
 <span class="nc" id="L35">                ).permitAll()</span>
 <span class="nc" id="L36">                .anyRequest().permitAll()</span>
             );
@@ -43,9 +43,9 @@ import java.util.List;
     public CorsConfigurationSource corsConfigurationSource() {
 <span class="nc" id="L44">        CorsConfiguration configuration = new CorsConfiguration();</span>
 <span class="nc" id="L45">        configuration.setAllowedOrigins(List.of(</span>
-<span class="nc" id="L46">            &quot;http://localhost:4200&quot;,</span>
-<span class="nc" id="L47">            &quot;http://127.0.0.1:4200&quot;,</span>
-<span class="nc" id="L48">            &quot;http://localhost:8080&quot;</span>
+            &quot;http://localhost:4200&quot;,
+            &quot;http://127.0.0.1:4200&quot;,
+            &quot;http://localhost:8080&quot;
         ));
 <span class="nc" id="L50">        configuration.setAllowedMethods(Arrays.asList(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;, &quot;PATCH&quot;));</span>
 <span class="nc" id="L51">        configuration.setAllowedHeaders(List.of(&quot;*&quot;));</span>

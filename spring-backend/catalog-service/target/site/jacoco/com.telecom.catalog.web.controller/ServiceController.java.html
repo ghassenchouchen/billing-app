@@ -3,6 +3,7 @@
 import com.telecom.catalog.application.CatalogService;
 import com.telecom.catalog.web.dto.ServiceDto;
 import com.telecom.catalog.web.dto.CreateServiceRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,40 +19,40 @@ public class ServiceController {
     
     @GetMapping
     public ResponseEntity&lt;List&lt;ServiceDto&gt;&gt; getAllServices() {
-<span class="nc" id="L21">        return ResponseEntity.ok(catalogService.getAllServices());</span>
+<span class="nc" id="L22">        return ResponseEntity.ok(catalogService.getAllServices());</span>
     }
     
     @GetMapping(&quot;/active&quot;)
     public ResponseEntity&lt;List&lt;ServiceDto&gt;&gt; getActiveServices() {
-<span class="nc" id="L26">        return ResponseEntity.ok(catalogService.getActiveServices());</span>
+<span class="nc" id="L27">        return ResponseEntity.ok(catalogService.getActiveServices());</span>
     }
     
     @GetMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;ServiceDto&gt; getServiceById(@PathVariable Long id) {
-<span class="nc" id="L31">        return ResponseEntity.ok(catalogService.getServiceById(id));</span>
+<span class="nc" id="L32">        return ResponseEntity.ok(catalogService.getServiceById(id));</span>
     }
     
     @GetMapping(&quot;/code/{code}&quot;)
     public ResponseEntity&lt;ServiceDto&gt; getServiceByCode(@PathVariable String code) {
-<span class="nc" id="L36">        return ResponseEntity.ok(catalogService.getServiceByCode(code));</span>
+<span class="nc" id="L37">        return ResponseEntity.ok(catalogService.getServiceByCode(code));</span>
     }
     
     @PostMapping
-    public ResponseEntity&lt;ServiceDto&gt; createService(@RequestBody CreateServiceRequest request) {
-<span class="nc" id="L41">        return ResponseEntity.ok(catalogService.createService(request));</span>
+    public ResponseEntity&lt;ServiceDto&gt; createService(@Valid @RequestBody CreateServiceRequest request) {
+<span class="nc" id="L42">        return ResponseEntity.ok(catalogService.createService(request));</span>
     }
     
     @PutMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;ServiceDto&gt; updateService(
             @PathVariable Long id,
-            @RequestBody CreateServiceRequest request) {
-<span class="nc" id="L48">        return ResponseEntity.ok(catalogService.updateService(id, request));</span>
+            @Valid @RequestBody CreateServiceRequest request) {
+<span class="nc" id="L49">        return ResponseEntity.ok(catalogService.updateService(id, request));</span>
     }
     
     @DeleteMapping(&quot;/{id}&quot;)
     public ResponseEntity&lt;Void&gt; deleteService(@PathVariable Long id) {
-<span class="nc" id="L53">        catalogService.deleteService(id);</span>
-<span class="nc" id="L54">        return ResponseEntity.noContent().build();</span>
+<span class="nc" id="L54">        catalogService.deleteService(id);</span>
+<span class="nc" id="L55">        return ResponseEntity.noContent().build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

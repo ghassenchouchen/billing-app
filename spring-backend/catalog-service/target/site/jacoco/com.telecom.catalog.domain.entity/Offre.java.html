@@ -65,9 +65,9 @@ public class Offre {
     
     public boolean isValid() {
 <span class="fc" id="L67">        LocalDate now = LocalDate.now();</span>
-<span class="pc bpc" id="L68" title="1 of 2 branches missed.">        return status == OffreStatus.ACTIVE &amp;&amp;</span>
+<span class="pc bpc" id="L68" title="2 of 4 branches missed.">        return status == OffreStatus.ACTIVE &amp;&amp;</span>
 <span class="pc bpc" id="L69" title="2 of 4 branches missed.">               (dateDebut == null || !now.isBefore(dateDebut)) &amp;&amp;</span>
-<span class="pc bpc" id="L70" title="1 of 4 branches missed.">               (dateFin == null || !now.isAfter(dateFin));</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">               (dateFin == null || !now.isAfter(dateFin));</span>
     }
     
 <span class="fc" id="L73">    public enum OffreStatus {</span>

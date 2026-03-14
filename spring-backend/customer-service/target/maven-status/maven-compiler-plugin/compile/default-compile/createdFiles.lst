@@ -5,8 +5,8 @@ com/telecom/customer/web/controller/CustomerController.class
 com/telecom/customer/infrastructure/config/SecurityConfig.class
 com/telecom/customer/domain/entity/Customer$ClientType.class
 com/telecom/customer/application/CustomerService.class
-com/telecom/customer/domain/repository/CustomerRepository.class
 com/telecom/customer/infrastructure/kafka/CustomerEventPublisher.class
+com/telecom/customer/domain/repository/CustomerRepository.class
 com/telecom/customer/CustomerServiceApplication.class
 com/telecom/customer/web/dto/CreateClientRequest.class
 com/telecom/customer/web/dto/ClientDto.class
