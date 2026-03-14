@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Year;
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -63,14 +65,41 @@ public class CustomerService {
             .map(this::toDto)
             .orElseThrow(() -> new RuntimeException("Customer not found: " + pieceIdentite));
     }
+    @Transactional(readOnly = true)
+    public List<ClientDto> getCustomersByBoutique(String boutiqueRef) {
+        return customerRepository.findByBoutiqueRef(boutiqueRef).stream()
+            .map(this::toDto)
+            .toList();
+    }
+    
+    @Transactional(readOnly = true)
+    public List<ClientDto> getActiveCustomersByBoutique(String boutiqueRef) {
+        return customerRepository.findByBoutiqueRef(boutiqueRef).stream()
+            .filter(c -> c.getStatus() == Customer.ClientStatus.ACTIVE)
+            .map(this::toDto)
+            .toList();
+    }
+
     
     @Transactional
-    public ClientDto createCustomer(CreateClientRequest request) {
+    public ClientDto createCustomer(CreateClientRequest request, String role, String authBoutiqueId) {
         if (customerRepository.existsByEmail(request.email())) {
             throw new RuntimeException("Email already exists: " + request.email());
         }
         
+        // Determine boutiqueRef: force from auth context if caller is boutique-scoped
+        String boutiqueRef = request.boutiqueRef();
+        if (!"ADMIN".equals(role) && authBoutiqueId != null) {
+            boutiqueRef = authBoutiqueId; // Override with auth boutique
+            log.info("Forcing boutiqueRef={} for role={}", authBoutiqueId, role);
+        }
+        
+        if (boutiqueRef == null || boutiqueRef.trim().isEmpty()) {
+            throw new RuntimeException("boutiqueRef is required to create a customer");
+        }
+        
         Customer customer = Customer.builder()
+            .customerRef("TMP-" + UUID.randomUUID().toString().substring(0, 32))
             .nom(request.nom())
             .prenom(request.prenom())
             .email(request.email())
@@ -79,19 +108,28 @@ public class CustomerService {
             .adresse(request.adresse())
             .ville(request.ville())
             .codePostal(request.codePostal())
-            .pays(request.pays() != null ? request.pays() : "France")
+            .gouvernorat(request.gouvernorat())
+            .pays(request.pays() != null ? request.pays() : "Tunisie")
             .type(Customer.ClientType.valueOf(request.type()))
             .status(Customer.ClientStatus.ACTIVE)
             .accountBalance(BigDecimal.ZERO)
             .creditLimit(request.creditLimit() != null ? request.creditLimit() : BigDecimal.valueOf(500))
+            .hasSim(false)
+            .boutiqueRef(boutiqueRef.trim())
             .build();
         
+        customer = customerRepository.save(customer);
+        customer.setCustomerRef(generateCustomerRef(customer.getId()));
         customer = customerRepository.save(customer);
         log.info("Created customer: {} (ref: {})", customer.getId(), customer.getCustomerRef());
         
         eventPublisher.publishCustomerCreated(customer);
         
         return toDto(customer);
+    }
+
+    private String generateCustomerRef(Long customerId) {
+        return String.format("CLT-%d-%06d", Year.now().getValue(), customerId);
     }
     
     @Transactional
@@ -105,6 +143,7 @@ public class CustomerService {
         customer.setAdresse(request.adresse());
         customer.setVille(request.ville());
         customer.setCodePostal(request.codePostal());
+        customer.setGouvernorat(request.gouvernorat());
         if (request.pays() != null) {
             customer.setPays(request.pays());
         }
@@ -217,7 +256,8 @@ public class CustomerService {
     
     private ClientDto toDto(Customer customer) {
         return new ClientDto(
-            customer.getCustomerRef(),  // PUBLIC identifier only
+            customer.getCustomerRef(),
+            customer.getBoutiqueRef(),  // PUBLIC identifier only
             customer.getNom(),
             customer.getPrenom(),
             customer.getEmail(),
@@ -226,11 +266,13 @@ public class CustomerService {
             customer.getAdresse(),
             customer.getVille(),
             customer.getCodePostal(),
+            customer.getGouvernorat(),
             customer.getPays(),
             customer.getType().name(),
             customer.getStatus().name(),
             customer.getAccountBalance(),
             customer.getCreditLimit(),
+            customer.getHasSim(),
             customer.getCreatedAt()
         );
     }

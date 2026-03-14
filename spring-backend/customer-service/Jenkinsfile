@@ -1,0 +1,50 @@
+pipeline {
+    agent { label 'built-in'}
+
+     environment {
+        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKER_IMAGE = 'ghassenchouchen/customer-service'
+        SERVICE_DIR = 'spring-backend/customer-service'
+    }
+    stages {
+        stage('Build') {
+            steps {
+                dir('spring-backend/customer-service') {
+                    sh 'mvn clean package -DskipTests -B'
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                dir('spring-backend/customer-service') {
+                    sh 'mvn test -B'
+                }
+            }
+        }
+         stage('Docker Build') {
+            steps {
+                dir('spring-backend/customer-service') {
+                    sh 'docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest .'
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                sh 'echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin'
+                sh 'docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}'
+                sh 'docker push ${DOCKER_IMAGE}:latest'
+            }
+        }
+    }
+      post {
+        always {
+            script {
+                if (fileExists("${SERVICE_DIR}/target/surefire-reports")) {
+                    junit "${SERVICE_DIR}/target/surefire-reports/*.xml"
+                }
+            }
+            sh 'docker logout || true'
+        }
+    }
+}

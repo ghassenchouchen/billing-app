@@ -5,7 +5,8 @@ import java.time.LocalDateTime;
 
 
 public record ClientDto(
-    String customerRef,         // public identifier 
+    String customerRef, 
+    String boutiqueRef,        // public identifier 
     String nom,
     String prenom,
     String email,
@@ -14,10 +15,12 @@ public record ClientDto(
     String adresse,
     String ville,
     String codePostal,
+    String gouvernorat,
     String pays,
     String type,
     String status,
     BigDecimal accountBalance,
     BigDecimal creditLimit,
+    Boolean hasSim,
     LocalDateTime createdAt
 ) {}

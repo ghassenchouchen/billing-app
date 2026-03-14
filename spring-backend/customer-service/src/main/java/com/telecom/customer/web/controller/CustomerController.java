@@ -4,6 +4,7 @@ import com.telecom.customer.application.CustomerService;
 import com.telecom.customer.web.dto.ClientDto;
 import com.telecom.customer.web.dto.CreateClientRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,25 +18,45 @@ import java.util.Map;
  
  * ENDPOINTS:
   customer CRUD operations
-  customer lookup by  customerRef, email, cin/passport
+  customer lookup by  customerRef, boutiqueRef, email, cin/passport
   account balance operations
   customer lifecycle management (suspend, reactivate)
  */
 @RestController
 @RequestMapping("/customers")
 @RequiredArgsConstructor
+@Slf4j
 public class CustomerController {
     
     private final CustomerService customerService;
     
     
     @GetMapping
-    public ResponseEntity<List<ClientDto>> getAllCustomers() {
+    public ResponseEntity<List<ClientDto>> getAllCustomers(
+        @RequestParam(required = false) String boutiqueRef,
+        @RequestHeader(value = "X-Auth-Role", required = false) String role,
+        @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId
+    ) {
+        // Enforce boutique-scoped access for non-ADMIN users
+        if (!"ADMIN".equals(role) && authBoutiqueId != null) {
+            boutiqueRef = authBoutiqueId; // Force assigned boutique
+        }
+        
+        if (boutiqueRef != null) {
+            return ResponseEntity.ok(customerService.getCustomersByBoutique(boutiqueRef));
+        }
         return ResponseEntity.ok(customerService.getAllCustomers());
     }
     
     @GetMapping("/active")
-    public ResponseEntity<List<ClientDto>> getAllActiveCustomers() {
+    public ResponseEntity<List<ClientDto>> getAllActiveCustomers(
+        @RequestHeader(value = "X-Auth-Role", required = false) String role,
+        @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId
+    ) {
+        // Enforce boutique-scoped access
+        if (!"ADMIN".equals(role) && authBoutiqueId != null) {
+            return ResponseEntity.ok(customerService.getActiveCustomersByBoutique(authBoutiqueId));
+        }
         return ResponseEntity.ok(customerService.getAllActiveCustomers());
     }
     
@@ -47,8 +68,25 @@ public class CustomerController {
     }
     
     @GetMapping("/ref/{customerRef}")
-    public ResponseEntity<ClientDto> getCustomerByRef(@PathVariable String customerRef) {
-        return ResponseEntity.ok(customerService.getCustomerByRef(customerRef));
+    public ResponseEntity<ClientDto> getCustomerByRef(
+        @PathVariable String customerRef,
+        @RequestHeader(value = "X-Auth-Role", required = false) String role,
+        @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId
+    ) {
+        ClientDto customer = customerService.getCustomerByRef(customerRef);
+        
+        // Authorization check: boutique-scoped users can only access their own boutique customers
+        if (!"ADMIN".equals(role) && authBoutiqueId != null) {
+            if (!authBoutiqueId.equals(customer.boutiqueRef())) {
+                log.warn("Authorization failed: User with boutiqueId={} attempted to access customer {} with boutiqueRef={}", 
+                    authBoutiqueId, customerRef, customer.boutiqueRef());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            log.debug("Customer access granted: ref={}, role={}, authBoutiqueId={}, customerBoutiqueRef={}", 
+                customerRef, role, authBoutiqueId, customer.boutiqueRef());
+        }
+        
+        return ResponseEntity.ok(customer);
     }
     
     @GetMapping("/email/{email}")
@@ -62,8 +100,13 @@ public class CustomerController {
     }
     
     @PostMapping
-    public ResponseEntity<ClientDto> createCustomer(@RequestBody CreateClientRequest request) {
-        ClientDto customer = customerService.createCustomer(request);
+    public ResponseEntity<ClientDto> createCustomer(
+        @RequestBody CreateClientRequest request,
+        @RequestHeader(value = "X-Auth-Role", required = false) String role,
+        @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId
+    ) {
+        // Force boutiqueRef from auth context for boutique-scoped roles
+        ClientDto customer = customerService.createCustomer(request, role, authBoutiqueId);
         return ResponseEntity.status(HttpStatus.CREATED).body(customer);
     }
     
@@ -78,7 +121,18 @@ public class CustomerController {
     @PutMapping("/ref/{customerRef}")
     public ResponseEntity<ClientDto> updateCustomerByRef(
             @PathVariable String customerRef,
-            @RequestBody CreateClientRequest request) {
+            @RequestBody CreateClientRequest request,
+            @RequestHeader(value = "X-Auth-Role", required = false) String role,
+            @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId
+    ) {
+        // Check authorization before update
+        ClientDto existing = customerService.getCustomerByRef(customerRef);
+        if (!"ADMIN".equals(role) && authBoutiqueId != null) {
+            if (!authBoutiqueId.equals(existing.boutiqueRef())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+        }
+        
         return ResponseEntity.ok(customerService.updateCustomerByRef(customerRef, request));
     }
     

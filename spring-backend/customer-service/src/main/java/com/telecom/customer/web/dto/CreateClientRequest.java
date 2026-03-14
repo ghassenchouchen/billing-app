@@ -11,7 +11,9 @@ public record CreateClientRequest(
     String adresse,
     String ville,
     String codePostal,
+    String gouvernorat,
     String pays,
     String type,            // INDIVIDUAL or BUSINESS
-    BigDecimal creditLimit  
+    BigDecimal creditLimit,
+    String boutiqueRef
 ) {}
