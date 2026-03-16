@@ -9,3 +9,4 @@
 /home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/web/dto/CreateClientRequest.java
 /home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/domain/entity/Customer.java
 /home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/web/dto/ClientDto.java
+/home/shadowfax/billing-app/spring-backend/customer-service/src/main/java/com/telecom/customer/infrastructure/kafka/SimLifecycleEventListener.java

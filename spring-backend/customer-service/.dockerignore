@@ -1,0 +1,13 @@
+.git
+.gitignore
+README.md
+
+# Keep only the packaged runtime jar from target for CI image builds.
+target/*
+!target/*SNAPSHOT.jar
+
+# Maven metadata and editor files
+.mvn
+**/.idea
+**/.vscode
+**/*.iml
