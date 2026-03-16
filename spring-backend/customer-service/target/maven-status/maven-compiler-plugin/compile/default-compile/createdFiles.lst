@@ -8,5 +8,8 @@ com/telecom/customer/application/CustomerService.class
 com/telecom/customer/domain/repository/CustomerRepository.class
 com/telecom/customer/infrastructure/kafka/CustomerEventPublisher.class
 com/telecom/customer/CustomerServiceApplication.class
+com/telecom/customer/web/exception/GlobalExceptionHandler.class
+com/telecom/customer/infrastructure/config/OpenApiConfig.class
+com/telecom/customer/infrastructure/kafka/SimLifecycleEventListener.class
 com/telecom/customer/web/dto/CreateClientRequest.class
 com/telecom/customer/web/dto/ClientDto.class
