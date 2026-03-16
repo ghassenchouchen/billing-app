@@ -1,0 +1,62 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: billing-service
+    
+  datasource:
+    url: jdbc:mysql://localhost:3306/db_billing?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&useUnicode=true
+    username: root
+    password: root
+    
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+        
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        max.block.ms: 1000
+    consumer:
+      group-id: billing-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+services:
+  customer-url: ${CUSTOMER_SERVICE_URL:http://localhost:8081}
+  catalog-url: ${CATALOG_SERVICE_URL:http://localhost:8082}
+  subscription-url: ${SUBSCRIPTION_SERVICE_URL:http://localhost:8083}
+  usage-url: ${USAGE_SERVICE_URL:http://localhost:8084}
+
+billing:
+  tax-rate: 0.0  # TVA removed - set to 0 for backward compatibility
+  due-days: 15
+
+# OpenAPI/Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    com.telecom.billing: DEBUG
+    org.springframework.security: WARN
+    feign: DEBUG
+    org.springframework.cloud.openfeign: DEBUG

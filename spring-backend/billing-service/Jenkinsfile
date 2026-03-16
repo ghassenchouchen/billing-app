@@ -8,14 +8,14 @@ pipeline {
 
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentials')
-        DOCKER_IMAGE = 'ghassenchouchen/subscription-service'
-        SERVICE_DIR = 'spring-backend/subscription-service'
+        DOCKER_IMAGE = 'ghassenchouchen/billing-service'
+        SERVICE_DIR = 'spring-backend/billing-service'
     }
 
     stages {
-        stage('Build ') {
+        stage('Build + Test') {
             steps {
-                dir('spring-backend/subscription-service') {
+                dir('spring-backend/billing-service') {
                     sh 'mvn -B -ntp clean verify'
                 }
             }
@@ -23,7 +23,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                dir('spring-backend/subscription-service') {
+                dir('spring-backend/billing-service') {
                     sh 'docker build -f Dockerfile.ci -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest .'
                 }
             }
