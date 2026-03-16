@@ -1,28 +1,30 @@
 pipeline {
-    agent { label 'built-in'}
+    agent { label 'built-in' }
 
     options {
         timestamps()
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '5'))
     }
 
-     environment {
+    environment {
         DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentials')
-        DOCKER_IMAGE = 'ghassenchouchen/customer-service'
-        SERVICE_DIR = 'spring-backend/customer-service'
+        DOCKER_IMAGE = 'ghassenchouchen/authentication-service'
+        SERVICE_DIR = 'spring-backend/authentication-service'
     }
+
     stages {
         stage('Build + Test') {
             steps {
-                dir('spring-backend/customer-service') {
+                dir('spring-backend/authentication-service') {
                     sh 'mvn -B -ntp clean verify'
                 }
             }
         }
-         stage('Docker Build') {
+
+        stage('Docker Build') {
             steps {
-                dir('spring-backend/customer-service') {
-                    sh 'docker build -f Dockerfile -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest .'
+                dir('spring-backend/authentication-service') {
+                    sh 'docker build -f Dockerfile.ci -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest .'
                 }
             }
         }
@@ -35,7 +37,8 @@ pipeline {
             }
         }
     }
-      post {
+
+    post {
         always {
             script {
                 if (fileExists("${SERVICE_DIR}/target/surefire-reports")) {

@@ -3,6 +3,7 @@ package com.telecom.boutique.domain.repository;
 import com.telecom.boutique.domain.entity.StockSim;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,4 +24,7 @@ public interface StockSimRepository extends JpaRepository<StockSim, Long> {
     long countByBoutiqueIdAndStatus(Long boutiqueId, StockSim.SimStatus status);
 
     long countByAssignedToClientIdAndStatus(Long assignedToClientId, StockSim.SimStatus status);
+
+    @Query("SELECT s.iccid FROM StockSim s WHERE s.iccid IN :iccids")
+    List<String> findIccidsIn(@Param("iccids") List<String> iccids);
 }

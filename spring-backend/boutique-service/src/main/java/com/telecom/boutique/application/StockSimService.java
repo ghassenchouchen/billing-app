@@ -1,9 +1,12 @@
 package com.telecom.boutique.application;
 
 import com.telecom.boutique.domain.entity.StockSim;
+import com.telecom.boutique.domain.exception.BoutiqueNotFoundException;
 import com.telecom.boutique.domain.exception.CustomerNotFoundException;
+import com.telecom.boutique.domain.exception.DuplicateResourceException;
 import com.telecom.boutique.domain.exception.SimNotAvailableException;
 import com.telecom.boutique.domain.exception.SimNotFoundException;
+import com.telecom.boutique.domain.repository.BoutiqueRepository;
 import com.telecom.boutique.domain.repository.StockSimRepository;
 import com.telecom.boutique.infrastructure.client.CustomerClient;
 import com.telecom.boutique.infrastructure.kafka.SimEventPublisher;
@@ -23,6 +26,7 @@ import java.util.List;
 public class StockSimService {
 
     private final StockSimRepository stockSimRepository;
+    private final BoutiqueRepository boutiqueRepository;
     private final SimEventPublisher simEventPublisher;
     private final CustomerClient customerClient;
 
@@ -106,6 +110,14 @@ public class StockSimService {
 
     @Transactional
     public List<StockSimDto> addSimBatch(Long boutiqueId, List<AddSimRequest> sims) {
+        if (!boutiqueRepository.existsById(boutiqueId)) {
+            throw new BoutiqueNotFoundException(boutiqueId);
+        }
+        List<String> incomingIccids = sims.stream().map(AddSimRequest::iccid).toList();
+        List<String> existing = stockSimRepository.findIccidsIn(incomingIccids);
+        if (!existing.isEmpty()) {
+            throw new DuplicateResourceException("ICCIDs already in stock: " + existing);
+        }
         List<StockSim> entities = sims.stream().map(req -> StockSim.builder()
                 .iccid(req.iccid())
                 .imsi(req.imsi())
