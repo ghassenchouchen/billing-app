@@ -24,7 +24,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 dir('spring-backend/api-gateway') {
-                    sh 'docker build -f Dockerfile.ci -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest .'
+                    sh 'docker build -f Dockerfile -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest .'
                 }
             }
         }
