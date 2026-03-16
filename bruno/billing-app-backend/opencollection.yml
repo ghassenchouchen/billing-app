@@ -1,0 +1,26 @@
+opencollection: 1.0.0
+
+info:
+  name: billing-app-backend
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  variables:
+    - name: gatewayUrl
+      value: http://localhost:8090
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git

@@ -1,0 +1,18 @@
+info:
+  name: Get all customers
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{gatewayUrl}}/api/customers"
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiIzNTFlNDg3Ny03NmVkLTQ0NzctYWQxYS0wN2VkYWJkMzU5MWUiLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc3MjUzMzY4MCwiZXhwIjoxNzcyNTYyNDgwLCJpc3MiOiJ0ZWxlY29tLWJpbGxpbmctcGxhdGZvcm0iLCJyb2xlIjoiQURNSU4ifQ.Ig965KtAvv7z3Z0kLenxrAn5i9eUpQF3suGn-tioYGKd6Yz50Gd4oqW8Je6HMzjmsFbMjQ3RpmmZcH3Pe9jUDQ
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

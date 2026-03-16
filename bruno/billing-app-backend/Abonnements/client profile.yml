@@ -1,0 +1,18 @@
+info:
+  name: client profile
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{gatewayURL}}/api/subscriptions/client/ref/CLT-2024-001"
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiI0MmJjM2Q0OC1jZTE3LTRhZTEtYjhjZi1kZTY5NzFhYzYyMWMiLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc3MzEwMTg2NCwiZXhwIjoxNzczMTMwNjY0LCJpc3MiOiJ0ZWxlY29tLWJpbGxpbmctcGxhdGZvcm0iLCJyb2xlIjoiQURNSU4ifQ.8UTYqXCl072aFpsHXNbU9rZmziCeAB42GAcDjbcBgJ5_qdcsTSbVIiiTfgUx2nYzXihJaBtjpYh169gOUyp-Xg
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

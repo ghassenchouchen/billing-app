@@ -1,0 +1,10 @@
+info:
+  name: Abonnements
+  type: folder
+  seq: 1
+
+request:
+  headers:
+    - name: Authorization
+      value: Bearer eyJhbGciOiJIUzUxMiJ9.eyJqdGkiOiI5ZjZmNTRhMy1iYWY2LTRkYWUtYmVkZi0yMWM5ODY2M2YxMDIiLCJzdWIiOiJhZG1pbiIsImlhdCI6MTc3MzEwMTg2NCwiZXhwIjoxNzc1NjkzODY0LCJpc3MiOiJ0ZWxlY29tLWJpbGxpbmctcGxhdGZvcm0iLCJyb2xlIjoiQURNSU4iLCJ0eXBlIjoicmVmcmVzaCJ9.yQukWExk271OynIR1RRQkUi7Q4UQZTT5paHWU1p9yi9wfNqT_pMK7YsES9Vzfvy0AGgKfAz_sCUflDttYD9XwQ
+  auth: inherit
