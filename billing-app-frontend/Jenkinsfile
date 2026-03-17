@@ -1,6 +1,10 @@
 pipeline {
     agent { label 'built-in' }
 
+    tools {
+        sonarScanner 'sonarqube-scanner'
+    }
+
     options {
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '5'))
     }

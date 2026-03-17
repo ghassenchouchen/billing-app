@@ -1,0 +1,6 @@
+projectKey=billing-frontend
+serverUrl=http://localhost:9000
+serverVersion=26.2.0.119303
+dashboardUrl=http://localhost:9000/dashboard?id=billing-frontend
+ceTaskId=a0810033-3a26-4983-ade4-ca3344742922
+ceTaskUrl=http://localhost:9000/api/ce/task?id=a0810033-3a26-4983-ade4-ca3344742922
