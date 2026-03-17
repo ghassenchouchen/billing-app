@@ -1,9 +1,6 @@
 pipeline {
     agent { label 'built-in' }
 
-    tools {
-        sonarScanner 'sonarqube-scanner'
-    }
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '5'))
@@ -43,8 +40,11 @@ pipeline {
         stage('Code Quality') {
             steps {
                 withSonarQubeEnv('sonarqube') {
-                    dir('billing-app-frontend') {
-                        sh 'sonar-scanner'
+                    script {
+                        def scanner = tool name: 'sonarqube-scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                        dir('billing-app-frontend') {
+                            sh "${scanner}/bin/sonar-scanner"
+                        }
                     }
                 }
             }
