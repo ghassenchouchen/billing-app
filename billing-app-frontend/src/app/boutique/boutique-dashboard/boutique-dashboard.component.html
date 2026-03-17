@@ -1,0 +1,128 @@
+<div class="page">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Performance Boutique</h2>
+      <p class="page-subtitle" *ngIf="boutique">
+        {{ boutique.nom }}
+        <span class="header-sep">·</span>
+        <span class="boutique-code">{{ boutique.code }}</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Performance cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-revenue">
+      <div class="kpi-top">
+        <div class="kpi-icon revenue"><span class="material-icons">payments</span></div>
+        <span class="kpi-badge success" *ngIf="dashboard">Aujourd'hui</span>
+      </div>
+      <div class="kpi-label">Chiffre d'Affaires / Jour</div>
+      <div class="kpi-value">{{ dashboard ? formatCurrency(dashboard.revenueToday) : '—' }}</div>
+    </div>
+
+    <div class="kpi-card kpi-contracts">
+      <div class="kpi-top">
+        <div class="kpi-icon contracts"><span class="material-icons">smartphone</span></div>
+        <span class="kpi-badge info">Ce mois</span>
+      </div>
+      <div class="kpi-label">Abonnements (Mois)</div>
+      <div class="kpi-value" *ngIf="dashboard">
+        {{ dashboard.contractsThisMonth }}
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-sim" [class.kpi-alert]="dashboard && dashboard.simLowStock > 0">
+      <div class="kpi-top">
+        <div class="kpi-icon sim"><span class="material-icons">sim_card</span></div>
+        <div class="kpi-top-actions">
+          <span class="kpi-badge" [class.warning]="dashboard && dashboard.simLowStock > 0"
+                [class.success]="!dashboard || dashboard.simLowStock === 0">
+            {{ dashboard && dashboard.simLowStock > 0 ? 'Stock bas' : 'OK' }}
+          </span>
+          <a class="kpi-action-btn warning" *ngIf="dashboard && dashboard.simLowStock > 0" routerLink="/Boutique/stock/add" title="Réapprovisionner">
+            <span class="material-icons">add_circle_outline</span>
+          </a>
+        </div>
+      </div>
+      <div class="kpi-label">SIM En stock</div>
+      <div class="kpi-value">{{ dashboard ? dashboard.simAvailable : '—' }}</div>
+      <div class="kpi-sim-breakdown" *ngIf="dashboard">
+        <span class="sim-type-tag" *ngFor="let t of getSimTypeKeys()">{{ t }}: {{ dashboard.simByType[t] }}</span>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-txn">
+      <div class="kpi-top">
+        <div class="kpi-icon txn"><span class="material-icons">receipt_long</span></div>
+        <span class="kpi-badge neutral">Aujourd'hui</span>
+      </div>
+      <div class="kpi-label">Transactions du Jour</div>
+      <div class="kpi-value">{{ recentTransactions.length }}</div>
+    </div>
+  </div>
+
+  <div class="section-card data-table">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Dernières Ventes Boutique</div>
+        <div class="card-subtitle">Historique des transactions du jour</div>
+      </div>
+      <a class="btn btn-ghost btn-sm" routerLink="/Boutique/transactions">
+        <span class="material-icons">visibility</span>
+        Tout voir
+      </a>
+    </div>
+    <div class="card-body" style="padding:0">
+      <div class="table-responsive">
+        <table class="table table-hover txn-table">
+          <thead>
+            <tr>
+              <th>Client & Offre</th>
+              <th>Type</th>
+              <th>Statut</th>
+              <th>Montant</th>
+              <th>Heure</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let t of recentTransactions">
+              <td>
+                <div class="txn-client-cell">
+                  <div class="txn-avatar">
+                    <span class="material-icons">person</span>
+                  </div>
+                  <div class="txn-client-info">
+                    <span class="txn-client-name">{{ t.clientNom }}</span>
+                    <span class="txn-offer-label">{{ t.offreLibelle }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="txn-type">
+                  <span class="material-icons txn-type-icon">{{ getTypeIcon(t.typeTransaction) }}</span>
+                  {{ getTypeLabel(t.typeTransaction) }}
+                </div>
+              </td>
+              <td>
+                <span class="status-pill" [ngClass]="getStatusClass(t.status)">
+                  <span class="status-dot-sm"></span>
+                  {{ getStatusLabel(t.status) }}
+                </span>
+              </td>
+              <td class="txn-amount">{{ formatCurrency(t.montant) }}</td>
+              <td class="txn-time">{{ formatTime(t.createdAt) }}</td>
+            </tr>
+            <tr *ngIf="!recentTransactions.length && !loading">
+              <td colspan="5" class="empty-table">
+                <span class="material-icons">inbox</span>
+                Aucune transaction aujourd'hui
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,288 @@
+<div class="page">
+	<div class="page-header">
+		<div>
+			<h2 class="page-title">Facturation</h2>
+			<p class="page-subtitle">Gestion des factures, suivi des paiements et relances.</p>
+		</div>
+		<div class="page-actions">
+			<span class="chip">{{listofbills.length || 0}} factures</span>
+		</div>
+	</div>
+
+	<!-- KPI Metric Cards -->
+	<div class="metrics-row">
+		<div class="metric-card success">
+			<div class="metric-card__head">
+				<div class="metric-card__icon success">
+					<span class="material-icons">check_circle</span>
+				</div>
+				<span class="metric-card__trend success" *ngIf="paidCount">{{paidCount}} payées</span>
+			</div>
+			<div class="metric-card__label">Paiements Reçus</div>
+			<div class="metric-card__value">{{totalPaid | number:'1.2-2'}} <span class="metric-card__unit">TND</span></div>
+		</div>
+
+		<div class="metric-card warning">
+			<div class="metric-card__head">
+				<div class="metric-card__icon warning">
+					<span class="material-icons">schedule</span>
+				</div>
+				<span class="metric-card__trend warning" *ngIf="pendingCount">{{pendingCount}} en attente</span>
+			</div>
+			<div class="metric-card__label">En Attente de Règlement</div>
+			<div class="metric-card__value">{{totalPending | number:'1.2-2'}} <span class="metric-card__unit">TND</span></div>
+		</div>
+
+		<div class="metric-card danger">
+			<div class="metric-card__head">
+				<div class="metric-card__icon danger">
+					<span class="material-icons">warning</span>
+				</div>
+				<span class="metric-card__trend danger" *ngIf="overdueCount">{{overdueCount}} en retard</span>
+			</div>
+			<div class="metric-card__label">En Retard</div>
+			<div class="metric-card__value">{{totalOverdue | number:'1.2-2'}} <span class="metric-card__unit">TND</span></div>
+		</div>
+	</div>
+
+	<!-- Filter Toolbar -->
+	<div class="card section-card filter-toolbar">
+		<div class="card-header">
+			<div class="filter-bar">
+				<div class="search-input-wrapper">
+					<span class="material-icons search-icon">search</span>
+					<input class="form-control search-input" type="text"
+					       placeholder="Rechercher par n° de facture ou client..."
+					       [(ngModel)]="searchTerm"
+					       (ngModelChange)="applyFilters()" />
+				</div>
+				<select class="form-control filter-select" [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
+					<option value="">Statut: Tous</option>
+					<option value="PAID">Payée</option>
+					<option value="SENT">Envoyée</option>
+					<option value="DRAFT">Brouillon</option>
+					<option value="PENDING">En attente</option>
+					<option value="OVERDUE">En retard</option>
+					<option value="CANCELLED">Annulée</option>
+				</select>
+				<input class="form-control date-input" type="date" [(ngModel)]="filterStart" (ngModelChange)="applyFilters()" />
+				<input class="form-control date-input" type="date" [(ngModel)]="filterEnd" (ngModelChange)="applyFilters()" />
+				<button class="btn btn-ghost btn-sm" type="button" (click)="clearFilter()" *ngIf="hasActiveFilters">
+					<span class="material-icons">clear</span>
+					Réinitialiser
+				</button>
+			</div>
+			<button class="btn btn-action" type="button" (click)="exportBills()" [disabled]="!listofbills.length">
+				<span class="material-icons">download</span>
+				Exporter CSV
+			</button>
+		</div>
+	</div>
+
+	<!-- Invoice Table -->
+	<div class="card section-card data-table">
+		<div class="card-header section-header">
+			<div>
+				<h5 class="card-title mb-1">Historique de facturation</h5>
+				<p class="section-subtitle">Vue d'ensemble des factures et statuts de paiement.</p>
+			</div>
+		</div>
+		<div class="card-body">
+			<div class="table-responsive">
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th>N° Facture</th>
+							<th>Client</th>
+							<th class="text-right">Montant TTC</th>
+							<th>Date d'émission</th>
+							<th>Échéance</th>
+							<th>Statut</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let bill of listofbills">
+							<td class="mono-id">{{bill.numeroFacture || bill.id}}</td>
+							<td>
+								<div class="client-cell">
+									<span class="client-name">Client #{{bill.clientId}}</span>
+								</div>
+							</td>
+							<td class="text-right amount-cell">{{bill.montantTTC | number:'1.2-2'}} TND</td>
+							<td class="date-cell">{{bill.dateFacture || '—'}}</td>
+							<td class="date-cell" [class.overdue-date]="bill.statut === 'OVERDUE'">{{bill.dateEcheance || '—'}}</td>
+							<td>
+								<span class="badge-soft success" *ngIf="bill.statut === 'PAID'">Payée</span>
+								<span class="badge-soft info" *ngIf="bill.statut === 'SENT'">Envoyée</span>
+								<span class="badge-soft warning" *ngIf="bill.statut === 'DRAFT'">Brouillon</span>
+								<span class="badge-soft warning" *ngIf="bill.statut === 'PENDING'">En attente</span>
+								<span class="badge-soft danger" *ngIf="bill.statut === 'OVERDUE'">En retard</span>
+								<span class="badge-soft neutral" *ngIf="bill.statut === 'CANCELLED'">Annulée</span>
+							</td>
+							<td class="actions-cell">
+								<button class="btn-icon" type="button" (click)="detail(bill.id)" title="Voir les détails">
+									<span class="material-icons">visibility</span>
+								</button>
+								<button class="btn-icon success-hover" type="button"
+								        *ngIf="bill.statut !== 'PAID' && bill.statut !== 'CANCELLED'"
+								        (click)="openMarkPaidDialog(bill)" title="Marquer payée">
+									<span class="material-icons">payments</span>
+								</button>
+								<button class="btn-icon warning-hover" type="button"
+								        *ngIf="bill.statut === 'OVERDUE' || bill.statut === 'PENDING' || bill.statut === 'SENT'"
+								        (click)="sendReminder(bill)" [disabled]="sendingReminderId === bill.id" title="Envoyer relance">
+									<span class="material-icons">{{ sendingReminderId === bill.id ? 'hourglass_empty' : 'notification_important' }}</span>
+								</button>
+								<button class="btn-icon" type="button" (click)="exportBill(bill)" title="Exporter">
+									<span class="material-icons">download</span>
+								</button>
+								<button class="btn-icon danger-hover" type="button"
+								        *ngIf="bill.statut === 'OVERDUE'"
+								        (click)="cancelBill(bill)" title="Annuler la facture">
+									<span class="material-icons">cancel</span>
+								</button>
+							</td>
+						</tr>
+						<tr *ngIf="!listofbills.length">
+							<td colspan="7" class="empty-table">
+								<span class="material-icons">receipt_long</span>
+								Aucune facture trouvée
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<!-- Bill Details Panel -->
+	<div class="card section-card detail-panel" *ngIf="billdetails">
+		<div class="card-header">
+			<h5 class="card-title mb-0">Détails de la facture</h5>
+			<button class="btn btn-ghost btn-sm" type="button" (click)="billdetails = null">
+				<span class="material-icons">close</span>
+			</button>
+		</div>
+		<div class="card-body">
+			<div class="detail-grid">
+				<div class="detail-item">
+					<span class="detail-label">Facture</span>
+					<span class="detail-value mono-id">#{{billdetails.numeroFacture || billdetails.id}}</span>
+				</div>
+				<div class="detail-item">
+					<span class="detail-label">Client</span>
+					<span class="detail-value">Client #{{billdetails.clientId}}</span>
+				</div>
+				<div class="detail-item">
+					<span class="detail-label">Période</span>
+					<span class="detail-value">{{billdetails.periodeDebut || '—'}} au {{billdetails.periodeFin || '—'}}</span>
+				</div>
+				<div class="detail-item">
+					<span class="detail-label">Montant HT</span>
+					<span class="detail-value">{{billdetails.montantHT | number:'1.2-2'}} TND</span>
+				</div>
+				<div class="detail-item">
+					<span class="detail-label">TVA</span>
+					<span class="detail-value">{{billdetails.montantTVA | number:'1.2-2'}} TND</span>
+				</div>
+				<div class="detail-item highlight">
+					<span class="detail-label">Montant TTC</span>
+					<span class="detail-value font-bold">{{billdetails.montantTTC | number:'1.2-2'}} TND</span>
+				</div>
+				<div class="detail-item">
+					<span class="detail-label">Statut</span>
+					<span class="detail-value">
+						<span class="badge-soft success" *ngIf="billdetails.statut === 'PAID'">Payée</span>
+						<span class="badge-soft warning" *ngIf="billdetails.statut === 'PENDING' || billdetails.statut === 'DRAFT'">{{billdetails.statut}}</span>
+						<span class="badge-soft danger" *ngIf="billdetails.statut === 'OVERDUE'">En retard</span>
+						<span class="badge-soft info" *ngIf="billdetails.statut === 'SENT'">Envoyée</span>
+						<span class="badge-soft neutral" *ngIf="billdetails.statut === 'CANCELLED'">Annulée</span>
+					</span>
+				</div>
+				<div class="detail-item">
+					<span class="detail-label">Date facture</span>
+					<span class="detail-value">{{billdetails.dateFacture || '—'}}</span>
+				</div>
+				<div class="detail-item">
+					<span class="detail-label">Date échéance</span>
+					<span class="detail-value" [class.overdue-date]="billdetails.statut === 'OVERDUE'">{{billdetails.dateEcheance || '—'}}</span>
+				</div>
+			</div>
+
+			<div class="bill-lines" *ngIf="billLines.length">
+				<h6 class="bill-lines-title">Lignes de facture</h6>
+				<div class="table-responsive">
+					<table class="table table-sm">
+						<thead>
+							<tr>
+								<th>Service</th>
+								<th>Quantité</th>
+								<th class="text-right">Prix unitaire</th>
+								<th class="text-right">Montant</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr *ngFor="let line of billLines">
+								<td>{{line.description || '—'}}</td>
+								<td>{{line.quantite}}</td>
+								<td class="text-right">{{line.prixUnitaire | number:'1.2-2'}} TND</td>
+								<td class="text-right font-bold">{{line.montant | number:'1.2-2'}} TND</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Admin Actions in Detail Panel -->
+			<div class="detail-actions" *ngIf="billdetails && billdetails.statut !== 'PAID' && billdetails.statut !== 'CANCELLED'">
+				<h6 class="bill-lines-title">Actions administratives</h6>
+				<div class="admin-actions-bar">
+					<button class="btn btn-action" type="button" (click)="openMarkPaidDialog(billdetails)">
+						<span class="material-icons">payments</span>
+						Marquer comme payée
+					</button>
+					<button class="btn btn-ghost" type="button"
+					        *ngIf="billdetails.statut === 'OVERDUE' || billdetails.statut === 'PENDING' || billdetails.statut === 'SENT'"
+					        (click)="sendReminder(billdetails)" [disabled]="sendingReminderId === billdetails.id">
+						<span class="material-icons">notification_important</span>
+						Envoyer une relance
+					</button>
+					<button class="btn btn-action danger" type="button"
+					        *ngIf="billdetails.statut === 'OVERDUE'"
+					        (click)="cancelBill(billdetails)">
+						<span class="material-icons">cancel</span>
+						Annuler la facture
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Mark as Paid Dialog -->
+	<div class="modal-overlay" *ngIf="showPayDialog" (click)="showPayDialog = false">
+		<div class="modal-card" (click)="$event.stopPropagation()">
+			<div class="modal-header">
+				<h5>Marquer comme payée</h5>
+				<button class="btn btn-ghost btn-sm" type="button" (click)="showPayDialog = false">
+					<span class="material-icons">close</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<p class="modal-info">Facture <strong>{{payDialogBill?.numeroFacture || payDialogBill?.id}}</strong> — Montant : <strong>{{payDialogBill?.montantTTC | number:'1.2-2'}} TND</strong></p>
+				<div class="form-group">
+					<label>Référence de paiement</label>
+					<input class="form-control" type="text" [(ngModel)]="paymentRef" placeholder="Ex: VIR-2026-001, CB-REF-XYZ" />
+					<span class="form-text">Entrez la référence du virement, chèque ou transaction.</span>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn btn-action" type="button" (click)="confirmMarkPaid()" [disabled]="!paymentRef || markingPaidId">
+					<span class="material-icons">{{ markingPaidId ? 'hourglass_empty' : 'check_circle' }}</span>
+					{{ markingPaidId ? 'Traitement…' : 'Confirmer le paiement' }}
+				</button>
+				<button class="btn btn-ghost" type="button" (click)="showPayDialog = false">Annuler</button>
+			</div>
+		</div>
+	</div>
+</div>

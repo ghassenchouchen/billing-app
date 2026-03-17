@@ -1,0 +1,403 @@
+<div class="create-page">
+
+  <!-- Wizard Progress Bar -->
+  <div class="wizard-bar">
+    <div class="wizard-steps">
+      <div class="wizard-step" [ngClass]="{'active': currentStep === 1, 'done': currentStep > 1}" (click)="goToStep(1)">
+        <div class="step-circle">
+          <span *ngIf="currentStep <= 1">1</span>
+          <span class="material-icons" *ngIf="currentStep > 1" style="font-size:18px">check</span>
+        </div>
+        <span class="step-label">Client</span>
+      </div>
+      <div class="wizard-connector" [ngClass]="{'done': currentStep > 1}"></div>
+      <div class="wizard-step" [ngClass]="{'active': currentStep === 2, 'done': currentStep > 2, 'disabled': currentStep < 2}" (click)="goToStep(2)">
+        <div class="step-circle">
+          <span *ngIf="currentStep <= 2">2</span>
+          <span class="material-icons" *ngIf="currentStep > 2" style="font-size:18px">check</span>
+        </div>
+        <span class="step-label">Offre</span>
+      </div>
+      <div class="wizard-connector" [ngClass]="{'done': currentStep > 2}"></div>
+      <div class="wizard-step" [ngClass]="{'active': currentStep === 3, 'disabled': currentStep < 3}">
+        <div class="step-circle">3</div>
+        <span class="step-label">Confirmation</span>
+      </div>
+    </div>
+    <span class="cancel-link" (click)="cancel()">Annuler et quitter</span>
+  </div>
+
+  <!-- ═══════ Customer Summary (persistent once selected) ═══════ -->
+  <div class="customer-summary" *ngIf="selectedCustomer && currentStep >= 2">
+    <div class="cs-left">
+      <div class="cs-avatar" [style.background]="getAvatarColor(selectedCustomer)">
+        {{ getInitials(selectedCustomer) }}
+      </div>
+      <div class="cs-info">
+        <h4>{{ getCustomerFullName(selectedCustomer) }}</h4>
+        <p>ID: {{ selectedCustomer.customerRef }} • {{ getTypeLabel(selectedCustomer) }}</p>
+      </div>
+    </div>
+    <button class="btn-ghost btn-sm" *ngIf="!lockedCustomer" (click)="clearCustomer()">
+      <span class="material-icons">edit</span> Modifier le client
+    </button>
+  </div>
+
+  <div *ngIf="currentStep === 1">
+    <div class="form-card">
+      <div class="form-card-header">
+        <h1>Sélection du Client</h1>
+        <p>Recherchez et sélectionnez le client pour lequel créer un abonnement.</p>
+      </div>
+
+      <div class="customer-search-wrapper">
+        <span class="material-icons search-icon">search</span>
+        <input class="form-control search-input" type="text"
+               placeholder="Rechercher par nom, ID client, email, téléphone..."
+               [(ngModel)]="customerSearch"
+               (ngModelChange)="searchCustomers()" />
+      </div>
+
+      <div class="selected-customer-card" *ngIf="selectedCustomer">
+        <div class="sc-left">
+          <div class="sc-avatar" [style.background]="getAvatarColor(selectedCustomer)">
+            {{ getInitials(selectedCustomer) }}
+          </div>
+          <div class="sc-info">
+            <h4>{{ getCustomerFullName(selectedCustomer) }}</h4>
+            <p>{{ selectedCustomer.customerRef }} • {{ selectedCustomer.email }}</p>
+          </div>
+        </div>
+        <span class="material-icons check-icon">check_circle</span>
+      </div>
+
+      <!-- Customer list -->
+      <div class="customer-list" *ngIf="!loadingCustomers">
+        <div class="customer-list-item" *ngFor="let c of filteredCustomers"
+             [ngClass]="{'selected': selectedCustomer?.customerRef === c.customerRef}"
+             (click)="selectCustomer(c)">
+          <div class="cli-avatar" [style.background]="getAvatarColor(c)">
+            {{ getInitials(c) }}
+          </div>
+          <div class="cli-info">
+            <h4>{{ getCustomerFullName(c) }}</h4>
+            <p>{{ c.customerRef }} • {{ c.email }}</p>
+          </div>
+          <div class="cli-meta">
+            <span class="type-badge">{{ getTypeLabel(c) }}</span>
+          </div>
+          <span class="material-icons cli-check" *ngIf="selectedCustomer?.customerRef === c.customerRef">check_circle</span>
+        </div>
+        <div class="empty-list" *ngIf="filteredCustomers.length === 0">
+          <span class="material-icons">person_off</span>
+          <p>Aucun client trouvé</p>
+        </div>
+      </div>
+
+      <div class="loading-list" *ngIf="loadingCustomers">
+        <span class="material-icons">hourglass_empty</span>
+        <p>Chargement des clients...</p>
+      </div>
+
+      <div class="form-error" *ngIf="formErrors['customer']" style="text-align:center;margin:16px 0 0">{{ formErrors['customer'] }}</div>
+
+      <!-- Footer -->
+      <div class="form-footer">
+        <div class="form-footer-info">
+          <span class="material-icons">info</span>
+          Seuls les clients avec un statut Actif sont affichés.
+        </div>
+        <div class="form-footer-actions">
+          <button class="btn-ghost" (click)="cancel()">Annuler</button>
+          <button class="btn-primary" (click)="nextStep()">
+            Continuer <span class="material-icons">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ STEP 2: Choix de l'Offre ═══════ -->
+  <div *ngIf="currentStep === 2">
+    <div class="form-card">
+      <div class="form-card-header">
+        <h1>Choix de l'Offre Commerciale</h1>
+        <p>Sélectionnez l'offre à associer à l'abonnement du client.</p>
+      </div>
+
+      <div class="flow-selection">
+        <div class="flow-card" [ngClass]="{'selected': flowType === 'standard'}" (click)="setFlowType('standard')">
+          <div class="flow-icon standard">
+            <span class="material-icons">redeem</span>
+          </div>
+          <h4>Abonnement seul</h4>
+          <p>Souscrire à une offre sans affectation d'une nouvelle SIM.</p>
+          <div class="flow-steps">
+            <span class="material-icons">person</span>
+            <span class="material-icons">arrow_forward</span>
+            <span class="material-icons">redeem</span>
+            <span class="material-icons">arrow_forward</span>
+            <span class="material-icons">check_circle</span>
+          </div>
+          <span class="flow-labels">Client → Offre → Validation</span>
+          <span class="material-icons check-badge" *ngIf="flowType === 'standard'">check_circle</span>
+        </div>
+
+        <div class="flow-card" [ngClass]="{'selected': flowType === 'sim'}" (click)="setFlowType('sim')">
+          <div class="flow-icon sim">
+            <span class="material-icons">sim_card</span>
+          </div>
+          <h4>Abonnement + SIM</h4>
+          <p>Affecter une SIM disponible puis activer l'abonnement mobile.</p>
+          <div class="flow-steps">
+            <span class="material-icons">person</span>
+            <span class="material-icons">arrow_forward</span>
+            <span class="material-icons">sim_card</span>
+            <span class="material-icons">arrow_forward</span>
+            <span class="material-icons">smartphone</span>
+            <span class="material-icons">arrow_forward</span>
+            <span class="material-icons">check_circle</span>
+          </div>
+          <span class="flow-labels">Client → SIM → Offre → Validation</span>
+          <span class="material-icons check-badge" *ngIf="flowType === 'sim'">check_circle</span>
+        </div>
+      </div>
+
+      <div *ngIf="flowType === 'sim'">
+        <div class="sim-filters">
+          <div class="search-box">
+            <span class="material-icons">search</span>
+            <input type="text" placeholder="Rechercher par ICCID, MSISDN, IMSI" [(ngModel)]="simSearchQuery" (input)="filterSims()">
+          </div>
+          <select class="filter-select" [(ngModel)]="simFilterType" (change)="filterSims()">
+            <option value="">Tous types</option>
+            <option value="STANDARD">Standard</option>
+            <option value="ESIM">eSIM</option>
+          </select>
+        </div>
+
+        <div class="selected-sim-card" *ngIf="selectedSim">
+          <div class="ssim-icon"><span class="material-icons">sim_card</span></div>
+          <div class="ssim-info">
+            <h4>{{ selectedSim.msisdn }}</h4>
+            <p>{{ formatIccid(selectedSim.iccid) }} • {{ getSimTypeLabel(selectedSim.simType) }}</p>
+          </div>
+          <span class="material-icons check-icon">check_circle</span>
+        </div>
+
+        <div class="sim-list" *ngIf="!loadingSims">
+          <div class="sim-list-item" *ngFor="let sim of filteredSims"
+               [ngClass]="{'selected': selectedSim?.iccid === sim.iccid}"
+               (click)="selectSim(sim)">
+            <div class="sli-icon"><span class="material-icons">sim_card</span></div>
+            <div class="sli-info">
+              <h4>{{ sim.msisdn }}</h4>
+              <p class="sli-iccid">{{ formatIccid(sim.iccid) }}</p>
+            </div>
+            <span class="sim-type-badge" [class.esim]="sim.simType === 'ESIM'">{{ getSimTypeLabel(sim.simType) }}</span>
+            <span class="material-icons sli-check" *ngIf="selectedSim?.iccid === sim.iccid">check_circle</span>
+          </div>
+          <div class="empty-list" *ngIf="filteredSims.length === 0">
+            <span class="material-icons">sim_card_alert</span>
+            <p>Aucune SIM disponible</p>
+          </div>
+        </div>
+
+        <div class="loading-list" *ngIf="loadingSims">
+          <span class="material-icons">hourglass_empty</span>
+          <p>Chargement des SIM disponibles...</p>
+        </div>
+
+        <div class="form-error" *ngIf="formErrors['sim']" style="text-align:center;margin:12px 0 16px">{{ formErrors['sim'] }}</div>
+      </div>
+
+      <!-- Filter chips -->
+      <div class="offer-filters">
+        <button class="filter-chip" [class.active]="offerFilter === 'Tous'" (click)="setOfferFilter('Tous')">Tous</button>
+        <button class="filter-chip" *ngIf="showMobileFilter" [class.active]="offerFilter === 'Mobile'" (click)="setOfferFilter('Mobile')">
+          <span class="material-icons">smartphone</span> Mobile
+        </button>
+        <button class="filter-chip" [class.active]="offerFilter === 'Internet'" (click)="setOfferFilter('Internet')">
+          <span class="material-icons">wifi</span> Internet Fixe
+        </button>
+        <button class="filter-chip" *ngIf="showB2BFilter" [class.active]="offerFilter === 'B2B'" (click)="setOfferFilter('B2B')">
+          <span class="material-icons">business</span> B2B
+        </button>
+      </div>
+
+      <!-- Offer grid -->
+      <div class="offer-grid" *ngIf="!loadingOffers">
+        <div class="offer-card" *ngFor="let offer of filteredOffers"
+             [ngClass]="{'selected': selectedOffer?.id === offer.id}"
+             (click)="selectOffer(offer)">
+          <div class="offer-card-top">
+            <span class="payment-badge" [ngClass]="getPaymentBadgeClass(offer)">
+              {{ (offer.paymentType || 'POSTPAID').toUpperCase() }}
+            </span>
+            <span class="material-icons offer-check" *ngIf="selectedOffer?.id === offer.id">check_circle</span>
+          </div>
+          <div class="offer-card-body">
+            <div class="offer-icon-wrap">
+              <span class="material-icons">{{ getOfferIcon(offer) }}</span>
+            </div>
+            <h4>{{ offer.libelle || offer.nom }}</h4>
+            <p class="offer-desc">{{ offer.description }}</p>
+          </div>
+          <div class="offer-card-footer">
+            <span class="offer-price">{{ getOfferPrice(offer).toFixed(2) }} <small>TND/mois</small></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="loading-list" *ngIf="loadingOffers">
+        <span class="material-icons">hourglass_empty</span>
+        <p>Chargement des offres...</p>
+      </div>
+
+      <div class="empty-list" *ngIf="!loadingOffers && filteredOffers.length === 0">
+        <span class="material-icons">inventory_2</span>
+        <p>Aucune offre disponible pour ce filtre</p>
+      </div>
+
+      <div class="form-error" *ngIf="formErrors['offer']" style="text-align:center;margin:16px 0 0">{{ formErrors['offer'] }}</div>
+
+      <!-- Footer -->
+      <div class="form-footer">
+        <div class="form-footer-info">
+          <span class="material-icons">info</span>
+          L'abonnement sera créé avec la fréquence de facturation mensuelle par défaut.
+        </div>
+        <div class="form-footer-actions">
+          <button class="btn-ghost" (click)="prevStep()">
+            <span class="material-icons">arrow_back</span> Retour
+          </button>
+          <button class="btn-primary" (click)="nextStep()">
+            Continuer <span class="material-icons">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help cards -->
+    <div class="help-cards">
+      <div class="help-card info">
+        <span class="material-icons">description</span>
+        <div>
+          <h4>Notes d'activation</h4>
+          <p>Les offres Postpaid nécessitent une pièce d'identité valide enregistrée. La date de facturation par défaut est le 1er du mois.</p>
+        </div>
+      </div>
+      <div class="help-card success">
+        <span class="material-icons">bolt</span>
+        <div>
+          <h4>Activation immédiate</h4>
+          <p>L'abonnement sera activé immédiatement après confirmation. Le premier cycle de facturation débutera à la prochaine date de facturation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ STEP 3: Confirmation ═══════ -->
+  <div *ngIf="currentStep === 3">
+    <div class="form-card">
+      <div class="form-card-header">
+        <h1>Récapitulatif & Confirmation</h1>
+        <p>Vérifiez les informations avant de créer l'abonnement.</p>
+      </div>
+
+      <div class="confirmation-section" style="margin-bottom: 16px;">
+        <h3><span class="material-icons">schedule</span> Fréquence de facturation</h3>
+        <label class="conf-label" style="display:block;margin:8px 0 6px;">Choisir une fréquence</label>
+        <select class="form-control" [(ngModel)]="billingFrequency" [disabled]="isOfferPrepaid()">
+          <option value="MONTHLY">Mensuelle</option>
+          <option value="QUARTERLY">Trimestrielle (prix × 3)</option>
+          <option value="ANNUAL">Annuelle (prix × 12)</option>
+        </select>
+        <div *ngIf="isOfferPrepaid()" style="margin-top: 8px; color: #f59e0b; font-size: 13px;">
+          <span class="material-icons" style="font-size: 16px; vertical-align: middle;">info</span>
+          Les offres prépayées sont des paiements uniques sans récurrence.
+        </div>
+      </div>
+
+      <div class="confirmation-grid">
+        <!-- Client summary -->
+        <div class="confirmation-section" *ngIf="selectedCustomer">
+          <h3><span class="material-icons">person</span> Informations Client</h3>
+          <div class="conf-item">
+            <span class="conf-label">Nom</span>
+            <span class="conf-value">{{ getCustomerFullName(selectedCustomer) }}</span>
+          </div>
+          <div class="conf-item">
+            <span class="conf-label">Référence</span>
+            <span class="conf-value mono">{{ selectedCustomer.customerRef }}</span>
+          </div>
+          <div class="conf-item">
+            <span class="conf-label">Type</span>
+            <span class="conf-value">{{ getTypeLabel(selectedCustomer) }}</span>
+          </div>
+          <div class="conf-item">
+            <span class="conf-label">Email</span>
+            <span class="conf-value">{{ selectedCustomer.email }}</span>
+          </div>
+          <div class="conf-item">
+            <span class="conf-label">Téléphone</span>
+            <span class="conf-value">{{ selectedCustomer.telephone || '—' }}</span>
+          </div>
+        </div>
+
+        <!-- Offer summary -->
+        <div class="confirmation-section" *ngIf="selectedOffer">
+          <h3><span class="material-icons">redeem</span> Offre Sélectionnée</h3>
+          <div class="conf-item">
+            <span class="conf-label">Offre</span>
+            <span class="conf-value">{{ selectedOffer.libelle || selectedOffer.nom }}</span>
+          </div>
+          <div class="conf-item">
+            <span class="conf-label">Type de paiement</span>
+            <span class="conf-value">
+              <span class="payment-badge sm" [ngClass]="getPaymentBadgeClass(selectedOffer)">
+                {{ (selectedOffer.paymentType || 'POSTPAID').toUpperCase() }}
+              </span>
+            </span>
+          </div>
+          <div class="conf-item">
+            <span class="conf-label">Description</span>
+            <span class="conf-value desc-text">{{ selectedOffer.description }}</span>
+          </div>
+          <div class="conf-item">
+            <span class="conf-label">Date de début</span>
+            <span class="conf-value">{{ today }}</span>
+          </div>
+          <div class="conf-item">
+            <span class="conf-label">Fréquence</span>
+            <span class="conf-value">{{ getFrequencyLabel() }}</span>
+          </div>
+          <div class="conf-total">
+            <span class="conf-label">{{ isOfferPrepaid() ? 'Montant à payer' : (billingFrequency === 'MONTHLY' ? 'Mensualité' : billingFrequency === 'QUARTERLY' ? 'Paiement trimestriel' : 'Paiement annuel') }}</span>
+            <span class="conf-value price">{{ getOfferPrice(selectedOffer).toFixed(2) }} TND</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-error" *ngIf="formErrors['submit']" style="text-align:center;margin:16px 0 0">{{ formErrors['submit'] }}</div>
+
+      <!-- Footer -->
+      <div class="form-footer" style="margin-top:24px">
+        <div class="form-footer-info">
+          <span class="material-icons">check_circle</span>
+          En confirmant, l'abonnement sera créé et activé immédiatement.
+        </div>
+        <div class="form-footer-actions">
+          <button class="btn-ghost" (click)="prevStep()">
+            <span class="material-icons">arrow_back</span> Retour
+          </button>
+          <button class="btn-primary" (click)="submit()" [disabled]="saving">
+            <span class="material-icons">check</span>
+            {{ saving ? 'Création en cours...' : 'Confirmer et créer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

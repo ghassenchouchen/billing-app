@@ -1,0 +1,109 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Transactions</h2>
+      <p class="page-subtitle">Historique complet des transactions de la boutique</p>
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="txn-stats">
+    <div class="stat-card">
+      <span class="material-icons stat-icon revenue">payments</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ formatCurrency(totalRevenue) }}</span>
+        <span class="stat-label">Revenu total</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="material-icons stat-icon completed">check_circle</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ completedCount }}</span>
+        <span class="stat-label">Complétées</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="material-icons stat-icon pending">schedule</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ pendingCount }}</span>
+        <span class="stat-label">En attente</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters + Table -->
+  <div class="section-card">
+    <div class="filters-bar">
+      <div class="search-box">
+        <span class="material-icons">search</span>
+        <input type="text" placeholder="Rechercher par client, référence, offre…" [(ngModel)]="searchQuery" (input)="applyFilters()">
+      </div>
+      <select class="filter-select" [(ngModel)]="filterType" (change)="applyFilters()">
+        <option value="">Tous types</option>
+        <option *ngFor="let t of txnTypes" [value]="t">{{ getTypeLabel(t) }}</option>
+      </select>
+      <select class="filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
+        <option value="">Tous statuts</option>
+        <option *ngFor="let s of txnStatuses" [value]="s">{{ getStatusLabel(s) }}</option>
+      </select>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Référence</th>
+            <th>Client & Offre</th>
+            <th>Type</th>
+            <th>Statut</th>
+            <th>Montant</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of filteredTransactions">
+            <td>
+              <span class="txn-ref">{{ t.reference }}</span>
+            </td>
+            <td>
+              <div class="txn-client-cell">
+                <div class="txn-avatar">
+                  <span class="material-icons">person</span>
+                </div>
+                <div class="txn-client-info">
+                  <span class="txn-client-name">{{ t.clientNom }}</span>
+                  <span class="txn-offer-label">{{ t.offreLibelle }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="txn-type">
+                <span class="material-icons txn-type-icon">{{ getTypeIcon(t.typeTransaction) }}</span>
+                {{ getTypeLabel(t.typeTransaction) }}
+              </div>
+            </td>
+            <td>
+              <span class="status-pill" [ngClass]="getStatusClass(t.status)">
+                <span class="status-dot-sm"></span>
+                {{ getStatusLabel(t.status) }}
+              </span>
+            </td>
+            <td class="txn-amount">{{ formatCurrency(t.montant) }}</td>
+            <td>
+              <div class="txn-date-cell">
+                <span class="txn-date">{{ formatDate(t.createdAt) }}</span>
+                <span class="txn-time">{{ formatTime(t.createdAt) }}</span>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="!filteredTransactions.length && !loading">
+            <td colspan="6" class="empty-table">
+              <span class="material-icons">receipt_long</span>
+              Aucune transaction trouvée
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

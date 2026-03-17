@@ -1,0 +1,214 @@
+<div class="page">
+  <div class="page-header">
+    <div class="header-left">
+      <button class="btn-back" (click)="goBack()">
+        <span class="material-icons">arrow_back</span>
+      </button>
+      <div>
+        <h2 class="page-title">Réapprovisionner en SIM</h2>
+        <p class="page-subtitle">Recevoir et enregistrer un nouveau lot de cartes SIM</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-type-selector">
+    <div class="product-type-card" *ngFor="let pt of productTypes" [class.selected]="selectedProductType === pt.key"
+      [class.disabled]="!pt.enabled" (click)="selectProductType(pt.key)">
+      <span class="material-icons product-type-icon">{{ pt.icon }}</span>
+      <div class="product-type-info">
+        <span class="product-type-label">{{ pt.label }}</span>
+        <span class="product-type-desc">{{ pt.description }}</span>
+      </div>
+      <span class="material-icons check-icon" *ngIf="selectedProductType === pt.key">check_circle</span>
+      <span class="coming-soon" *ngIf="!pt.enabled">Bientôt</span>
+    </div>
+  </div>
+
+  <div class="two-col-layout">
+    <div class="col-main">
+      <div class="section-card">
+        <div class="card-header">
+          <h3>
+            <span class="material-icons">sim_card</span>
+            Réception d'un lot de SIM
+          </h3>
+        </div>
+
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Type de SIM</label>
+              <select [(ngModel)]="newSimData.simType">
+                <option value="STANDARD">Standard</option>
+                <option value="ESIM">eSIM</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Quantité du lot <span class="required">*</span></label>
+              <input type="number" [(ngModel)]="batchQuantity" placeholder="Ex: 50" min="1" max="200">
+            </div>
+          </div>
+
+          <div class="form-footer">
+            <button class="btn btn-action" (click)="generateBatch(batchQuantity)"
+              [disabled]="!batchQuantity || batchQuantity < 1">
+              <span class="material-icons">inventory_2</span>
+              Enregistrer la réception
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card batch-section">
+        <div class="card-header">
+          <h3>
+            <span class="material-icons">list</span>
+            Liste d'ajout
+            <span class="badge" *ngIf="batch.length > 0">{{ batch.length }}</span>
+          </h3>
+          <div class="header-actions" *ngIf="batch.length > 0">
+            <button class="btn btn-ghost btn-sm btn-danger-ghost" (click)="clearBatch()">
+              <span class="material-icons">delete_sweep</span>
+              Vider
+            </button>
+          </div>
+        </div>
+
+        <div class="batch-list" *ngIf="batch.length > 0">
+          <div class="batch-item" *ngFor="let item of batch; let i = index">
+            <div class="batch-item-icon">
+              <span class="material-icons">sim_card</span>
+            </div>
+            <div class="batch-item-info">
+              <span class="batch-msisdn">{{ item.msisdn }}</span>
+              <span class="batch-iccid">{{ formatIccid(item.iccid) }}</span>
+            </div>
+            <span class="batch-type-badge" [class]="'type-' + item.simType.toLowerCase()">
+              {{ item.simType === 'ESIM' ? 'eSIM' : 'Standard' }}
+            </span>
+            <button class="btn-remove" (click)="removeFromList(i)" title="Retirer">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="empty-batch" *ngIf="batch.length === 0">
+          <span class="material-icons">inbox</span>
+          <p>Aucun article dans la liste</p>
+          <span class="hint">Choisissez le type de SIM et la quantité du lot ci-dessus.</span>
+        </div>
+
+        <div class="save-bar" *ngIf="batch.length > 0">
+          <div class="save-summary">
+            <span class="material-icons">inventory_2</span>
+            {{ batch.length }} article(s) prêt(s) à enregistrer
+          </div>
+          <div class="save-actions">
+            <button class="btn btn-ghost" (click)="goBack()">Annuler</button>
+            <button class="btn btn-primary" (click)="save()" [disabled]="saving">
+              <span class="material-icons">{{ saving ? 'hourglass_empty' : 'save' }}</span>
+              {{ saving ? 'Enregistrement…' : 'Ajouter au stock' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="feedback-banner success" *ngIf="saveSuccess">
+        <span class="material-icons">check_circle</span>
+        <div>
+          <strong>Stock enregistré avec succès</strong>
+          <p>Les articles ont été ajoutés à l'inventaire de la boutique.</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" (click)="goBack()">
+          <span class="material-icons">arrow_back</span>
+          Retour au stock
+        </button>
+      </div>
+
+      <div class="feedback-banner error" *ngIf="saveError">
+        <span class="material-icons">error</span>
+        <div>
+          <strong>Erreur</strong>
+          <p>{{ saveError }}</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" (click)="saveError = ''">
+          <span class="material-icons">close</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="col-side">
+      <div class="section-card side-panel">
+        <div class="card-header">
+          <h3>
+            <span class="material-icons">analytics</span>
+            Stock actuel
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="kpi-row">
+            <div class="kpi">
+              <span class="kpi-value">{{ totalStock }}</span>
+              <span class="kpi-label">Total</span>
+            </div>
+            <div class="kpi kpi-highlight">
+              <span class="kpi-value">{{ availableStock }}</span>
+              <span class="kpi-label">Disponibles</span>
+            </div>
+          </div>
+          <div class="stock-breakdown" *ngIf="!loadingStats">
+            <div class="breakdown-item" *ngFor="let entry of stockByType | keyvalue">
+              <span class="breakdown-label">{{ entry.key === 'ESIM' ? 'eSIM' : 'Standard' }}</span>
+              <span class="breakdown-value">{{ entry.value }}</span>
+            </div>
+          </div>
+          <div class="loading-placeholder" *ngIf="loadingStats">
+            <span class="material-icons spin">sync</span>
+            <span>Chargement…</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-card side-panel">
+        <div class="card-header">
+          <h3>
+            <span class="material-icons">help_outline</span>
+            Guide
+          </h3>
+        </div>
+        <div class="card-body guide-content">
+          <div class="guide-step">
+            <span class="step-num">1</span>
+            <div>
+              <strong>Choisir le type</strong>
+              <p>Sélectionnez Standard ou eSIM </p>
+            </div>
+          </div>
+          <div class="guide-step">
+            <span class="step-num">2</span>
+            <div>
+              <strong>Remplir</strong>
+              <p>Saisissez les identifiants</p>
+            </div>
+          </div>
+          <div class="guide-step">
+            <span class="step-num">3</span>
+            <div>
+              <strong>Ajouter à la liste</strong>
+              <p>Constituez le lot complet avant d'enregistrer.</p>
+            </div>
+          </div>
+          <div class="guide-step">
+            <span class="step-num">4</span>
+            <div>
+              <strong>Enregistrer</strong>
+              <p>Validez pour mettre à jour l'inventaire de la boutique.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+       
+    </div>
+  </div>
+</div>

@@ -1,0 +1,221 @@
+.filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg, #eef2f7);
+  border-radius: 10px;
+  padding: 8px 14px;
+  flex: 1;
+  min-width: 220px;
+  max-width: 400px;
+}
+.search-box .material-icons {
+  font-size: 20px;
+  color: var(--muted, #6b7280);
+}
+.search-box input {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 13px;
+  color: var(--ink, #0b1220);
+  width: 100%;
+}
+.search-box input::placeholder {
+  color: var(--muted, #6b7280);
+}
+
+.filter-select {
+  border: 1px solid var(--border, #e5e7eb);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--ink, #0b1220);
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  min-width: 160px;
+}
+.filter-select:focus {
+  border-color: var(--primary, #5b4bff);
+  box-shadow: 0 0 0 3px rgba(91, 75, 255, 0.1);
+}
+
+.user-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+.user-avatar.role-admin {
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+}
+.user-avatar.role-responsable {
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+}
+.user-avatar.role-agent {
+  background: linear-gradient(135deg, #0891b2, #22d3ee);
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink, #0b1220);
+}
+
+.user-username {
+  font-size: 11px;
+  color: var(--muted, #6b7280);
+  margin-top: 1px;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.role-badge.role-admin {
+  background: rgba(124, 58, 237, 0.1);
+  color: #7c3aed;
+}
+.role-badge.role-responsable {
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+}
+.role-badge.role-agent {
+  background: rgba(8, 145, 178, 0.1);
+  color: #0891b2;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.status-dot-sm {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+.status-active {
+  background: #ecfdf5;
+  color: #059669;
+}
+.status-active .status-dot-sm {
+  background: #10b981;
+}
+.status-disabled {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.status-disabled .status-dot-sm {
+  background: #ef4444;
+}
+
+.boutique-name {
+  font-size: 13px;
+  color: #334155;
+}
+
+.actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--muted, #6b7280);
+  transition: all 0.15s;
+}
+.btn-icon:hover {
+  background: var(--bg, #eef2f7);
+  color: var(--ink, #0b1220);
+}
+.btn-icon.danger:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+.btn-icon.success:hover {
+  background: #ecfdf5;
+  color: #059669;
+}
+.btn-icon.delete:hover {
+  background: #fef2f2;
+  color: #ef4444;
+}
+.btn-icon .material-icons {
+  font-size: 18px;
+}
+
+.table-footer {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border, #e5e7eb);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.table-footer-info {
+  font-size: 12px;
+  color: var(--muted, #6b7280);
+}
+
+.empty-table {
+  text-align: center;
+  padding: 48px 20px !important;
+  color: var(--muted, #6b7280);
+  font-size: 14px;
+}
+.empty-table .material-icons {
+  display: block;
+  font-size: 40px;
+  color: #d1d5db;
+  margin-bottom: 8px;
+}
+
+.text-right {
+  text-align: right;
+}
+.text-muted {
+  color: var(--muted, #6b7280);
+  font-size: 13px;
+}

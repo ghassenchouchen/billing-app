@@ -1,0 +1,267 @@
+<div class="page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Vue d'ensemble de toutes les boutiques</h2>
+      <p class="page-subtitle">Vue d'ensemble de toutes les boutiques du réseau</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-action primary" routerLink="/Boutiques/new">
+        <span class="material-icons">add_business</span>
+        Nouvelle Boutique
+      </a>
+    </div>
+  </div>
+
+  <!-- Global KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi-card kpi-boutiques">
+      <div class="kpi-icon-wrap boutiques"><span class="material-icons">storefront</span></div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ totalBoutiques }}</span>
+        <span class="kpi-label">Boutiques</span>
+      </div>
+      <span class="kpi-badge success">{{ activeBoutiques }} actives</span>
+    </div>
+    <!--<div class="kpi-card kpi-sim-total">
+      <div class="kpi-icon-wrap sim"><span class="material-icons">sim_card</span></div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ totalSim }}</span>
+        <span class="kpi-label">Cartes SIM Total</span>
+      </div>
+    </div>-->
+    <div class="kpi-card kpi-revenue-total">
+      <div class="kpi-icon-wrap revenue"><span class="material-icons">payments</span></div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ formatCurrency(totalRevenue) }}</span>
+        <span class="kpi-label">Revenu Total</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="section-card">
+    <div class="filters-bar">
+      <div class="search-box">
+        <span class="material-icons">search</span>
+        <input type="text" placeholder="Rechercher par nom, code ou ville…"
+               [(ngModel)]="searchQuery" (input)="applyFilters()">
+      </div>
+      <select class="filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
+        <option value="">Tous statuts</option>
+        <option value="ACTIVE">Active</option>
+        <option value="INACTIVE">Inactive</option>
+        <option value="CLOSED">Fermée</option>
+      </select>
+    </div>
+
+    <!-- Boutique Cards Grid -->
+    <div class="boutique-grid">
+      <div class="boutique-card" *ngFor="let b of filteredBoutiques"
+           [class.selected]="selectedBoutique?.id === b.id"
+           (click)="selectBoutique(b)">
+        <div class="boutique-card-header">
+          <div class="boutique-avatar">
+            <span class="material-icons">store</span>
+          </div>
+          <div class="boutique-meta">
+            <span class="boutique-name">{{ b.nom }}</span>
+            <span class="boutique-code">{{ b.code }}</span>
+          </div>
+          <span class="status-dot" [ngClass]="getStatusClass(b.status)"
+                [title]="getStatusLabel(b.status)"></span>
+        </div>
+
+        <div class="boutique-location">
+          <span class="material-icons">location_on</span>
+          {{ b.ville }} — {{ b.adresse }}
+        </div>
+
+        <div class="boutique-contact">
+          <span class="contact-item"><span class="material-icons">phone</span> {{ b.telephone }}</span>
+          <span class="contact-item"><span class="material-icons">email</span> {{ b.email }}</span>
+        </div>
+
+        <div class="boutique-quick-stats">
+          <div class="quick-stat">
+            <span class="material-icons">sim_card</span>
+            <span class="qs-value">{{ b.stockCount }}</span>
+            <span class="qs-label">SIM</span>
+          </div>
+          <div class="quick-stat">
+            <span class="material-icons">check_circle</span>
+            <span class="qs-value">{{ b.availableSim }}</span>
+            <span class="qs-label">Dispo.</span>
+          </div>
+          <div class="quick-stat">
+            <span class="material-icons">receipt_long</span>
+            <span class="qs-value">{{ b.transactionCount }}</span>
+            <span class="qs-label">Txns</span>
+          </div>
+          <div class="quick-stat">
+            <span class="material-icons">payments</span>
+            <span class="qs-value">{{ formatCurrency(b.revenue) }}</span>
+            <span class="qs-label">Revenu</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="!filteredBoutiques.length && !loading">
+      <span class="material-icons">store</span>
+      <p>Aucune boutique trouvée</p>
+    </div>
+  </div>
+
+  <!-- Detail Panel (appears when a boutique is selected) -->
+  <div class="detail-panel section-card" *ngIf="selectedBoutique">
+    <div class="detail-header">
+      <div>
+        <h3 class="detail-title">{{ selectedBoutique.nom }}</h3>
+        <p class="detail-subtitle">
+          {{ selectedBoutique.code }}
+          <span class="detail-sep">·</span>
+          {{ selectedBoutique.ville }}
+          <span class="detail-sep">·</span>
+          <span class="status-pill-sm" [ngClass]="getStatusClass(selectedBoutique.status)">
+            {{ getStatusLabel(selectedBoutique.status) }}
+          </span>
+        </p>
+      </div>
+      <button class="btn-close-detail" (click)="closeBoutiqueDetail()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <!-- Boutique Info Row -->
+    <div class="detail-info-row">
+      <div class="info-item">
+        <span class="material-icons">location_on</span>
+        <div>
+          <span class="info-label">Adresse</span>
+          <span class="info-value">{{ selectedBoutique.adresse }}, {{ selectedBoutique.codePostal }} {{ selectedBoutique.ville }}</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <span class="material-icons">phone</span>
+        <div>
+          <span class="info-label">Téléphone</span>
+          <span class="info-value">{{ selectedBoutique.telephone }}</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <span class="material-icons">email</span>
+        <div>
+          <span class="info-label">Email</span>
+          <span class="info-value">{{ selectedBoutique.email }}</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <span class="material-icons">event</span>
+        <div>
+          <span class="info-label">Ouverture</span>
+          <span class="info-value">{{ formatDate(selectedBoutique.createdAt) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Two-Column Layout: Stock + Transactions -->
+    <div class="detail-columns">
+
+      <!-- Stock Breakdown -->
+      <div class="detail-col">
+        <h4 class="col-title">
+          <span class="material-icons">sim_card</span>
+          Inventaire SIM
+          <span class="col-count">{{ selectedBoutique.stockCount }} total</span>
+        </h4>
+
+        <div class="stock-breakdown" *ngIf="selectedBoutique.stock">
+          <div class="breakdown-section">
+            <span class="breakdown-label">Par Type</span>
+            <div class="breakdown-tags">
+              <span class="breakdown-tag" *ngFor="let t of getStockByType(selectedBoutique.stock)">
+                {{ t.label }}: <strong>{{ t.count }}</strong>
+              </span>
+            </div>
+          </div>
+          <div class="breakdown-section">
+            <span class="breakdown-label">Par Statut</span>
+            <div class="breakdown-tags">
+              <span class="breakdown-tag" [ngClass]="getSimStatusClass(s.status)"
+                    *ngFor="let s of getStockByStatus(selectedBoutique.stock)">
+                {{ s.label }}: <strong>{{ s.count }}</strong>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIM mini-table -->
+        <div class="mini-table-wrap" *ngIf="selectedBoutique.stock?.length">
+          <table class="mini-table">
+            <thead>
+              <tr>
+                <th>ICCID</th>
+                <th>Type</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let sim of selectedBoutique.stock?.slice(0, 10)">
+                <td class="mono">…{{ sim.iccid.slice(-8) }}</td>
+                <td>
+                  <span class="type-badge" [class]="'type-' + sim.simType.toLowerCase()">
+                    {{ getTypeLabel(sim.simType) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="status-mini" [ngClass]="getSimStatusClass(sim.status)">
+                    {{ getSimStatusLabel(sim.status) }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="mini-table-footer" *ngIf="selectedBoutique.stock && selectedBoutique.stock.length > 10">
+            + {{ selectedBoutique.stock.length - 10 }} autres cartes SIM
+          </div>
+        </div>
+        <div class="empty-mini" *ngIf="!selectedBoutique.stock?.length && !detailLoading">
+          <span class="material-icons">sim_card</span>
+          Aucune carte SIM en stock
+        </div>
+      </div>
+
+      <!-- Recent Transactions -->
+      <div class="detail-col">
+        <h4 class="col-title">
+          <span class="material-icons">receipt_long</span>
+          Transactions Récentes
+          <span class="col-count">{{ selectedBoutique.transactionCount }} total</span>
+        </h4>
+
+        <div class="txn-list" *ngIf="selectedBoutique.recentTransactions?.length">
+          <div class="txn-item" *ngFor="let t of selectedBoutique.recentTransactions">
+            <div class="txn-icon-wrap">
+              <span class="material-icons">{{ getTxnTypeIcon(t.typeTransaction) }}</span>
+            </div>
+            <div class="txn-info">
+              <span class="txn-client">{{ t.clientNom }}</span>
+              <span class="txn-offer">{{ t.offreLibelle }}</span>
+            </div>
+            <div class="txn-right">
+              <span class="txn-amount">{{ formatCurrency(t.montant) }}</span>
+              <span class="txn-status-mini" [ngClass]="getTxnStatusClass(t.status)">
+                {{ getTxnStatusLabel(t.status) }}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="empty-mini" *ngIf="!selectedBoutique.recentTransactions?.length && !detailLoading">
+          <span class="material-icons">receipt_long</span>
+          Aucune transaction enregistrée
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

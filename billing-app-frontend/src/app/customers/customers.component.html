@@ -1,0 +1,269 @@
+<div class="page">
+<div class="page-header">
+<div>
+<h2 class="page-title">Gestion Client&egrave;le</h2>
+<p class="page-subtitle">R&eacute;pertoire clients, suivi des comptes et gestion des profils.</p>
+</div>
+<div class="page-actions" *ngIf="canCreateCustomer">
+<button class="btn btn-action primary" type="button" (click)="openCreateForm()" [disabled]="showCreateForm">
+<span class="material-icons">person_add</span>
+Nouveau Client
+</button>
+</div>
+</div>
+
+<!-- Create Form -->
+<div class="card section-card" *ngIf="showCreateForm">
+<div class="card-header">
+<h5 class="card-title mb-0">Nouveau client</h5>
+<button class="btn btn-ghost btn-sm" type="button" (click)="closeCreateForm()" [disabled]="saving">
+<span class="material-icons">close</span>
+</button>
+</div>
+<div class="card-body">
+<div class="form-section">
+<div class="form-row">
+<div class="form-group">
+<label>Nom</label>
+<input class="form-control" type="text" [(ngModel)]="formData.nom" placeholder="Ex: Ben Ali" />
+</div>
+<div class="form-group">
+<label>Pr&eacute;nom</label>
+<input class="form-control" type="text" [(ngModel)]="formData.prenom" placeholder="Ex: Mohamed" />
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label>Email</label>
+<input class="form-control" type="email" [(ngModel)]="formData.email" placeholder="nom@exemple.tn" />
+</div>
+<div class="form-group">
+<label>T&eacute;l&eacute;phone</label>
+<input class="form-control" type="tel" [(ngModel)]="formData.telephone" placeholder="+216 XX XXX XXX" />
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label>Adresse</label>
+<input class="form-control" type="text" [(ngModel)]="formData.adresse" placeholder="Adresse compl&egrave;te" />
+</div>
+<div class="form-group">
+<label>Ville</label>
+<input class="form-control" type="text" [(ngModel)]="formData.ville" placeholder="Ex: Tunis" />
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label>Code postal</label>
+<input class="form-control" type="text" [(ngModel)]="formData.codePostal" placeholder="Ex: 1000" />
+</div>
+<div class="form-group">
+<label>Type de profil</label>
+<select class="form-control" [(ngModel)]="formData.type">
+<option value="INDIVIDUAL">Individu</option>
+<option value="BUSINESS">Business / B2B</option>
+</select>
+</div>
+</div>
+<div class="form-actions">
+<button class="btn btn-action" type="button" (click)="saveCustomer()" [disabled]="saving || !formData.nom || !formData.prenom || !formData.email">
+<span class="material-icons">{{ saving ? 'hourglass_empty' : 'save' }}</span>
+{{ saving ? 'Sauvegarde...' : 'Enregistrer le client' }}
+</button>
+<button class="btn btn-ghost" type="button" (click)="closeCreateForm()" [disabled]="saving">
+Annuler
+</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="action-bar">
+<div class="search-input-wrapper">
+<span class="material-icons search-icon">search</span>
+<input class="form-control search-input" type="text"
+       placeholder="Rechercher par nom, ID client, t&eacute;l&eacute;phone..."
+       [(ngModel)]="searchTerm"
+       (ngModelChange)="applyFilters()" />
+</div>
+<button class="btn btn-ghost filter-btn" type="button">
+<span class="material-icons">filter_list</span>
+Filtres
+</button>
+</div>
+
+<div class="filter-chips">
+<button class="filter-chip" [class.active]="!statusFilter && !typeFilter" (click)="clearFilters()">
+Tous les clients ({{totalCount}})
+</button>
+<button class="filter-chip" [class.active]="statusFilter === 'ACTIVE'" (click)="setFilter('status', 'ACTIVE')">
+Actifs
+</button>
+<button class="filter-chip" [class.active]="statusFilter === 'INACTIVE' || statusFilter === 'SUSPENDED'" (click)="setFilter('status', 'INACTIVE')">
+Inactifs
+</button>
+<button class="filter-chip" [class.active]="typeFilter === 'INDIVIDUAL'" (click)="setFilter('type', 'INDIVIDUAL')">
+Individu
+</button>
+<button class="filter-chip" [class.active]="typeFilter === 'BUSINESS'" (click)="setFilter('type', 'BUSINESS')">
+Business
+</button>
+</div>
+
+<div class="card section-card data-table">
+<div class="card-body" style="padding:0">
+<div class="table-responsive">
+<table class="table table-hover client-table">
+<thead>
+<tr>
+<th>Nom &amp; Identifiant</th>
+<th>Type de Compte</th>
+<th>Abonnements Actifs</th>
+<th>Statut</th>
+<th>Date Cr&eacute;ation</th>
+<th class="text-right">Actions</th>
+</tr>
+</thead>
+<tbody>
+<tr *ngFor="let customer of filteredCustomers" class="customer-row">
+<td>
+<div class="customer-cell">
+<div class="customer-avatar-circle">
+{{getInitials(customer)}}
+</div>
+<div class="customer-info">
+<span class="customer-name">{{customer.prenom}} {{customer.nom}}</span>
+<span class="customer-ref">ID: #{{customer.customerRef}}</span>
+</div>
+</div>
+</td>
+<td>
+<div class="type-cell">
+<span class="material-icons type-icon-sm">{{getTypeIcon(customer.type)}}</span>
+<span>{{customer.type === 'BUSINESS' ? 'Business' : 'Individu'}}</span>
+</div>
+</td>
+<td>
+<div class="subscriptions-cell" *ngIf="customer.abonnements?.length; else noSub">
+<span class="sub-tag">{{customer.abonnements[0]?.offreId || 'Forfait'}}</span>
+<span class="sub-extra" *ngIf="customer.abonnements.length > 1">+{{customer.abonnements.length - 1}}</span>
+</div>
+<ng-template #noSub>
+<span class="no-sub">Aucun abonnement</span>
+</ng-template>
+</td>
+<td>
+<span class="status-pill success" *ngIf="customer.status === 'ACTIVE'">
+<span class="status-dot-sm"></span> Actif
+</span>
+<span class="status-pill warning" *ngIf="customer.status === 'SUSPENDED'">
+<span class="status-dot-sm"></span> Suspendu
+</span>
+<span class="status-pill neutral" *ngIf="customer.status !== 'ACTIVE' && customer.status !== 'SUSPENDED'">
+<span class="status-dot-sm"></span> Inactif
+</span>
+</td>
+<td class="date-cell">{{customer.createdAt || '&mdash;'}}</td>
+<td class="text-right">
+<button class="btn-icon-sm danger" type="button" *ngIf="hasActiveSim(customer)"
+       (click)="blockCustomerSim(customer)" title="Bloquer la ligne"
+       [disabled]="actionInProgressRef === customer.customerRef">
+<span class="material-icons">block</span>
+</button>
+<button class="btn-icon-sm success" type="button" *ngIf="hasSuspendedSim(customer)"
+       (click)="reactivateCustomerSim(customer)" title="Réactiver la ligne"
+       [disabled]="actionInProgressRef === customer.customerRef">
+<span class="material-icons">restart_alt</span>
+</button>
+<button class="btn-icon-sm" type="button" (click)="detail(customer.customerRef)" title="Voir le profil">
+<span class="material-icons">visibility</span>
+</button>
+</td>
+</tr>
+<tr *ngIf="!filteredCustomers.length">
+<td colspan="6" class="empty-table">
+<span class="material-icons">person_off</span>
+Aucun client trouv&eacute;
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-footer">
+<span class="table-footer__info">Affichage de 1-{{filteredCustomers.length}} sur {{totalCount}} clients</span>
+<div class="table-footer__pages">
+<button class="page-btn" disabled>
+<span class="material-icons">chevron_left</span>
+</button>
+<button class="page-btn active">1</button>
+<button class="page-btn" *ngIf="totalCount > 10">2</button>
+<button class="page-btn" *ngIf="totalCount > 20">3</button>
+<button class="page-btn">
+<span class="material-icons">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="card section-card detail-panel" *ngIf="customerdetails">
+<div class="card-header">
+<div class="detail-panel-header">
+<div class="detail-avatar-lg" [style.background]="getAvatarColor(customerdetails)">
+{{getInitials(customerdetails)}}
+</div>
+<div>
+<h5 class="card-title mb-0">{{customerdetails.prenom}} {{customerdetails.nom}}</h5>
+<div class="detail-subtitle">
+<span class="mono-id">{{customerdetails.customerRef}}</span>
+<span class="badge-soft success" *ngIf="customerdetails.status === 'ACTIVE'" style="margin-left:8px">Actif</span>
+<span class="badge-soft warning" *ngIf="customerdetails.status === 'SUSPENDED'" style="margin-left:8px">Suspendu</span>
+</div>
+</div>
+</div>
+<button class="btn btn-ghost btn-sm" type="button" (click)="closeDetails()">
+<span class="material-icons">close</span>
+</button>
+</div>
+<div class="card-body">
+<div class="detail-grid">
+<div class="detail-item">
+<span class="detail-label">
+<span class="material-icons detail-icon">email</span> Email
+</span>
+<span class="detail-value">{{customerdetails.email}}</span>
+</div>
+<div class="detail-item">
+<span class="detail-label">
+<span class="material-icons detail-icon">phone</span> T&eacute;l&eacute;phone
+</span>
+<span class="detail-value">{{customerdetails.telephone || '&mdash;'}}</span>
+</div>
+<div class="detail-item">
+<span class="detail-label">
+<span class="material-icons detail-icon">location_on</span> Adresse
+</span>
+<span class="detail-value">{{customerdetails.adresse}}, {{customerdetails.ville}} {{customerdetails.codePostal}}</span>
+</div>
+<div class="detail-item">
+<span class="detail-label">
+<span class="material-icons detail-icon">badge</span> Type de compte
+</span>
+<span class="detail-value">{{customerdetails.type === 'BUSINESS' ? 'Business / B2B' : 'Individu'}}</span>
+</div>
+<div class="detail-item highlight">
+<span class="detail-label">
+<span class="material-icons detail-icon">account_balance_wallet</span> Solde du compte
+</span>
+<span class="detail-value font-bold">{{customerdetails.accountBalance | number:'1.2-2'}} TND</span>
+</div>
+<div class="detail-item">
+<span class="detail-label">
+<span class="material-icons detail-icon">credit_score</span> Limite de cr&eacute;dit
+</span>
+<span class="detail-value">{{customerdetails.creditLimit | number:'1.2-2'}} TND</span>
+</div>
+</div>
+</div>
+</div>
+</div>

@@ -1,0 +1,444 @@
+<div class="page">
+
+  <!-- Forbidden State -->
+  <div class="forbidden-state" *ngIf="forbidden">
+    <span class="material-icons">lock</span>
+    <h2>Accès Interdit</h2>
+    <p>Vous n'avez pas le droit d'accéder à cette boutique.</p>
+    <button class="btn btn-action primary" (click)="goBack()">
+      <span class="material-icons">arrow_back</span> Retour
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Chargement de la boutique…</p>
+  </div>
+
+  <!-- Main Content -->
+  <ng-container *ngIf="boutique && !forbidden && !loading">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <button class="btn-back" (click)="goBack()">
+          <span class="material-icons">arrow_back</span>
+        </button>
+        <div>
+          <h2 class="page-title">{{ boutique.nom }}</h2>
+          <p class="page-subtitle">
+            {{ boutique.code }}
+            <span class="sep">·</span>
+            {{ boutique.ville }}
+            <span class="sep">·</span>
+            <span class="status-pill" [ngClass]="boutique.status | statusClass">
+              {{ boutique.status | statusLabel }}
+            </span>
+          </p>
+          <!-- Info Bar -->
+          <div class="info-bar">
+            <div class="info-item">
+              <span class="material-icons">tag</span>
+              <span>ID: {{ boutique.id }}</span>
+            </div>
+            <div class="info-item">
+              <span class="material-icons">location_on</span>
+              <span>{{ boutique.adresse }}, {{ boutique.codePostal }} {{ boutique.ville }}</span>
+            </div>
+            <div class="info-item">
+              <span class="material-icons">phone</span>
+              <span>{{ boutique.telephone }}</span>
+            </div>
+            <div class="info-item">
+              <span class="material-icons">email</span>
+              <span>{{ boutique.email }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-action secondary" (click)="viewCustomers()">
+          <span class="material-icons">people</span>
+          Voir Clients
+        </button>
+      </div>
+    </div>
+
+    <div class="info-bar section-card" style="display: none;">
+      <div class="info-item">
+        <span class="material-icons">location_on</span>
+        <span>{{ boutique.adresse }}, {{ boutique.codePostal }} {{ boutique.ville }}</span>
+      </div>
+      <div class="info-item">
+        <span class="material-icons">phone</span>
+        <span>{{ boutique.telephone }}</span>
+      </div>
+      <div class="info-item">
+        <span class="material-icons">email</span>
+        <span>{{ boutique.email }}</span>
+      </div>
+      <div class="info-item">
+        <span class="material-icons">event</span>
+        <span>Ouverture: {{ boutique.createdAt | dateFr }}</span>
+      </div>
+    </div>
+    <!-- Old info-bar hidden above, new one integrated in header -->
+
+    <div class="tabs-bar">
+      <button class="tab-btn" [class.active]="activeTab === 'dashboard'" (click)="switchTab('dashboard')">
+        <span class="material-icons">dashboard</span> Tableau de Bord
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'stock'" (click)="switchTab('stock')">
+        <span class="material-icons">sim_card</span> Stock SIM
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'transactions'" (click)="switchTab('transactions')">
+        <span class="material-icons">receipt_long</span> Transactions
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'team'" (click)="switchTab('team')">
+        <span class="material-icons">engineering</span> Équipe
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'customers'" (click)="switchTab('customers')">
+        <span class="material-icons">people</span> Clients
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'subscriptions'" (click)="switchTab('subscriptions')">
+        <span class="material-icons">card_membership</span> Abonnements
+      </button>
+    </div>
+
+    <!-- TAB: Dashboard -->
+    <div class="tab-content section-card" *ngIf="activeTab === 'dashboard'">
+      <div class="kpi-row" *ngIf="dashboard">
+        <div class="kpi-card">
+          <div class="kpi-icon-wrap revenue"><span class="material-icons">payments</span></div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ dashboard.revenueToday | currencyDt }}</span>
+            <span class="kpi-label">Revenu Aujourd'hui</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon-wrap contracts"><span class="material-icons">description</span></div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ dashboard.contractsThisMonth }}</span>
+            <span class="kpi-label">Contrats (Mois)</span>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon-wrap sim"><span class="material-icons">sim_card</span></div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ dashboard.simAvailable }}</span>
+            <span class="kpi-label">SIM Disponibles</span>
+          </div>
+          <span class="kpi-badge warning" *ngIf="dashboard.simLowStock">Stock Bas</span>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="!dashboard">
+        <div class="spinner small"></div>
+        <p>Chargement des indicateurs…</p>
+      </div>
+    </div>
+
+    <!-- TAB: Stock -->
+    <div class="tab-content section-card" *ngIf="activeTab === 'stock'">
+      <div class="tab-header">
+        <h3 class="tab-title">
+          <span class="material-icons">sim_card</span>
+          Inventaire SIM
+          <span class="count-badge">{{ stock.length }}</span>
+        </h3>
+        <div class="tab-filters">
+          <div class="search-box">
+            <span class="material-icons">search</span>
+            <input type="text" placeholder="Rechercher ICCID ou MSISDN…"
+                   [(ngModel)]="stockSearch" (input)="applyStockFilters()">
+          </div>
+          <select class="filter-select" [(ngModel)]="stockStatusFilter" (change)="applyStockFilters()">
+            <option value="">Tous statuts</option>
+            <option value="AVAILABLE">Disponible</option>
+            <option value="ASSIGNED">Attribuée</option>
+            <option value="ACTIVATED">Activée</option>
+            <option value="DAMAGED">Endommagée</option>
+            <option value="LOST">Perdue</option>
+          </select>
+        </div>
+      </div>
+
+      <table class="data-table" *ngIf="filteredStock.length">
+        <thead>
+          <tr>
+            <th>ICCID</th>
+            <th>MSISDN</th>
+            <th>Type</th>
+            <th>Statut</th>
+            <th>Créée le</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let sim of filteredStock">
+            <td class="mono">{{ sim.iccid }}</td>
+            <td class="mono">{{ sim.msisdn }}</td>
+            <td>
+              <span class="type-badge" [class]="'type-' + sim.simType.toLowerCase()">
+                {{ getSimTypeLabel(sim.simType) }}
+              </span>
+            </td>
+            <td>
+              <span class="status-pill-sm" [ngClass]="sim.status | simStatusClass">
+                {{ sim.status | simStatusLabel }}
+              </span>
+            </td>
+            <td>{{ sim.createdAt | dateFr }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="empty-state" *ngIf="!filteredStock.length && stock.length">
+        <span class="material-icons">search_off</span>
+        <p>Aucune carte SIM ne correspond aux filtres</p>
+      </div>
+      <div class="empty-state" *ngIf="!stock.length">
+        <span class="material-icons">sim_card</span>
+        <p>Aucune carte SIM en stock</p>
+      </div>
+    </div>
+
+    <!-- TAB: Transactions -->
+    <div class="tab-content section-card" *ngIf="activeTab === 'transactions'">
+      <div class="tab-header">
+        <h3 class="tab-title">
+          <span class="material-icons">receipt_long</span>
+          Transactions
+          <span class="count-badge">{{ transactions.length }}</span>
+        </h3>
+        <div class="tab-filters">
+          <div class="search-box">
+            <span class="material-icons">search</span>
+            <input type="text" placeholder="Rechercher client, référence…"
+                   [(ngModel)]="txnSearch" (input)="applyTxnFilters()">
+          </div>
+          <select class="filter-select" [(ngModel)]="txnStatusFilter" (change)="applyTxnFilters()">
+            <option value="">Tous statuts</option>
+            <option value="COMPLETED">Terminé</option>
+            <option value="PENDING">En attente</option>
+            <option value="CANCELLED">Annulé</option>
+          </select>
+        </div>
+      </div>
+
+      <table class="data-table" *ngIf="filteredTransactions.length">
+        <thead>
+          <tr>
+            <th>Référence</th>
+            <th>Type</th>
+            <th>Client</th>
+            <th>Offre</th>
+            <th>Montant</th>
+            <th>Statut</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of filteredTransactions">
+            <td class="mono">{{ t.reference }}</td>
+            <td>
+              <span class="txn-type">
+                <span class="material-icons">{{ t.typeTransaction | txnTypeIcon }}</span>
+                {{ t.typeTransaction | txnTypeLabel }}
+              </span>
+            </td>
+            <td>{{ t.clientNom }}</td>
+            <td>{{ t.offreLibelle }}</td>
+            <td class="amount">{{ t.montant | currencyDt }}</td>
+            <td>
+              <span class="status-pill-sm" [ngClass]="t.status | statusClass">
+                {{ t.status | statusLabel }}
+              </span>
+            </td>
+            <td>{{ t.createdAt | dateFr }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="empty-state" *ngIf="!filteredTransactions.length && transactions.length">
+        <span class="material-icons">search_off</span>
+        <p>Aucune transaction ne correspond aux filtres</p>
+      </div>
+      <div class="empty-state" *ngIf="!transactions.length">
+        <span class="material-icons">receipt_long</span>
+        <p>Aucune transaction enregistrée</p>
+      </div>
+    </div>
+
+    <!-- TAB: Team -->
+    <div class="tab-content section-card" *ngIf="activeTab === 'team'">
+      <div class="tab-header">
+        <h3 class="tab-title">
+          <span class="material-icons">group</span>
+          Équipe
+          <span class="count-badge">{{ team.length }}</span>
+        </h3>
+      </div>
+
+      <div class="team-grid" *ngIf="team.length">
+        <div class="team-card" *ngFor="let m of team">
+          <div class="team-avatar" [style.background]="'hsl(' + (m.id * 97 % 360) + ', 55%, 55%)'">
+            {{ m.firstName.charAt(0) }}{{ m.lastName.charAt(0) }}
+          </div>
+          <div class="team-info">
+            <span class="team-name">{{ m.firstName }} {{ m.lastName }}</span>
+            <span class="team-role">{{ m.role | roleLabel }}</span>
+            <span class="team-email">{{ m.username }}</span>
+          </div>
+          <span class="status-dot" [ngClass]="m.status | statusClass"></span>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="!team.length">
+        <span class="material-icons">group</span>
+        <p>Aucun membre dans cette équipe</p>
+      </div>
+    </div>
+
+    <!-- TAB: Customers -->
+    <div class="tab-content section-card" *ngIf="activeTab === 'customers'">
+      <div class="tab-header">
+        <h3 class="tab-title">
+          <span class="material-icons">people</span>
+          Clients
+          <span class="count-badge">{{ customers.length }}</span>
+        </h3>
+        <div class="tab-filters">
+          <div class="search-box">
+            <span class="material-icons">search</span>
+            <input type="text" placeholder="Rechercher nom, email, réf…"
+                   [(ngModel)]="customerSearch" (input)="applyCustomerFilters()">
+          </div>
+          <select class="filter-select" [(ngModel)]="customerStatusFilter" (change)="applyCustomerFilters()">
+            <option value="">Tous statuts</option>
+            <option value="ACTIVE">Actif</option>
+            <option value="SUSPENDED">Suspendu</option>
+            <option value="CLOSED">Fermé</option>
+          </select>
+        </div>
+      </div>
+
+      <table class="data-table" *ngIf="filteredCustomers.length">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Réf</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Type</th>
+            <th>Statut</th>
+            <th>Solde</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of filteredCustomers" class="clickable-row" (click)="viewCustomerDetail(c.customerRef)">
+            <td>
+              <span class="customer-name">
+                <span class="material-icons">{{ getCustomerTypeIcon(c.type) }}</span>
+                {{ c.prenom }} {{ c.nom }}
+              </span>
+            </td>
+            <td class="mono">{{ c.customerRef }}</td>
+            <td>{{ c.email }}</td>
+            <td>{{ c.telephone }}</td>
+            <td>
+              <span class="type-badge" [class]="c.type === 'BUSINESS' ? 'type-business' : 'type-individual'">
+                {{ c.type === 'BUSINESS' ? 'Entreprise' : 'Particulier' }}
+              </span>
+            </td>
+            <td>
+              <span class="status-pill-sm" [ngClass]="(c.status || 'ACTIVE') | statusClass">
+                {{ (c.status || 'ACTIVE') | statusLabel }}
+              </span>
+            </td>
+            <td class="amount">{{ c.accountBalance | currencyDt }}</td>
+            <td>
+              <span class="material-icons row-action">chevron_right</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="empty-state" *ngIf="!filteredCustomers.length && customers.length">
+        <span class="material-icons">search_off</span>
+        <p>Aucun client ne correspond aux filtres</p>
+      </div>
+      <div class="empty-state" *ngIf="!customers.length">
+        <span class="material-icons">people</span>
+        <p>Aucun client enregistré dans cette boutique</p>
+      </div>
+    </div>
+
+    <!-- TAB: Subscriptions -->
+    <div class="tab-content section-card" *ngIf="activeTab === 'subscriptions'">
+      <div class="tab-header">
+        <h3 class="tab-title">
+          <span class="material-icons">card_membership</span>
+          Abonnements
+          <span class="count-badge">{{ subscriptions.length }}</span>
+        </h3>
+        <div class="tab-filters">
+          <div class="search-box">
+            <span class="material-icons">search</span>
+            <input type="text" placeholder="Rechercher par réf client ou ID…"
+                   [(ngModel)]="subSearch" (input)="applySubFilters()">
+          </div>
+          <select class="filter-select" [(ngModel)]="subStatusFilter" (change)="applySubFilters()">
+            <option value="">Tous statuts</option>
+            <option value="ACTIVE">Actif</option>
+            <option value="SUSPENDED">Suspendu</option>
+            <option value="TERMINATED">Résilié</option>
+            <option value="PENDING">En attente</option>
+          </select>
+        </div>
+      </div>
+
+      <table class="data-table" *ngIf="filteredSubscriptions.length">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Client Réf</th>
+            <th>Offre ID</th>
+            <th>Date Début</th>
+            <th>Date Fin</th>
+            <th>Statut</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of filteredSubscriptions" class="clickable-row" (click)="viewSubscriptionDetail(s.id)">
+            <td class="mono">{{ s.id }}</td>
+            <td class="mono">{{ s.clientRef }}</td>
+            <td>{{ s.offreId }}</td>
+            <td>{{ s.dateDebut | dateFr }}</td>
+            <td>{{ s.dateFin | dateFr }}</td>
+            <td>
+              <span class="status-pill-sm" [ngClass]="(s.status || '') | statusClass">
+                {{ (s.status || '') | statusLabel }}
+              </span>
+            </td>
+            <td>
+              <span class="material-icons row-action">chevron_right</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="empty-state" *ngIf="!filteredSubscriptions.length && subscriptions.length">
+        <span class="material-icons">search_off</span>
+        <p>Aucun abonnement ne correspond aux filtres</p>
+      </div>
+      <div class="empty-state" *ngIf="!subscriptions.length">
+        <span class="material-icons">card_membership</span>
+        <p>Aucun abonnement dans cette boutique</p>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

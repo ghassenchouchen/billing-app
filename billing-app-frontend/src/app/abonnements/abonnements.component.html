@@ -1,0 +1,133 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Gestion des Abonnements</h2>
+      <p class="page-subtitle">Suivi des souscriptions, états et offres associées.</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-action" type="button" (click)="createNew()">
+        <span class="material-icons">add_circle</span>
+        Nouvel Abonnement
+      </button>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <div class="search-input-wrapper">
+      <span class="material-icons search-icon">search</span>
+      <input class="form-control search-input" type="text"
+             placeholder="Rechercher par offre, client, référence..."
+             [(ngModel)]="searchTerm"
+             (ngModelChange)="applyFilters()" />
+    </div>
+  </div>
+
+  <!-- Filter Chips -->
+  <div class="filter-chips">
+    <button class="filter-chip" [class.active]="!statusFilter" (click)="clearFilters()">
+      Tous ({{ totalCount }})
+    </button>
+    <button class="filter-chip" [class.active]="statusFilter === 'ACTIVE'" (click)="setFilter('ACTIVE')">
+      <span class="chip-dot success"></span> Actifs ({{ getActiveCount() }})
+    </button>
+    <button class="filter-chip" [class.active]="statusFilter === 'SUSPENDED'" (click)="setFilter('SUSPENDED')">
+      <span class="chip-dot warning"></span> Suspendus ({{ getSuspendedCount() }})
+    </button>
+    <button class="filter-chip" [class.active]="statusFilter === 'TERMINATED'" (click)="setFilter('TERMINATED')">
+      <span class="chip-dot danger"></span> Résiliés ({{ getTerminatedCount() }})
+    </button>
+  </div>
+
+  <!-- Subscriptions Table -->
+  <div class="card section-card data-table">
+    <div class="card-body" style="padding:0">
+      <div class="table-responsive">
+        <table class="table table-hover sub-table">
+          <thead>
+            <tr>
+              <th>Offre & Référence</th>
+              <th>Client</th>
+              <th>Date début</th>
+              <th>Statut</th>
+              <th class="text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let a of filteredAbonnements" class="sub-row" (click)="detail(a.id)">
+              <td>
+                <div class="offer-cell">
+                  <div class="offer-icon-sm">
+                    <span class="material-icons">{{ getOfferIcon(a.offreId) }}</span>
+                  </div>
+                  <div class="offer-info">
+                    <span class="offer-name">{{ getOfferName(a.offreId) }}</span>
+                    <span class="offer-ref">ABN-{{ a.id }}</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="client-cell">
+                  <div class="client-avatar-sm">
+                    {{ getInitials(a.clientId) }}
+                  </div>
+                  <div class="client-info-sm">
+                    <span class="client-name-sm">{{ getCustomerName(a.clientId) }}</span>
+                    <span class="client-ref-sm">Identifiant: {{ getCustomerCin(a.clientId) }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="date-cell">{{ getFormattedDate(a.dateDebut) }}</td>
+              <td>
+                <span class="status-pill" [ngClass]="getStatusClass(a.status)">
+                  <span class="status-dot-sm"></span> {{ getStatusLabel(a.status) }}
+                </span>
+              </td>
+              <td class="text-right actions-cell" (click)="$event.stopPropagation()">
+                <button class="btn-icon-sm" type="button" (click)="detail(a.id)" title="Voir les détails">
+                  <span class="material-icons">visibility</span>
+                </button>
+                <button class="btn-icon-sm warning" type="button"
+                        *ngIf="a.status === 'ACTIVE'"
+                        (click)="suspend(a)"
+                        [disabled]="deactivatingId === '' + a.id"
+                        title="Suspendre">
+                  <span class="material-icons">pause_circle</span>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="!filteredAbonnements.length">
+              <td colspan="5" class="empty-table">
+                <span class="material-icons">inbox</span>
+                Aucun abonnement trouvé
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <span class="table-footer__info">Affichage de 1-{{ filteredAbonnements.length }} sur {{ totalCount }} abonnements</span>
+        <div class="table-footer__pages">
+          <button class="page-btn" disabled>
+            <span class="material-icons">chevron_left</span>
+          </button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn" *ngIf="totalCount > 10">2</button>
+          <button class="page-btn">
+            <span class="material-icons">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-confirm-modal
+  [show]="showConfirmModal"
+  [title]="confirmModalConfig.title"
+  [message]="confirmModalConfig.message"
+  [confirmText]="confirmModalConfig.confirmText"
+  [confirmClass]="confirmModalConfig.confirmClass"
+  (confirmed)="confirmModalConfig.action && confirmModalConfig.action()"
+  (cancelled)="cancelConfirm()">
+</app-confirm-modal>

@@ -1,0 +1,97 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Gestion des Utilisateurs</h2>
+      <p class="page-subtitle">Gérez les accès, les rôles et les comptes de la plateforme.</p>
+    </div>
+    <!-- Admin can consult/modify users but not create new ones -->
+  </div>
+
+  <div class="section-card">
+    <div class="filters-bar">
+      <div class="search-box">
+        <span class="material-icons">search</span>
+        <input type="text" placeholder="Rechercher un utilisateur…" [(ngModel)]="searchQuery" (input)="applyFilters()">
+      </div>
+      <select class="filter-select" [(ngModel)]="filterRole" (change)="applyFilters()">
+        <option value="">Tous les Rôles</option>
+        <option value="AGENT_COMMERCIAL">Agent Commercial</option>
+        <option value="RESPONSABLE_BOUTIQUE">Resp. Boutique</option>
+      </select>
+      <select class="filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
+        <option value="">Tous les Statuts</option>
+        <option value="ACTIVE">Actif</option>
+        <option value="DISABLED">Suspendu</option>
+      </select>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Utilisateur</th>
+            <th>Rôle</th>
+            <th>Boutique </th>
+            <th>Statut</th>
+            <th>Date création</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers">
+            <td>
+              <div class="user-identity">
+                <div class="user-avatar" [ngClass]="getRoleClass(user.role)">{{ getInitials(user) }}</div>
+                <div>
+                  <div class="user-name">{{ user.firstName }} {{ user.lastName }}</div>
+                  <div class="user-username">{{ user.username }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="role-badge" [ngClass]="getRoleClass(user.role)">
+                {{ getRoleLabel(user.role) }}
+              </span>
+            </td>
+            <td>
+              <span class="boutique-name">{{ getBoutiqueName(user.boutiqueId) }}</span>
+            </td>
+            <td>
+              <span class="status-pill" [ngClass]="getStatusClass(user.status)">
+                <span class="status-dot-sm"></span>
+                {{ getStatusLabel(user.status) }}
+              </span>
+            </td>
+            <td class="text-muted">{{ formatDate(user.createdAt) }}</td>
+            <td class="text-right">
+              <div class="actions-cell">
+                <button class="btn-icon" title="Réinitialiser mot de passe">
+                  <span class="material-icons">vpn_key</span>
+                </button>
+                <button *ngIf="user.status === 'ACTIVE'" class="btn-icon danger" title="Suspendre" (click)="disableUser(user)">
+                  <span class="material-icons">person_off</span>
+                </button>
+                <button *ngIf="user.status === 'DISABLED'" class="btn-icon success" title="Réactiver" (click)="enableUser(user)">
+                  <span class="material-icons">person</span>
+                </button>
+                <button class="btn-icon delete" title="Supprimer" (click)="deleteUser(user)">
+                  <span class="material-icons">delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="!filteredUsers.length && !loading">
+            <td colspan="6" class="empty-table">
+              <span class="material-icons">group_off</span>
+              Aucun utilisateur trouvé
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer" *ngIf="filteredUsers.length">
+      <span class="table-footer-info">{{ filteredUsers.length }} utilisateur(s) affiché(s) sur {{ totalUsers }}</span>
+    </div>
+  </div>
+</div>

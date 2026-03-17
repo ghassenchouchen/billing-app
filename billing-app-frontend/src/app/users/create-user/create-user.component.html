@@ -1,0 +1,111 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Nouvel Utilisateur</h2>
+      <p class="page-subtitle">Créer un nouveau compte utilisateur sur la plateforme.</p>
+    </div>
+  </div>
+
+  <div class="alert alert-success" *ngIf="successMessage">
+    <span class="material-icons">check_circle</span>
+    {{ successMessage }}
+  </div>
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <span class="material-icons">error</span>
+    {{ errorMessage }}
+  </div>
+
+  <div class="form-card">
+    <form (ngSubmit)="submitForm()">
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon blue">
+            <span class="material-icons">person</span>
+          </div>
+          <div>
+            <h3 class="section-title">Informations & Accès</h3>
+            <p class="section-subtitle">Identité, contact et niveau d'accès</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Prénom</label>
+            <input type="text" class="form-control" placeholder="ex: Flen" [(ngModel)]="firstName" name="firstName" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nom</label>
+            <input type="text" class="form-control" placeholder="ex: Fouleni" [(ngModel)]="lastName" name="lastName" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">E-mail professionnel *</label>
+            <input type="email" class="form-control" placeholder="m.fouleni@telecom.tn" [(ngModel)]="email" name="email" required>
+            <div class="form-error" *ngIf="email && !isValidEmail(email)">Email invalide</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Téléphone *</label>
+            <div class="input-prefix-wrapper">
+              <span class="input-prefix">+216</span>
+              <input type="tel" class="form-control has-prefix" placeholder="20 000 000" [(ngModel)]="phone" name="phone" (input)="onPhoneChange()" maxlength="8" required>
+            </div>
+            <div class="form-error" *ngIf="phone && !isValidPhone(phone)">8 chiffres uniquement</div>
+          </div>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Profil d'accès</label>
+            <select class="form-control" [(ngModel)]="role" name="role" required>
+              <option value="AGENT_COMMERCIAL">Agent Commercial</option>
+              <option value="RESPONSABLE_BOUTIQUE">Responsable Boutique</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Username (auto-généré)</label>
+            <input type="text" class="form-control readonly" [value]="username" readonly>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section" *ngIf="needsBoutique">
+        <div class="section-header">
+          <div class="section-icon green">
+            <span class="material-icons">store</span>
+          </div>
+          <div>
+            <h3 class="section-title">Affectation Boutique</h3>
+            <p class="section-subtitle">Sélectionnez la boutique de rattachement</p>
+          </div>
+        </div>
+
+        <div class="boutique-grid">
+          <div
+            class="boutique-card"
+            *ngFor="let b of boutiques"
+            [class.selected]="b.selected"
+            (click)="selectBoutique(b)">
+            <span class="material-icons boutique-icon">location_on</span>
+            <span class="boutique-label">{{ b.name }}</span>
+            <span class="material-icons check-icon" *ngIf="b.selected">check_circle</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <div class="footer-hint">
+          <span class="material-icons">info_outline</span>
+          Le mot de passe sera généré automatiquement
+        </div>
+        <div class="footer-actions">
+          <button type="button" class="btn btn-ghost" (click)="cancel()">ANNULER</button>
+          <button type="submit" class="btn btn-action primary" [disabled]="!formValid || saving">
+            <span class="material-icons">{{ saving ? 'hourglass_empty' : 'check_circle' }}</span>
+            {{ saving ? 'Création...' : 'CRÉER L\'UTILISATEUR' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

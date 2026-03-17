@@ -1,0 +1,222 @@
+<!-- Loading -->
+<div class="detail-page" *ngIf="loading">
+  <div class="loading-state">
+    <span class="material-icons">hourglass_empty</span>
+    <p>Chargement de l'abonnement...</p>
+  </div>
+</div>
+
+<!-- Error -->
+<div class="detail-page" *ngIf="error && !loading">
+  <div class="error-state">
+    <span class="material-icons">error_outline</span>
+    <p>Impossible de charger cet abonnement.</p>
+    <button class="btn-ghost" (click)="goBack()">
+      <span class="material-icons">arrow_back</span> Retour
+    </button>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="detail-page" *ngIf="subscription && !loading">
+
+  <!-- Back link -->
+  <div class="back-link" (click)="goBack()">
+    <span class="material-icons">arrow_back</span>
+    Retour aux abonnements
+  </div>
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="profile-header-left">
+      <div class="header-icon-wrap">
+        <span class="material-icons">{{ getOfferIcon() }}</span>
+      </div>
+      <div class="profile-info">
+        <h1>{{ offer?.libelle || offer?.nom || 'Offre #' + subscription.offreId }}</h1>
+        <div class="profile-meta">
+          <span class="status-badge" [ngClass]="getStatusClass()">{{ getStatusLabel() }}</span>
+          <span class="meta-sep">•</span>
+          <span class="mono-ref">ABN-{{ subscription.id }}</span>
+          <span class="meta-sep">•</span>
+          <span *ngIf="offer?.paymentType" class="payment-badge" [ngClass]="offer?.paymentType?.toUpperCase() === 'PREPAID' ? 'prepaid' : 'postpaid'">
+            {{ offer?.paymentType?.toUpperCase() }}
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="profile-header-right" *ngIf="subscription.status !== 'TERMINATED'">
+      <button class="btn-ghost" *ngIf="subscription.status === 'ACTIVE'" (click)="suspendSubscription()" [disabled]="actionLoading === 'suspend'">
+        <span class="material-icons">pause_circle</span> Suspendre
+      </button>
+      <button class="btn-primary" *ngIf="subscription.status === 'SUSPENDED'" (click)="reactivateSubscription()" [disabled]="actionLoading === 'activate'">
+        <span class="material-icons">play_circle</span> Réactiver
+      </button>
+    </div>
+  </div>
+
+  <!-- Two-column layout -->
+  <div class="two-column-layout">
+
+    <!-- Left column -->
+    <div class="left-column">
+
+      <!-- Subscription Details -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2><span class="material-icons">receipt_long</span> Détails de l'abonnement</h2>
+        </div>
+        <div class="section-card-body">
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Date de début</label>
+              <p>{{ getFormattedDate(subscription.dateDebut) }}</p>
+            </div>
+            <div class="info-item">
+              <label>Date de fin</label>
+              <p>{{ getFormattedDate(subscription.dateFin) }}</p>
+            </div>
+            <div class="info-item">
+              <label>Statut</label>
+              <p>
+                <span class="status-pill" [ngClass]="getStatusClass()">
+                  <span class="status-dot"></span> {{ getStatusLabel() }}
+                </span>
+              </p>
+            </div>
+            <div class="info-item">
+              <label>Créé le</label>
+              <p>{{ getFormattedDate(subscription.createdAt) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Offer Details -->
+      <div class="section-card" *ngIf="offer">
+        <div class="section-card-header">
+          <h2><span class="material-icons">redeem</span> Offre Associée</h2>
+        </div>
+        <div class="section-card-body">
+          <div class="offer-detail-card">
+            <div class="odc-header">
+              <div class="odc-icon">
+                <span class="material-icons">{{ getOfferIcon() }}</span>
+              </div>
+              <div class="odc-info">
+                <h3>{{ offer.libelle || offer.nom }}</h3>
+                <p>{{ offer.description }}</p>
+              </div>
+            </div>
+            <div class="odc-meta">
+              <div class="odc-meta-item">
+                <label>Code</label>
+                <span class="mono-ref">{{ offer.code }}</span>
+              </div>
+              <div class="odc-meta-item">
+                <label>Type de paiement</label>
+                <span class="payment-badge sm" [ngClass]="offer.paymentType?.toUpperCase() === 'PREPAID' ? 'prepaid' : 'postpaid'">
+                  {{ (offer.paymentType || 'POSTPAID').toUpperCase() }}
+                </span>
+              </div>
+              <div class="odc-meta-item">
+                <label>Statut de l'offre</label>
+                <span>{{ offer.status }}</span>
+              </div>
+            </div>
+            <div class="odc-price">
+              <span class="price-label">Mensualité</span>
+              <span class="price-amount">{{ getOfferPrice().toFixed(2) }} <small>TND/mois</small></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right column -->
+    <div class="right-column">
+
+      <!-- Customer card -->
+      <div class="section-card" *ngIf="customer">
+        <div class="section-card-header">
+          <h2><span class="material-icons">person</span> Client Associé</h2>
+        </div>
+        <div class="section-card-body">
+          <div class="client-card" (click)="goToCustomer()">
+            <div class="cc-avatar" [style.background]="getAvatarColor()">
+              {{ getInitials() }}
+            </div>
+            <div class="cc-info">
+              <h4>{{ getCustomerFullName() }}</h4>
+              <p>{{ customer.customerRef }}</p>
+              <p>{{ customer.email }}</p>
+              <p>{{ customer.telephone || '' }}</p>
+            </div>
+            <span class="material-icons cc-arrow">chevron_right</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Billing summary -->
+      <div class="section-card">
+        <div class="billing-header-dark">
+          <span class="price-highlight">{{ getOfferPrice().toFixed(2) }} <small>TND</small></span>
+          <p>Mensualité</p>
+        </div>
+        <div class="section-card-body">
+          <div class="billing-meta-item">
+            <label>Fréquence</label>
+            <span>Mensuelle</span>
+          </div>
+          <div class="billing-meta-item">
+            <label>Prochain cycle</label>
+            <span>1er du mois suivant</span>
+          </div>
+          <div class="billing-meta-item">
+            <label>Début de facturation</label>
+            <span>{{ getFormattedDate(subscription.dateDebut) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="security-card" *ngIf="subscription.status !== 'TERMINATED'">
+        <h3><span class="material-icons">settings</span> Actions</h3>
+        <div class="security-actions">
+          <button class="btn-warning" *ngIf="subscription.status === 'ACTIVE'" (click)="suspendSubscription()" [disabled]="!!actionLoading">
+            <span class="material-icons">pause_circle</span> Suspendre l'abonnement
+          </button>
+          <button class="btn-success" *ngIf="subscription.status === 'SUSPENDED'" (click)="reactivateSubscription()" [disabled]="!!actionLoading">
+            <span class="material-icons">play_circle</span> Réactiver l'abonnement
+          </button>
+          <button class="btn-danger" (click)="terminateSubscription()" [disabled]="!!actionLoading">
+            <span class="material-icons">cancel</span> Résilier l'abonnement
+          </button>
+        </div>
+      </div>
+
+      <div class="terminated-card" *ngIf="subscription.status === 'TERMINATED'">
+        <span class="material-icons">block</span>
+        <h4>Abonnement résilié</h4>
+        <p>Cet abonnement a été définitivement résilié et ne peut plus être modifié.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="confirm-overlay" *ngIf="showConfirmModal" (click)="cancelConfirm()">
+  <div class="confirm-panel" (click)="$event.stopPropagation()">
+    <span class="material-icons warn-icon">warning</span>
+    <h3>{{ confirmModalConfig.title }}</h3>
+    <p>{{ confirmModalConfig.message }}</p>
+    <div class="confirm-actions">
+      <button class="btn-ghost" (click)="cancelConfirm()">Annuler</button>
+      <button [class]="'btn-' + confirmModalConfig.confirmClass" (click)="confirmModalConfig.action && confirmModalConfig.action()">
+        {{ confirmModalConfig.confirmText }}
+      </button>
+    </div>
+  </div>
+</div>

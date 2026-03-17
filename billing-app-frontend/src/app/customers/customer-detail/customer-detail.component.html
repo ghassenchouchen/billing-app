@@ -1,0 +1,260 @@
+<!-- Loading -->
+<div class="detail-page" *ngIf="loading">
+  <div class="loading-state">
+    <span class="material-icons">hourglass_empty</span>
+    <p>Chargement du profil client...</p>
+  </div>
+</div>
+
+<!-- Error -->
+<div class="detail-page" *ngIf="error && !loading">
+  <div class="error-state">
+    <span class="material-icons">error_outline</span>
+    <p>Impossible de charger ce client.</p>
+    <button class="btn-ghost" (click)="goBack()">
+      <span class="material-icons">arrow_back</span> Retour
+    </button>
+  </div>
+</div>
+
+<!-- Main content -->
+<div class="detail-page" *ngIf="customer && !loading">
+  <!-- Back link -->
+  <div class="back-link" (click)="goBack()">
+    <span class="material-icons">arrow_back</span>
+    Retour à la liste
+  </div>
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="profile-header-left">
+      <div class="profile-avatar" [style.background]="getAvatarColor()">
+        {{ getInitials() }}
+      </div>
+      <div class="profile-info">
+        <h1>{{ getFullName() }}</h1>
+        <div class="profile-meta">
+          <span class="status-badge" [ngClass]="getStatusClass()">{{ getStatusLabel() }}</span>
+          <span class="meta-sep">•</span>
+          <span><span class="material-icons">badge</span> {{ customer.customerRef }}</span>
+          <span class="meta-sep">•</span>
+          <span><span class="material-icons">{{ customer.type === 'BUSINESS' ? 'business' : 'person' }}</span> {{ getTypeLabel() }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="profile-header-right">
+      <button class="btn-ghost" (click)="openEditMode()">
+        <span class="material-icons">edit</span> Modifier Profil
+      </button>
+    </div>
+  </div>
+
+  <!-- Two-column layout -->
+  <div class="two-column-layout">
+    <!-- Left column -->
+    <div class="left-column">
+
+      <!-- Personal Info -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2><span class="material-icons">person</span> Informations Personnelles</h2>
+        </div>
+        <div class="section-card-body">
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Téléphone</label>
+              <p>{{ formatTelephone(customer.telephone) }}</p>
+            </div>
+            <div class="info-item">
+              <label>CIN / Pièce d'identité</label>
+              <p>{{ customer.pieceIdentite || '—' }}</p>
+            </div>
+            <div class="info-item">
+              <label>Email</label>
+              <p>{{ customer.email }}</p>
+            </div>
+            <div class="info-item full-width">
+              <label>Adresse</label>
+              <p>{{ customer.adresse }}{{ customer.ville ? ', ' + customer.ville : '' }}{{ customer.codePostal ? ' ' + customer.codePostal : '' }}</p>
+            </div>
+            <div class="info-item">
+              <label>Type de compte</label>
+              <p>{{ getTypeLabel() }}</p>
+            </div>
+            <div class="info-item">
+              <label>Inscrit depuis</label>
+              <p>{{ getFormattedDate(customer.createdAt) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Subscriptions -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2><span class="material-icons">subscriptions</span> Abonnements Actifs</h2>
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size: 13px; color: var(--muted);">{{ getActiveAbonnements().length }} actif(s)</span>
+            <button class="btn-ghost" style="padding:6px 14px;font-size:12px" (click)="createSubscription()">
+              <span class="material-icons" style="font-size:16px">add</span> Nouvel Abonnement
+            </button>
+          </div>
+        </div>
+        <div class="section-card-body">
+          <div class="subscription-list" *ngIf="getActiveAbonnements().length > 0">
+            <div class="subscription-card" *ngFor="let abo of getActiveAbonnements()">
+              <div class="sub-card-left">
+                <div class="sub-icon">
+                  <span class="material-icons">{{ getOfferIcon(abo.offreId) }}</span>
+                </div>
+                <div class="sub-info">
+                  <h4>{{ getOfferName(abo.offreId) }}</h4>
+                  <p>Depuis le {{ getFormattedDate(abo.dateDebut) }}</p>
+                </div>
+              </div>
+              <div class="sub-card-right">
+                <div class="sub-price">
+                  <small>Réf. {{ abo.id }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="empty-state" *ngIf="getActiveAbonnements().length === 0">
+            <span class="material-icons">inbox</span>
+            <p>Aucun abonnement actif</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="right-column">
+
+      <!-- Billing Status -->
+      <div class="section-card">
+        <div class="billing-header">
+          <p class="billing-balance">{{ customer.accountBalance?.toFixed(2) || '0.00' }} <small>TND</small></p>
+          <p class="billing-sub" [ngClass]="{'unpaid': getUnpaidBills().length > 0}">{{ getBalanceStatus() }}</p>
+        </div>
+        <div class="billing-body">
+          <div class="billing-item" *ngIf="getLatestBill()">
+            <span class="billing-label">Dernière facture</span>
+            <span class="billing-value">{{ getLatestBill()?.numeroFacture }}</span>
+          </div>
+          <div class="billing-item" *ngIf="getLatestBill()">
+            <span class="billing-label">Date</span>
+            <span class="billing-value">{{ getFormattedDate(getLatestBill()?.dateFacture) }}</span>
+          </div>
+          <div class="billing-item" *ngIf="getLatestBill()">
+            <span class="billing-label">Montant</span>
+            <span class="billing-value">{{ getLatestBill()?.montantTotal?.toFixed(2) }} TND</span>
+          </div>
+          <div class="billing-link" (click)="navigateToBills()">
+            Voir l’historique de facturation <span class="material-icons">arrow_forward</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIM Cards (mock) -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2><span class="material-icons">sim_card</span> Cartes SIM</h2>
+        </div>
+        <div class="section-card-body">
+          <div class="sim-list">
+            <div class="sim-card" *ngIf="getPrimarySim() as sim; else noSimAssigned">
+              <div class="sim-info">
+                <h4>SIM Principale</h4>
+                <p>{{ sim.iccid }}</p>
+              </div>
+              <span class="sim-status" [ngClass]="{ 'active': sim.status === 'ACTIVATED' || sim.status === 'ASSIGNED' }">{{ sim.status }}</span>
+            </div>
+            <ng-template #noSimAssigned>
+              <div class="empty-state">
+                <span class="material-icons">sim_card_alert</span>
+                <p>Aucune SIM assignée</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Actions -->
+      <div class="security-card">
+        <h3><span class="material-icons">shield</span> Actions de Sécurité</h3>
+        <div class="security-actions">
+            <button class="btn-danger" *ngIf="hasActiveSim()" (click)="showConfirmSuspend = true" [disabled]="simActionInProgress">
+            <span class="material-icons">block</span> Bloquer la ligne
+          </button>
+            <button class="btn-success" *ngIf="hasSuspendedSim()" (click)="reactivateSim()" [disabled]="simActionInProgress">
+            <span class="material-icons">check_circle</span> Réactiver la ligne
+          </button>
+          <button class="btn-outline-secondary" disabled>
+            <span class="material-icons">swap_horiz</span> Changement de SIM
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="edit-overlay" *ngIf="showEditMode" (click)="cancelEdit()">
+  <div class="edit-panel" (click)="$event.stopPropagation()">
+    <h2>Modifier le profil</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Prénom</label>
+        <input class="form-control" [(ngModel)]="editData.prenom" placeholder="Prénom" />
+      </div>
+      <div class="form-group">
+        <label>Nom</label>
+        <input class="form-control" [(ngModel)]="editData.nom" placeholder="Nom" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input class="form-control" [(ngModel)]="editData.email" type="email" placeholder="email@exemple.tn" />
+    </div>
+    <div class="form-group">
+      <label>Téléphone</label>
+      <input class="form-control" [(ngModel)]="editData.telephone" placeholder="+216 XX XXX XXX" />
+    </div>
+    <div class="form-group">
+      <label>Adresse</label>
+      <input class="form-control" [(ngModel)]="editData.adresse" placeholder="Adresse" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Ville</label>
+        <input class="form-control" [(ngModel)]="editData.ville" placeholder="Ville" />
+      </div>
+      <div class="form-group">
+        <label>Code Postal</label>
+        <input class="form-control" [(ngModel)]="editData.codePostal" placeholder="Code postal" />
+      </div>
+    </div>
+    <div class="edit-actions">
+      <button class="btn-ghost" (click)="cancelEdit()">Annuler</button>
+      <button class="btn-primary" (click)="saveEdit()" [disabled]="saving">
+        <span class="material-icons">save</span> {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Suspend Modal -->
+<div class="confirm-overlay" *ngIf="showConfirmSuspend" (click)="showConfirmSuspend = false">
+  <div class="confirm-panel" (click)="$event.stopPropagation()">
+    <span class="material-icons warn-icon">warning</span>
+    <h3>Bloquer cette ligne ?</h3>
+    <p>La SIM sera suspendue tant que la ligne est bloquée. Cette action est réversible.</p>
+    <div class="confirm-actions">
+      <button class="btn-ghost" (click)="showConfirmSuspend = false">Annuler</button>
+      <button class="btn-danger" (click)="suspendSim()" [disabled]="simActionInProgress">
+        <span class="material-icons">block</span> Confirmer le blocage
+      </button>
+    </div>
+  </div>
+</div>

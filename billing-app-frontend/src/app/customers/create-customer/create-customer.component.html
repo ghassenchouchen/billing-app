@@ -1,0 +1,496 @@
+<div class="create-page">
+
+  <!-- Wizard Progress Bar -->
+  <div class="wizard-bar">
+    <div class="wizard-steps">
+      <!-- Step 1: Client -->
+      <div class="wizard-step" [ngClass]="{'active': currentStep === 1, 'done': currentStep > 1}" (click)="goToStep(1)">
+        <div class="step-circle">
+          <span *ngIf="currentStep <= 1">1</span>
+          <span class="material-icons" *ngIf="currentStep > 1" style="font-size:18px">check</span>
+        </div>
+        <span class="step-label">Client</span>
+      </div>
+      <div class="wizard-connector" [ngClass]="{'done': currentStep > 1}"></div>
+
+      <!-- Step 2: Parcours -->
+      <div class="wizard-step" [ngClass]="{'active': currentStep === 2, 'done': currentStep > 2, 'disabled': currentStep < 2}" (click)="goToStep(2)">
+        <div class="step-circle">
+          <span *ngIf="currentStep <= 2">2</span>
+          <span class="material-icons" *ngIf="currentStep > 2" style="font-size:18px">check</span>
+        </div>
+        <span class="step-label">Abonnement</span>
+      </div>
+      <div class="wizard-connector" [ngClass]="{'done': currentStep > 2}"></div>
+
+      <!-- Step 3: SIM (if sim flow) or Offre (if standard) -->
+      <div class="wizard-step" [ngClass]="{'active': currentStep === 3, 'done': currentStep > 3, 'disabled': currentStep < 3}" (click)="goToStep(3)">
+        <div class="step-circle">
+          <span *ngIf="currentStep <= 3">3</span>
+          <span class="material-icons" *ngIf="currentStep > 3" style="font-size:18px">check</span>
+        </div>
+        <span class="step-label">{{ flowType === 'sim' ? 'SIM' : 'Offre' }}</span>
+      </div>
+
+      <!-- If SIM flow: show more steps -->
+      <ng-container *ngIf="flowType === 'sim'">
+        <div class="wizard-connector" [ngClass]="{'done': currentStep > 3}"></div>
+        <div class="wizard-step" [ngClass]="{'active': currentStep === 4, 'done': currentStep > 4, 'disabled': currentStep < 4}" (click)="goToStep(4)">
+          <div class="step-circle">
+            <span *ngIf="currentStep <= 4">4</span>
+            <span class="material-icons" *ngIf="currentStep > 4" style="font-size:18px">check</span>
+          </div>
+          <span class="step-label">Offre</span>
+        </div>
+        <div class="wizard-connector" [ngClass]="{'done': currentStep > 4}"></div>
+        <div class="wizard-step" [ngClass]="{'active': currentStep === 5, 'disabled': currentStep < 5}">
+          <div class="step-circle">5</div>
+          <span class="step-label">Validation</span>
+        </div>
+      </ng-container>
+
+      <!-- If Standard flow: Validation is step 4 -->
+      <ng-container *ngIf="flowType === 'standard'">
+        <div class="wizard-connector" [ngClass]="{'done': currentStep > 3}"></div>
+        <div class="wizard-step" [ngClass]="{'active': currentStep === 4, 'disabled': currentStep < 4}">
+          <div class="step-circle">4</div>
+          <span class="step-label">Validation</span>
+        </div>
+      </ng-container>
+    </div>
+    <span class="cancel-link" (click)="cancel()">Annuler et quitter</span>
+  </div>
+
+  <!-- ═══════ STEP 1: Identification ═══════ -->
+  <div *ngIf="currentStep === 1">
+    <div class="form-card">
+      <div class="form-card-header">
+        <h1>Identification du Nouveau Client</h1>
+        <p>Renseignez les informations du client pour créer son profil dans le système.</p>
+      </div>
+
+      <div class="type-toggle">
+        <div class="type-option" [ngClass]="{'selected': clientForm.type === 'INDIVIDUAL'}" (click)="clientForm.type = 'INDIVIDUAL'">
+          <div class="type-icon"><span class="material-icons">person</span></div>
+          <div class="type-label">
+            <h4>Individu</h4>
+            <p>Client particulier</p>
+          </div>
+        </div>
+        <div class="type-option" [ngClass]="{'selected': clientForm.type === 'BUSINESS'}" (click)="clientForm.type = 'BUSINESS'">
+          <div class="type-icon"><span class="material-icons">business</span></div>
+          <div class="type-label">
+            <h4>Business / B2B</h4>
+            <p>Entreprise ou professionnel</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-columns">
+        <div class="form-section">
+          <h3><span class="material-icons">badge</span> Identité</h3>
+          <div class="form-group" *ngIf="clientForm.type === 'INDIVIDUAL'">
+            <label>Prénom *</label>
+            <input class="form-control" [ngClass]="{'error': formErrors['prenom']}" [(ngModel)]="clientForm.prenom" placeholder="Prénom du client" />
+            <div class="form-error" *ngIf="formErrors['prenom']">{{ formErrors['prenom'] }}</div>
+          </div>
+          <div class="form-group">
+            <label>{{ clientForm.type === 'BUSINESS' ? 'Raison Sociale *' : 'Nom *' }}</label>
+            <input class="form-control" [ngClass]="{'error': formErrors['nom']}" [(ngModel)]="clientForm.nom" [placeholder]="clientForm.type === 'BUSINESS' ? 'Nom de l\'entreprise' : 'Nom de famille'" />
+            <div class="form-error" *ngIf="formErrors['nom']">{{ formErrors['nom'] }}</div>
+          </div>
+          <div class="form-group" *ngIf="clientForm.type === 'INDIVIDUAL'">
+            <label>N° Pièce d'Identité (CIN/Passeport) *</label>
+            <input class="form-control" [ngClass]="{'error': formErrors['pieceIdentite']}" [(ngModel)]="clientForm.pieceIdentite" placeholder="Ex: 12345678" />
+            <div class="form-error" *ngIf="formErrors['pieceIdentite']">{{ formErrors['pieceIdentite'] }}</div>
+          </div>
+          <div class="form-group" *ngIf="clientForm.type === 'BUSINESS'">
+            <label>Identifiant Fiscal (MF) *</label>
+            <input class="form-control" [ngClass]="{'error': formErrors['pieceIdentite']}" [(ngModel)]="clientForm.pieceIdentite" placeholder="Ex: 1234567A/B/C/000" />
+            <div class="form-error" *ngIf="formErrors['pieceIdentite']">{{ formErrors['pieceIdentite'] }}</div>
+            <div class="form-hint" *ngIf="!formErrors['pieceIdentite']">Matricule fiscal au format tunisien</div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3><span class="material-icons">contact_phone</span> Contact</h3>
+          <div class="form-group">
+            <label>Téléphone de contact *</label>
+            <div class="phone-input">
+              <input class="phone-prefix" value="+216" disabled />
+              <input class="form-control" [ngClass]="{'error': formErrors['telephone']}" [(ngModel)]="clientForm.telephone" (ngModelChange)="onPhoneChange()" placeholder="XX XXX XXX" maxlength="8" />
+            </div>
+            <div class="form-error" *ngIf="formErrors['telephone']">{{ formErrors['telephone'] }}</div>
+            <div class="form-hint" *ngIf="!formErrors['telephone']">8 chiffres exactement</div>
+          </div>
+          <div class="form-group">
+            <label>Adresse Email *</label>
+            <input class="form-control" [ngClass]="{'error': formErrors['email']}" [(ngModel)]="clientForm.email" type="email" placeholder="client@exemple.tn" />
+            <div class="form-error" *ngIf="formErrors['email']">{{ formErrors['email'] }}</div>
+          </div>
+          <div class="form-group">
+            <label>Adresse de Résidence</label>
+            <textarea class="form-control" [(ngModel)]="clientForm.adresse" rows="2" placeholder="Adresse complète"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Ville</label>
+            <select class="form-control" [(ngModel)]="clientForm.ville" (change)="onVilleChange()">
+              <option value="">Sélectionner une ville</option>
+              <option *ngFor="let v of tunisiaVilles" [value]="v">{{ v }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Gouvernorat</label>
+            <input class="form-control" [(ngModel)]="clientForm.gouvernorat" readonly placeholder="Auto-rempli" />
+          </div>
+          <div class="form-group">
+            <label>Code Postal</label>
+            <input class="form-control" [(ngModel)]="clientForm.codePostal" readonly placeholder="Auto-rempli" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <div class="form-footer-info">
+          <span class="material-icons">info</span>
+          Les données seront enregistrées après validation finale.
+        </div>
+        <div class="form-footer-actions">
+          <button class="btn-ghost" (click)="resetForm()">Réinitialiser</button>
+          <button class="btn-primary" (click)="nextStep()">
+            Sauvegarder et continuer <span class="material-icons">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="help-cards">
+      <div class="help-card info">
+        <span class="material-icons">description</span>
+        <div>
+          <h4>Documents requis</h4>
+          <p>Pièce d'identité originale obligatoire. Un scan sera demandé lors de la validation du dossier.</p>
+        </div>
+      </div>
+      <div class="help-card warning">
+        <span class="material-icons">business</span>
+        <div>
+          <h4>Politique B2B</h4>
+          <p>Les comptes Business nécessitent un identifiant fiscal (MF) et un registre de commerce (RC).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ STEP 2: Choix du Parcours ═══════ -->
+  <div *ngIf="currentStep === 2">
+    <div class="form-card">
+      <div class="form-card-header">
+        <h1>Choix du Parcours</h1>
+        <p>Sélectionnez le type de souscription pour le nouveau client.</p>
+      </div>
+
+      <div class="flow-selection">
+        <div class="flow-card" [ngClass]="{'selected': flowType === 'standard'}" (click)="setFlowType('standard')">
+          <div class="flow-icon standard">
+            <span class="material-icons">subscriptions</span>
+          </div>
+          <h4>Abonnement seul</h4>
+          <p>Souscrire à une offre carte SIM. Dédié aux offres fixe ou les clients ayant déjà une SIM.</p>
+          <div class="flow-steps">
+            <span class="material-icons">person</span>
+            <span class="material-icons">arrow_forward</span>
+            <span class="material-icons">redeem</span>
+            <span class="material-icons">arrow_forward</span>
+            <span class="material-icons">check_circle</span>
+          </div>
+          <span class="flow-labels">Client → Offre → Validation</span>
+          <span class="material-icons check-badge" *ngIf="flowType === 'standard'">check_circle</span>
+        </div>
+
+        <div class="flow-card" [ngClass]="{'selected': flowType === 'sim'}" (click)="setFlowType('sim')">
+          <div class="flow-icon sim">
+            <span class="material-icons">sim_card</span>
+          </div>
+          <h4>Abonnement + SIM</h4>
+          <p>Activer une nouvelle carte SIM au client avec souscription à une offre mobile. La SIM sera activée automatiquement.</p>
+          <div class="flow-steps">
+            <span class="material-icons">person</span>
+            <span class="material-icons">arrow_forward</span>
+            <span class="material-icons">sim_card</span>
+            <span class="material-icons">arrow_forward</span>
+            <span class="material-icons">smartphone</span>
+            <span class="material-icons">arrow_forward</span>
+            <span class="material-icons">check_circle</span>
+          </div>
+          <span class="flow-labels">Client → SIM → Offre Mobile → Validation</span>
+          <span class="material-icons check-badge" *ngIf="flowType === 'sim'">check_circle</span>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <div class="form-footer-info">
+          <span class="material-icons">info</span>
+          {{ flowType === 'sim' ? 'Seules les offres mobiles seront disponibles avec ce parcours.' : 'Toutes les offres seront disponibles.' }}
+        </div>
+        <div class="form-footer-actions">
+          <button class="btn-ghost" (click)="prevStep()">
+            <span class="material-icons">arrow_back</span> Retour
+          </button>
+          <button class="btn-primary" (click)="nextStep()">
+            Continuer <span class="material-icons">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 Sélection SIM -->
+  <div *ngIf="currentStep === 3 && flowType === 'sim'">
+    <div class="form-card">
+      <div class="form-card-header">
+        <h1>Sélection de la Carte SIM</h1>
+        <p>Choisissez la carte SIM à associer au client. Elle sera automatiquement activée.</p>
+      </div>
+
+      <div class="sim-filters">
+        <div class="search-box">
+          <span class="material-icons">search</span>
+          <input type="text" placeholder="Rechercher par ICCID, MSISDN…" [(ngModel)]="simSearchQuery" (input)="filterSims()">
+        </div>
+        <select class="filter-select" [(ngModel)]="simFilterType" (change)="filterSims()">
+          <option value="">Tous types</option>
+          <option value="STANDARD">Standard</option>
+          <option value="ESIM">eSIM</option>
+        </select>
+      </div>
+
+      <!-- Selected SIM highlight -->
+      <div class="selected-sim-card" *ngIf="selectedSim">
+        <div class="ssim-icon">
+          <span class="material-icons">sim_card</span>
+        </div>
+        <div class="ssim-info">
+          <h4>{{ selectedSim.msisdn }}</h4>
+          <p>ICCID: {{ formatIccid(selectedSim.iccid) }} • {{ getSimTypeLabel(selectedSim.simType) }}</p>
+        </div>
+        <span class="material-icons check-icon">check_circle</span>
+      </div>
+
+      <!-- SIM list -->
+      <div class="sim-list" *ngIf="!loadingSims">
+        <div class="sim-list-item" *ngFor="let sim of filteredSims"
+             [ngClass]="{'selected': selectedSim?.iccid === sim.iccid}"
+             (click)="selectSim(sim)">
+          <div class="sli-icon">
+            <span class="material-icons">sim_card</span>
+          </div>
+          <div class="sli-info">
+            <h4>{{ sim.msisdn }}</h4>
+            <p class="sli-iccid">ICCID: {{ formatIccid(sim.iccid) }}</p>
+          </div>
+          <span class="sim-type-badge" [ngClass]="{'esim': sim.simType === 'ESIM'}">
+            {{ getSimTypeLabel(sim.simType) }}
+          </span>
+          <span class="material-icons sli-check" *ngIf="selectedSim?.iccid === sim.iccid">check_circle</span>
+        </div>
+        <div class="empty-list" *ngIf="filteredSims.length === 0">
+          <span class="material-icons">sim_card_alert</span>
+          <p>Aucune carte SIM disponible</p>
+        </div>
+      </div>
+
+      <div class="loading-list" *ngIf="loadingSims">
+        <span class="material-icons spin">sync</span>
+        <p>Chargement des cartes SIM...</p>
+      </div>
+
+      <div class="form-error" *ngIf="formErrors['sim']" style="text-align:center;margin:16px 0 0">{{ formErrors['sim'] }}</div>
+
+      <div class="form-footer">
+        <div class="form-footer-info">
+          <span class="material-icons">info</span>
+          La SIM sélectionnée passera au statut « Activée » après création.
+        </div>
+        <div class="form-footer-actions">
+          <button class="btn-ghost" (click)="prevStep()">
+            <span class="material-icons">arrow_back</span> Retour
+          </button>
+          <button class="btn-primary" (click)="nextStep()" [disabled]="!selectedSim">
+            Continuer <span class="material-icons">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ STEP 3 (Standard flow) or STEP 4 (SIM flow): Offres ═══════ -->
+  <div *ngIf="(currentStep === 3 && flowType === 'standard') || (currentStep === 4 && flowType === 'sim')">
+    <div class="form-card">
+      <div class="form-card-header">
+        <h1>{{ flowType === 'sim' ? 'Choisir une Offre Mobile' : 'Choisir une Offre' }}</h1>
+        <p>{{ flowType === 'sim' ? 'Sélectionnez l\'offre mobile à associer à la SIM.' : 'Sélectionnez l\'offre à associer au nouveau client.' }}</p>
+      </div>
+
+      <div class="offer-grid" *ngIf="!loadingOffers">
+        <div class="offer-card" *ngFor="let offer of availableOffers"
+             [ngClass]="{'selected': selectedOfferId === offer.id}"
+             (click)="selectOffer(offer.id)">
+          <div class="offer-card-header">
+            <div class="offer-icon">
+              <span class="material-icons">{{ getOfferIcon(offer) }}</span>
+            </div>
+            <h4>{{ offer.libelle }}</h4>
+          </div>
+          <p class="desc">{{ offer.description }}</p>
+          <div>
+            <span class="offer-price">{{ offer.prixMensuel?.toFixed(2) }} <small>TND/mois</small></span>
+            <span class="offer-type-badge">{{ offer.paymentType }}</span>
+          </div>
+          <span class="material-icons offer-check" *ngIf="selectedOfferId === offer.id">check_circle</span>
+        </div>
+      </div>
+
+      <div class="loading-list" *ngIf="loadingOffers">
+        <span class="material-icons spin">sync</span>
+        <p>Chargement des offres...</p>
+      </div>
+
+      <div class="empty-list" *ngIf="!loadingOffers && availableOffers.length === 0">
+        <span class="material-icons">inventory_2</span>
+        <p>Aucune offre disponible</p>
+      </div>
+
+      <div class="form-error" *ngIf="formErrors['offer']" style="text-align:center;margin-bottom:16px">{{ formErrors['offer'] }}</div>
+
+      <div class="form-footer">
+        <div class="form-footer-info">
+          <span class="material-icons">info</span>
+          L'abonnement sera créé automatiquement à la validation.
+        </div>
+        <div class="form-footer-actions">
+          <button class="btn-ghost" (click)="prevStep()">
+            <span class="material-icons">arrow_back</span> Retour
+          </button>
+          <button class="btn-primary" (click)="nextStep()">
+            Continuer <span class="material-icons">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ VALIDATION: Step 4 (Standard) or Step 5 (SIM) ═══════ -->
+  <div *ngIf="(currentStep === 4 && flowType === 'standard') || (currentStep === 5 && flowType === 'sim')">
+    <div class="form-card">
+      <div class="form-card-header">
+        <h1>Récapitulatif &amp; Validation</h1>
+        <p>Vérifiez les informations avant de confirmer la création du client.</p>
+      </div>
+
+      <div class="summary-grid">
+        <!-- Client summary -->
+        <div class="summary-section">
+          <h3><span class="material-icons">person</span> Informations Client</h3>
+          <div class="summary-item">
+            <span class="summary-label">Type</span>
+            <span class="summary-value">{{ getTypeLabel() }}</span>
+          </div>
+          <div class="summary-item" *ngIf="clientForm.type === 'INDIVIDUAL'">
+            <span class="summary-label">Prénom</span>
+            <span class="summary-value">{{ clientForm.prenom }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">{{ clientForm.type === 'BUSINESS' ? 'Raison Sociale' : 'Nom' }}</span>
+            <span class="summary-value">{{ clientForm.nom }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Email</span>
+            <span class="summary-value">{{ clientForm.email }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Téléphone</span>
+            <span class="summary-value">+216{{ clientForm.telephone }}</span>
+          </div>
+          <div class="summary-item" *ngIf="clientForm.adresse">
+            <span class="summary-label">Adresse</span>
+            <span class="summary-value">{{ clientForm.adresse }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">{{ clientForm.type === 'BUSINESS' ? 'Identifiant Fiscal' : 'Pièce d\'Identité' }}</span>
+            <span class="summary-value">{{ clientForm.pieceIdentite }}</span>
+          </div>
+          <div class="summary-item" *ngIf="clientForm.ville">
+            <span class="summary-label">Ville</span>
+            <span class="summary-value">{{ clientForm.ville }}</span>
+          </div>
+          <div class="summary-item" *ngIf="clientForm.gouvernorat">
+            <span class="summary-label">Gouvernorat</span>
+            <span class="summary-value">{{ clientForm.gouvernorat }}</span>
+          </div>
+        </div>
+
+        <!-- SIM summary (if sim flow) -->
+        <div class="summary-section" *ngIf="flowType === 'sim' && selectedSim">
+          <h3><span class="material-icons">sim_card</span> Carte SIM</h3>
+          <div class="summary-item">
+            <span class="summary-label">MSISDN</span>
+            <span class="summary-value">{{ selectedSim.msisdn }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">ICCID</span>
+            <span class="summary-value mono">{{ formatIccid(selectedSim.iccid) }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Type</span>
+            <span class="summary-value">{{ getSimTypeLabel(selectedSim.simType) }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Statut après création</span>
+            <span class="summary-value status-active">Activée</span>
+          </div>
+        </div>
+
+        <!-- Offer summary -->
+        <div class="summary-section">
+          <h3><span class="material-icons">redeem</span> Offre Sélectionnée</h3>
+          <ng-container *ngIf="getSelectedOffer() as offer">
+            <div class="summary-item">
+              <span class="summary-label">Offre</span>
+              <span class="summary-value">{{ offer.libelle }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Type de paiement</span>
+              <span class="summary-value">{{ offer.paymentType }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Description</span>
+              <span class="summary-value desc-text">{{ offer.description }}</span>
+            </div>
+            <div class="summary-total">
+              <span class="summary-label">Mensualité</span>
+              <span class="summary-value">{{ offer.prixMensuel?.toFixed(2) }} TND</span>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="form-footer" style="margin-top:24px">
+        <div class="form-footer-info">
+          <span class="material-icons">check_circle</span>
+          {{ flowType === 'sim' ? 'Le client, la SIM et l\'abonnement seront créés.' : 'Le client et son abonnement seront créés.' }}
+        </div>
+        <div class="form-footer-actions">
+          <button class="btn-ghost" (click)="prevStep()">
+            <span class="material-icons">arrow_back</span> Retour
+          </button>
+          <button class="btn-primary" (click)="submit()" [disabled]="saving">
+            <span class="material-icons">check</span>
+            {{ saving ? 'Création en cours...' : 'Confirmer et créer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

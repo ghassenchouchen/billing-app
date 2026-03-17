@@ -1,0 +1,150 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Nouvelle Boutique</h2>
+      <p class="page-subtitle">Ajouter un nouveau point de vente au réseau.</p>
+    </div>
+  </div>
+
+  <div class="alert alert-success" *ngIf="successMessage">
+    <span class="material-icons">check_circle</span>
+    {{ successMessage }}
+  </div>
+  <div class="alert alert-error" *ngIf="errorMessage">
+    <span class="material-icons">error</span>
+    {{ errorMessage }}
+  </div>
+
+  <div class="form-card">
+    <form (ngSubmit)="submitForm()">
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon purple">
+            <span class="material-icons">store</span>
+          </div>
+          <div>
+            <h3 class="section-title">Identification</h3>
+            <p class="section-subtitle">Nom et code unique de la boutique</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Nom de la boutique</label>
+            <input type="text" class="form-control" placeholder="ex: Boutique Tunis Centre" [(ngModel)]="nom" name="nom" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Code boutique</label>
+            <div class="input-with-action">
+              <input type="text" class="form-control" placeholder="BQ-TUN-001" [(ngModel)]="code" name="code" required maxlength="20">
+              <button type="button" class="btn-generate" (click)="generateCode()" title="Générer un code">
+                <span class="material-icons">autorenew</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon blue">
+            <span class="material-icons">location_on</span>
+          </div>
+          <div>
+            <h3 class="section-title">Localisation</h3>
+            <p class="section-subtitle">Adresse physique du point de vente</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label class="form-label">Adresse</label>
+            <input type="text" class="form-control" placeholder="ex: 12 Avenue Habib Bourguiba" [(ngModel)]="adresse" name="adresse" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ville</label>
+            <select class="form-control" [(ngModel)]="ville" name="ville" (change)="onVilleChange()" required>
+              <option value="">Sélectionner une ville</option>
+              <option *ngFor="let v of tunisiaVilles" [value]="v">{{ v }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gouvernorat</label>
+            <input type="text" class="form-control" placeholder="Auto-rempli" [(ngModel)]="gouvernorat" name="gouvernorat" readonly>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Code postal</label>
+            <input type="text" class="form-control" placeholder="ex: 1000" [(ngModel)]="codePostal" name="codePostal" maxlength="10" readonly>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-header">
+          <div class="section-icon green">
+            <span class="material-icons">contact_phone</span>
+          </div>
+          <div>
+            <h3 class="section-title">Contact & Responsable</h3>
+            <p class="section-subtitle">Coordonnées et responsable assigné</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Téléphone</label>
+            <div class="input-prefix-wrapper">
+              <span class="input-prefix">+216</span>
+              <input type="tel" class="form-control has-prefix" placeholder="71 000 000" [(ngModel)]="telephone" name="telephone" required maxlength="8">
+            </div>
+            <div class="error-message" *ngIf="formErrors['telephone']">
+              {{ formErrors['telephone'] }}
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">E-mail</label>
+            <input type="email" class="form-control" placeholder="boutique@telecom.tn" [(ngModel)]="email" name="email">
+            <div class="error-message" *ngIf="formErrors['email']">
+              {{ formErrors['email'] }}
+            </div>
+          </div>
+          <div class="form-group full-width">
+            <label class="form-label">Responsable boutique</label>
+            <div class="responsable-grid" *ngIf="responsables.length > 0">
+              <div
+                class="responsable-card"
+                *ngFor="let r of responsables"
+                [class.selected]="responsableId === r.id"
+                (click)="responsableId = r.id">
+                <div class="responsable-avatar">{{ r.firstName.charAt(0) }}{{ r.lastName.charAt(0) }}</div>
+                <div class="responsable-info">
+                  <div class="responsable-name">{{ r.firstName }} {{ r.lastName }}</div>
+                  <div class="responsable-username">{{ r.username }}</div>
+                </div>
+                <span class="material-icons check-icon" *ngIf="responsableId === r.id">check_circle</span>
+              </div>
+            </div>
+            <div class="empty-responsables" *ngIf="responsables.length === 0">
+              <span class="material-icons">person_off</span>
+              <span>Aucun responsable disponible</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-footer">
+        <div class="footer-hint">
+          <span class="material-icons">info_outline</span>
+          La boutique sera créée avec le statut Actif par défaut
+        </div>
+        <div class="footer-actions">
+          <button type="button" class="btn btn-ghost" (click)="cancel()">ANNULER</button>
+          <button type="submit" class="btn btn-action primary" [disabled]="!formValid || saving">
+            <span class="material-icons">{{ saving ? 'hourglass_empty' : 'add_business' }}</span>
+            {{ saving ? 'Création...' : 'CRÉER LA BOUTIQUE' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

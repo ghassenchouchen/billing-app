@@ -1,0 +1,209 @@
+<div class="page">
+	<div class="page-header">
+		<div>
+			<h2 class="page-title">Catalogue des Offres</h2>
+			<p class="page-subtitle">Gérez le cycle de vie de vos produits télécoms. Définissez les tarifs, les quotas et les options pour chaque offre.</p>
+		</div>
+		<div class="page-actions">
+			<span class="chip">
+				<span class="status-dot active"></span>
+				{{activeCount}} Actifs
+			</span>
+			<span class="chip secondary">
+				<span class="status-dot archived"></span>
+				{{inactiveCount}} Inactifs
+			</span>
+			<button *ngIf="isAdmin" class="btn btn-action" type="button" (click)="openCreateForm()" [disabled]="showForm">
+				<span class="material-icons">add</span>
+				Nouvelle offre
+			</button>
+		</div>
+	</div>
+
+	<div class="card section-card" *ngIf="showForm && isAdmin">
+		<div class="card-header">
+			<h5 class="card-title mb-0">{{ formMode === 'create' ? 'Nouveau forfait' : 'Modifier le forfait' }}</h5>
+			<button class="btn btn-ghost btn-sm" type="button" (click)="closeForm()" [disabled]="saving">
+				<span class="material-icons">close</span>
+			</button>
+		</div>
+		<div class="card-body">
+			<div class="form-section">
+				<div class="form-row">
+					<div class="form-group">
+						<label>Nom de l'offre</label>
+						<input class="form-control" type="text" [(ngModel)]="formData.libelle" placeholder="Ex: Forfait Fibre Essentiel" />
+					</div>
+					<div class="form-group">
+						<label>Service associé</label>
+						<select class="form-control" [(ngModel)]="formData.serviceId">
+							<option value="">-- Sélectionnez un service --</option>
+							<option *ngFor="let service of availableServices" [value]="service.id">
+								{{ service.libelle || service.nom || service.code }} ({{ service.prixUnitaire | number:'1.2-2' }} TND)
+							</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group">
+						<label>Description</label>
+						<input class="form-control" type="text" [(ngModel)]="formData.description" placeholder="Brève description de l'offre" />
+					</div>
+					<div class="form-group">
+						<label>Prix mensuel (TND)</label>
+						<input class="form-control" type="number" [(ngModel)]="formData.prixMensuel" step="0.01" min="0" placeholder="0.00" />
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group">
+						<label>Type de paiement</label>
+						<select class="form-control" [(ngModel)]="formData.paymentType">
+							<option value="POSTPAID">Postpayé</option>
+							<option value="PREPAID">Prépayé</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>Statut</label>
+						<select class="form-control" [(ngModel)]="formData.status">
+							<option value="ACTIVE">Actif</option>
+							<option value="INACTIVE">Inactif</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-actions">
+					<button class="btn btn-action" type="button" (click)="saveOffer()" [disabled]="saving || !formData.libelle || !formData.serviceId">
+						<span class="material-icons">{{ saving ? 'hourglass_empty' : 'save' }}</span>
+						{{ saving ? 'Sauvegarde…' : 'Sauvegarder' }}
+					</button>
+					<button class="btn btn-ghost" type="button" (click)="closeForm()" [disabled]="saving">
+						Annuler
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- View Toggle -->
+	<div class="view-toggle-bar">
+		<div class="view-toggle">
+			<button class="toggle-btn" [class.active]="viewMode === 'cards'" (click)="viewMode = 'cards'">
+				<span class="material-icons">grid_view</span>
+				Cartes
+			</button>
+			<button class="toggle-btn" [class.active]="viewMode === 'table'" (click)="viewMode = 'table'">
+				<span class="material-icons">view_list</span>
+				Tableau
+			</button>
+		</div>
+	</div>
+
+	<!-- Cards View -->
+	<div class="offers-grid" *ngIf="viewMode === 'cards'">
+		<div class="offer-card" *ngFor="let offer of listofoffers"
+		     [class.highlight]="offer.status === 'ACTIVE' && offer.paymentType === 'PREPAID'">
+			<div class="offer-card__head">
+				<div class="offer-card__icon" [class.active]="offer.status === 'ACTIVE'">
+					<span class="material-icons">{{ getOfferIcon(offer) }}</span>
+				</div>
+				<span class="offer-card__tag"
+				      [class.prepaid]="offer.paymentType === 'PREPAID'"
+				      [class.postpaid]="offer.paymentType !== 'PREPAID'">
+					{{ offer.paymentType || 'POSTPAID' }}
+				</span>
+			</div>
+
+			<h3 class="offer-card__name">{{ offer.libelle || offer.nom || offer.code }}</h3>
+
+			<div class="offer-card__price">
+				{{ offer.prixMensuel | number:'1.2-2' }}
+				<span class="offer-card__currency">TND<span class="offer-card__period"> /mois</span></span>
+			</div>
+
+			<p class="offer-card__desc">{{ offer.description || 'Aucune description disponible.' }}</p>
+
+			<div class="offer-card__footer">
+				<div class="offer-card__status">
+					<span class="badge-soft success" *ngIf="offer.status === 'ACTIVE'">Actif</span>
+					<span class="badge-soft neutral" *ngIf="offer.status !== 'ACTIVE'">{{ offer.status === 'INACTIVE' ? 'Inactif' : (offer.status || 'Inactif') }}</span>
+				</div>
+				<div class="offer-card__actions" *ngIf="isAdmin">
+					<button class="btn btn-ghost btn-sm" type="button" (click)="openEditForm(offer)" title="Modifier">
+						<span class="material-icons">edit</span>
+					</button>
+					<button class="btn btn-ghost btn-sm danger-hover" type="button" (click)="deleteOffer(offer.id)" title="Supprimer">
+						<span class="material-icons">delete</span>
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Empty state -->
+		<div class="empty-state" *ngIf="!listofoffers.length">
+			<span class="material-icons empty-icon">inventory_2</span>
+			<p>Aucune offre trouvée</p>
+			<button *ngIf="isAdmin" class="btn btn-action primary" type="button" (click)="openCreateForm()">
+				<span class="material-icons">add</span>
+				Créer une offre
+			</button>
+		</div>
+	</div>
+
+	<!-- Table View -->
+	<div class="card section-card data-table" *ngIf="viewMode === 'table'">
+		<div class="card-header">
+			<h5 class="card-title mb-0">Liste détaillée</h5>
+		</div>
+		<div class="card-body">
+			<div class="table-responsive">
+				<table class="table table-striped table-hover">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Nom de l'offre</th>
+							<th>Description</th>
+							<th class="text-right">Prix (TND)</th>
+							<th>Type</th>
+							<th>Statut</th>
+							<th *ngIf="isAdmin">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let offer of listofoffers">
+							<td class="mono-id">{{ offer.id }}</td>
+							<td class="offer-name-cell">{{ offer.libelle || offer.nom || offer.code }}</td>
+							<td class="desc-cell">{{ offer.description || '—' }}</td>
+							<td class="text-right font-bold">{{ offer.prixMensuel | number:'1.2-2' }}</td>
+							<td>
+								<span class="badge-soft" [class.info]="offer.paymentType === 'PREPAID'" [class.neutral]="offer.paymentType !== 'PREPAID'">{{ offer.paymentType || 'POSTPAID' }}</span>
+							</td>
+							<td>
+								<span class="badge-soft success" *ngIf="offer.status === 'ACTIVE'">Actif</span>
+								<span class="badge-soft neutral" *ngIf="offer.status !== 'ACTIVE'">{{ offer.status === 'INACTIVE' ? 'Inactif' : (offer.status || 'Inactif') }}</span>
+							</td>
+							<td class="actions-cell" *ngIf="isAdmin">
+								<button class="btn btn-ghost btn-sm" type="button" (click)="openEditForm(offer)">
+									<span class="material-icons">edit</span>
+									Modifier
+								</button>
+								<button class="btn btn-ghost btn-sm" type="button" (click)="deleteOffer(offer.id)">
+									<span class="material-icons">delete</span>
+									Supprimer
+								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<app-confirm-modal
+  [show]="showConfirmModal"
+  [title]="confirmModalConfig.title"
+  [message]="confirmModalConfig.message"
+  confirmText="Supprimer"
+  confirmClass="danger"
+  (confirmed)="confirmModalConfig.action && confirmModalConfig.action()"
+  (cancelled)="cancelConfirm()">
+</app-confirm-modal>

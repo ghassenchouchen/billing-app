@@ -1,0 +1,212 @@
+<div class="page">
+	<div class="page-header">
+		<div>
+			<h2 class="page-title">Catalogue des Services</h2>
+			<p class="page-subtitle">Maintenez le catalogue de services et les règles tarifaires par unité de consommation.</p>
+		</div>
+		<div class="page-actions">
+			<span class="chip">
+				<span class="status-dot active"></span>
+				{{activeCount}} Actifs
+			</span>
+			<span class="chip secondary">
+				<span class="status-dot archived"></span>
+				{{inactiveCount}} Inactifs
+			</span>
+			<button class="btn btn-action" type="button" (click)="openCreateForm()" [disabled]="showForm">
+				<span class="material-icons">add</span>
+				Nouveau service
+			</button>
+		</div>
+	</div>
+
+	<!-- Create / Edit Form -->
+	<div class="card section-card" *ngIf="showForm">
+		<div class="card-header">
+			<h5 class="card-title mb-0">{{ formMode === 'create' ? 'Nouveau service' : 'Modifier le service' }}</h5>
+			<button class="btn btn-ghost btn-sm" type="button" (click)="closeForm()" [disabled]="saving">
+				<span class="material-icons">close</span>
+			</button>
+		</div>
+		<div class="card-body">
+			<div class="form-section">
+				<div class="form-row">
+					<div class="form-group">
+						<label>Code du service</label>
+						<input class="form-control" type="text" [(ngModel)]="formData.code" placeholder="Ex: SVC_VOIX_01" />
+					</div>
+					<div class="form-group">
+						<label>Nom du service</label>
+						<input class="form-control" type="text" [(ngModel)]="formData.libelle" placeholder="Ex: Appels Nationaux" />
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group">
+						<label>Prix unitaire (TND)</label>
+						<input class="form-control" type="number" [(ngModel)]="formData.prixUnitaire" step="0.001" min="0" placeholder="0.000" />
+					</div>
+					<div class="form-group">
+						<label>Unité de facturation</label>
+						<select class="form-control" [(ngModel)]="formData.unite">
+							<option value="SECONDE">Secondes (Appels)</option>
+							<option value="OCTET">Octets (Internet)</option>
+							<option value="SMS">SMS</option>
+							<option value="UNITE">Unité</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-group">
+						<label>Catégorie</label>
+						<select class="form-control" [(ngModel)]="formData.category">
+							<option value="VOICE">Voix</option>
+							<option value="DATA">Données</option>
+							<option value="SMS">SMS</option>
+							<option value="ROAMING">Roaming</option>
+							<option value="VALUE_ADDED">Valeur ajoutée</option>
+						</select>
+					</div>
+					<div class="form-group"></div>
+				</div>
+				<div class="form-actions">
+					<button class="btn btn-action" type="button" (click)="saveService()" [disabled]="saving || !formData.libelle || !formData.code">
+						<span class="material-icons">{{ saving ? 'hourglass_empty' : 'save' }}</span>
+						{{ saving ? 'Sauvegarde…' : 'Sauvegarder' }}
+					</button>
+					<button class="btn btn-ghost" type="button" (click)="closeForm()" [disabled]="saving">
+						Annuler
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- View Toggle -->
+	<div class="view-toggle-bar">
+		<div class="view-toggle">
+			<button class="toggle-btn" [class.active]="viewMode === 'cards'" (click)="viewMode = 'cards'">
+				<span class="material-icons">grid_view</span>
+				Cartes
+			</button>
+			<button class="toggle-btn" [class.active]="viewMode === 'table'" (click)="viewMode = 'table'">
+				<span class="material-icons">view_list</span>
+				Tableau
+			</button>
+		</div>
+	</div>
+
+	<!-- Cards View -->
+	<div class="services-grid" *ngIf="viewMode === 'cards'">
+		<div class="service-card" *ngFor="let service of listofServices"
+		     [class.highlight]="service.active">
+			<div class="service-card__head">
+				<div class="service-card__icon" [class.active]="service.active">
+					<span class="material-icons">{{ getServiceIcon(service) }}</span>
+				</div>
+				<span class="service-card__tag" [ngClass]="getCategoryClass(service.category)">
+					{{ getCategoryLabel(service.category) }}
+				</span>
+			</div>
+
+			<h3 class="service-card__name">{{ service.libelle || service.code }}</h3>
+
+			<div class="service-card__price">
+				{{ service.prixUnitaire | number:'1.3-3' }}
+				<span class="service-card__currency">TND<span class="service-card__period"> /{{ getUniteLabel(service.unite) }}</span></span>
+			</div>
+
+			<p class="service-card__desc">
+				<span class="service-card__code">{{ service.code }}</span>
+				· Unité : {{ service.unite }}
+			</p>
+
+			<div class="service-card__footer">
+				<div class="service-card__status">
+					<span class="badge-soft success" *ngIf="service.active">Actif</span>
+					<span class="badge-soft neutral" *ngIf="!service.active">Inactif</span>
+				</div>
+				<div class="service-card__actions">
+					<button class="btn btn-ghost btn-sm" type="button" (click)="openEditForm(service)" title="Modifier">
+						<span class="material-icons">edit</span>
+					</button>
+					<button class="btn btn-ghost btn-sm danger-hover" type="button" (click)="deleteService(service.id)" title="Supprimer">
+						<span class="material-icons">delete</span>
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Empty state -->
+		<div class="empty-state" *ngIf="!listofServices.length">
+			<span class="material-icons empty-icon">miscellaneous_services</span>
+			<p>Aucun service trouvé</p>
+			<button class="btn btn-action" type="button" (click)="openCreateForm()">
+				<span class="material-icons">add</span>
+				Créer un service
+			</button>
+		</div>
+	</div>
+
+	<!-- Table View -->
+	<div class="card section-card data-table" *ngIf="viewMode === 'table'">
+		<div class="card-header">
+			<h5 class="card-title mb-0">Liste détaillée</h5>
+		</div>
+		<div class="card-body">
+			<div class="table-responsive">
+				<table class="table table-striped table-hover">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Code</th>
+							<th>Nom du service</th>
+							<th>Catégorie</th>
+							<th class="text-right">Prix unitaire (TND)</th>
+							<th>Unité</th>
+							<th>Statut</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr *ngFor="let service of listofServices">
+							<td class="mono-id">{{ service.id }}</td>
+							<td><span class="service-code-cell">{{ service.code }}</span></td>
+							<td class="service-name-cell">{{ service.libelle || service.code }}</td>
+							<td>
+								<span class="badge-soft" [ngClass]="getCategoryClass(service.category)">
+									{{ getCategoryLabel(service.category) }}
+								</span>
+							</td>
+							<td class="text-right font-bold">{{ service.prixUnitaire | number:'1.3-3' }}</td>
+							<td>{{ service.unite }}</td>
+							<td>
+								<span class="badge-soft success" *ngIf="service.active">Actif</span>
+								<span class="badge-soft neutral" *ngIf="!service.active">Inactif</span>
+							</td>
+							<td class="actions-cell">
+								<button class="btn btn-ghost btn-sm" type="button" (click)="openEditForm(service)">
+									<span class="material-icons">edit</span>
+									Modifier
+								</button>
+								<button class="btn btn-ghost btn-sm" type="button" (click)="deleteService(service.id)">
+									<span class="material-icons">delete</span>
+									Supprimer
+								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<app-confirm-modal
+  [show]="showConfirmModal"
+  [title]="confirmModalConfig.title"
+  [message]="confirmModalConfig.message"
+  confirmText="Supprimer"
+  confirmClass="danger"
+  (confirmed)="confirmModalConfig.action && confirmModalConfig.action()"
+  (cancelled)="cancelConfirm()">
+</app-confirm-modal>

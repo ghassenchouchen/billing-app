@@ -1,0 +1,518 @@
+/* ── Stock Stats ──────────────────────────────── */
+.stock-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: box-shadow 0.18s;
+  position: relative;
+}
+.stat-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.05); }
+
+.stat-card.low-stock {
+  border-color: #fbbf24;
+  background: linear-gradient(to right, #fffbeb, #fff);
+}
+
+.stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.stat-icon.total     { background: #f1f5f9; color: #475569; }
+.stat-icon.available { background: #ecfdf5; color: #10b981; }
+.stat-icon.assigned  { background: #eff6ff; color: #3b82f6; }
+.stat-icon.activated { background: #f5f3ff; color: #8b5cf6; }
+
+.stat-info { display: flex; flex-direction: column; }
+.stat-value { font-size: 22px; font-weight: 700; color: #0f172a; }
+.stat-label { font-size: 12px; color: #94a3b8; font-weight: 500; }
+
+/* ── Filters ─────────────────────────────────── */
+.filters-bar {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0 14px;
+  flex: 1;
+  min-width: 200px;
+}
+.search-box .material-icons { font-size: 18px; color: #94a3b8; }
+.search-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 10px 0;
+  font-size: 13px;
+  color: #0f172a;
+  width: 100%;
+}
+
+.filter-select {
+  padding: 9px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  font-size: 13px;
+  color: #475569;
+  cursor: pointer;
+  outline: none;
+  min-width: 140px;
+}
+.filter-select:focus { border-color: var(--primary, #5b4bff); }
+
+/* ── Table Overrides ─────────────────────────── */
+.iccid-value {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 12.5px;
+  color: #475569;
+  cursor: help;
+}
+
+.msisdn-value {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 13.5px;
+}
+
+.type-badge {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 8px;
+}
+.type-standard { background: #f1f5f9; color: #475569; }
+.type-esim     { background: #ecfdf5; color: #059669; }
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+.status-dot-sm { width: 6px; height: 6px; border-radius: 50%; }
+
+.status-available { background: #ecfdf5; color: #059669; }
+.status-available .status-dot-sm { background: #10b981; }
+.status-assigned  { background: #ecfdf5; color: #059669; }
+.status-assigned .status-dot-sm  { background: #10b981; }
+.status-activated { background: #ecfdf5; color: #059669; }
+.status-activated .status-dot-sm { background: #10b981; }
+.status-suspended { background: #fef2f2; color: #dc2626; }
+.status-suspended .status-dot-sm { background: #ef4444; }
+.status-deactivated { background: #fef2f2; color: #dc2626; }
+.status-deactivated .status-dot-sm { background: #ef4444; }
+.status-damaged   { background: #fef2f2; color: #dc2626; }
+.status-damaged .status-dot-sm   { background: #ef4444; }
+.status-lost      { background: #fef2f2; color: #dc2626; }
+.status-lost .status-dot-sm      { background: #ef4444; }
+
+.client-ref {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #3b82f6;
+}
+
+.text-muted { color: #94a3b8; font-size: 12.5px; }
+
+.empty-table {
+  text-align: center;
+  padding: 48px 16px !important;
+  color: #94a3b8;
+}
+.empty-table .material-icons {
+  display: block;
+  font-size: 36px;
+  margin-bottom: 8px;
+  opacity: 0.4;
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 900px) {
+  .stock-stats { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 600px) {
+  .stock-stats { grid-template-columns: 1fr; }
+}
+
+/* ── Page Actions ────────────────────────────── */
+.page-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* ── Low Stock Alert ─────────────────────────── */
+.low-stock-alert {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(to right, #fef3c7, #fefce8);
+  border: 1px solid #fbbf24;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.alert-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: #fbbf24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.alert-icon .material-icons {
+  font-size: 24px;
+  color: #fff;
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-content strong {
+  font-size: 14px;
+  font-weight: 700;
+  color: #92400e;
+  display: block;
+}
+
+.alert-content p {
+  font-size: 13px;
+  color: #a16207;
+  margin: 4px 0 0;
+}
+
+.btn-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: #f59e0b;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-warning:hover {
+  background: #d97706;
+}
+
+.btn-warning .material-icons {
+  font-size: 18px;
+}
+
+/* ── Restock Button on Card ──────────────────── */
+.btn-restock {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f59e0b;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.btn-restock:hover {
+  background: #d97706;
+}
+
+.btn-restock .material-icons {
+  font-size: 18px;
+}
+
+/* ── Modal ───────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.btn-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.btn-close:hover {
+  background: #e2e8f0;
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+/* ── SIM Form ────────────────────────────────── */
+.sim-form {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #0f172a;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--primary, #5b4bff);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ── SIM List ────────────────────────────────── */
+.sim-list {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sim-list h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  margin: 0;
+}
+
+.sim-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.sim-list-item:last-child {
+  border-bottom: none;
+}
+
+.sim-list-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sim-msisdn {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.sim-iccid {
+  font-size: 12px;
+  color: #64748b;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.sim-type {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 6px;
+}
+
+.btn-remove {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: #fef2f2;
+  color: #ef4444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.btn-remove:hover {
+  background: #fee2e2;
+}
+
+.btn-remove .material-icons {
+  font-size: 18px;
+}
+
+.empty-list-notice {
+  text-align: center;
+  padding: 32px 20px;
+  color: #94a3b8;
+}
+
+.empty-list-notice .material-icons {
+  font-size: 36px;
+  margin-bottom: 8px;
+  opacity: 0.4;
+  display: block;
+}
+
+.empty-list-notice p {
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ── Buttons ─────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: var(--primary, #5b4bff);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #4a3ad1;
+}
+
+.btn-primary:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.btn-primary .material-icons {
+  font-size: 18px;
+}

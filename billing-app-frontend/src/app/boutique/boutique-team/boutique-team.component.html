@@ -1,0 +1,41 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Équipe</h2>
+      <p class="page-subtitle">{{ activeCount }} agents en poste</p>
+    </div>
+  </div>
+
+  <!-- Team Grid -->
+  <div class="team-grid">
+    <div class="team-card" *ngFor="let m of members">
+      <div class="team-card-header">
+        <div class="member-avatar">{{ getInitials(m.nom) }}</div>
+        <span class="member-status" [ngClass]="getStatusClass(m.status)">
+          <span class="status-dot-sm"></span>
+          {{ getStatusLabel(m.status) }}
+        </span>
+      </div>
+      <div class="member-name">{{ m.nom }}</div>
+      <div class="member-role">{{ m.role }}</div>
+
+      <div class="member-contact">
+        <div class="contact-row">
+          <span class="material-icons">email</span>
+          <span>{{ m.email }}</span>
+        </div>
+        <div class="contact-row">
+          <span class="material-icons">phone</span>
+          <span>{{ m.telephone }}</span>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!members.length && !loading">
+    <span class="material-icons">group_off</span>
+    <p>Aucun membre dans l'équipe</p>
+  </div>
+</div>

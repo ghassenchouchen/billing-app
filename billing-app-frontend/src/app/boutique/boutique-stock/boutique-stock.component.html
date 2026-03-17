@@ -1,0 +1,187 @@
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">SIM</h2>
+      <p class="page-subtitle">Gestion du stock de cartes SIM</p>
+    </div>
+  </div>
+
+  <!-- Low Stock Alert -->
+  <div class="low-stock-alert" *ngIf="isLowStock && canAddStock">
+    <div class="alert-icon">
+      <span class="material-icons">warning</span>
+    </div>
+    <div class="alert-content">
+      <strong>Stock faible !</strong>
+      <p>Il reste seulement {{ availableSim }} carte(s) SIM en stock. Pensez à réapprovisionner.</p>
+    </div>
+    <a class="btn btn-warning" routerLink="/Boutique/stock/add">
+      <span class="material-icons">add_circle</span>
+      Réapprovisionner
+    </a>
+  </div>
+
+  <div class="stock-stats">
+    <div class="stat-card">
+      <span class="material-icons stat-icon total">sim_card</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ totalSim }}</span>
+        <span class="stat-label">Total SIM</span>
+      </div>
+    </div>
+    <div class="stat-card" [class.low-stock]="isLowStock">
+      <span class="material-icons stat-icon available">check_circle</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ availableSim }}</span>
+        <span class="stat-label">En stock</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="material-icons stat-icon activated">cell_tower</span>
+      <div class="stat-info">
+        <span class="stat-value">{{ activatedSim }}</span>
+        <span class="stat-label">Activées</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="section-card">
+    <div class="filters-bar">
+      <div class="search-box">
+        <span class="material-icons">search</span>
+        <input type="text" placeholder="Rechercher par ICCID, MSISDN…" [(ngModel)]="searchQuery" (input)="applyFilters()">
+      </div>
+      <select class="filter-select" [(ngModel)]="filterType" (change)="applyFilters()">
+        <option value="">Tous types</option>
+        <option *ngFor="let t of simTypes" [value]="t">{{ getTypeLabel(t) }}</option>
+      </select>
+      <select class="filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
+        <option value="">Tous statuts</option>
+        <option *ngFor="let s of simStatuses" [value]="s">{{ getStatusLabel(s) }}</option>
+      </select>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>ICCID</th>
+            <th>MSISDN</th>
+            <th>Type</th>
+            <th>Statut</th>
+            <th>Client</th>
+            <th>Date activation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let sim of filteredStock">
+            <td>
+              <span class="iccid-value" [title]="sim.iccid">{{ formatIccid(sim.iccid) }}</span>
+            </td>
+            <td class="msisdn-value">{{ formatMsisdn(sim.msisdn) }}</td>
+            <td>
+              <span class="type-badge" [class]="'type-' + sim.simType.toLowerCase()">
+                {{ getTypeLabel(sim.simType) }}
+              </span>
+            </td>
+            <td>
+              <span class="status-pill" [ngClass]="getStatusClass(sim.status)">
+                <span class="status-dot-sm"></span>
+                {{ getStatusLabel(sim.status) }}
+              </span>
+            </td>
+            <td>
+              <span *ngIf="sim.assignedToClientId" class="client-ref">#{{ sim.assignedToClientId }}</span>
+              <span *ngIf="!sim.assignedToClientId" class="text-muted">—</span>
+            </td>
+            <td class="text-muted">{{ formatDate(sim.assignedAt) }}</td>
+          </tr>
+          <tr *ngIf="!filteredStock.length && !loading">
+            <td colspan="6" class="empty-table">
+              <span class="material-icons">sim_card</span>
+              Aucune carte SIM trouvée
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Add SIM Modal -->
+<div class="modal-overlay" *ngIf="showAddSimModal" (click)="closeAddSimModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Ajouter des cartes SIM</h3>
+      <button class="btn-close" (click)="closeAddSimModal()">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="sim-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>ICCID</label>
+            <input type="text" [(ngModel)]="newSimData.iccid" placeholder="89216...">
+          </div>
+          <div class="form-group">
+            <label>IMSI</label>
+            <input type="text" [(ngModel)]="newSimData.imsi" placeholder="60501...">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>MSISDN</label>
+            <input type="text" [(ngModel)]="newSimData.msisdn" placeholder="+216...">
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select [(ngModel)]="newSimData.simType">
+              <option value="STANDARD">Standard</option>
+              <option value="ESIM">eSIM</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-ghost btn-sm" (click)="generateSimData()">
+            <span class="material-icons">autorenew</span>
+            Générer
+          </button>
+          <button class="btn btn-action btn-sm" (click)="addSimToList()" [disabled]="!newSimData.iccid || !newSimData.msisdn">
+            <span class="material-icons">add</span>
+            Ajouter à la liste
+          </button>
+        </div>
+      </div>
+
+      <div class="sim-list" *ngIf="addingSimBatch.length > 0">
+        <h4>SIM à ajouter ({{ addingSimBatch.length }})</h4>
+        <div class="sim-list-item" *ngFor="let sim of addingSimBatch; let i = index">
+          <div class="sim-list-info">
+            <span class="sim-msisdn">{{ formatMsisdn(sim.msisdn) }}</span>
+            <span class="sim-iccid">{{ sim.iccid }}</span>
+            <span class="sim-type">{{ sim.simType }}</span>
+          </div>
+          <button class="btn-remove" (click)="removeSimFromList(i)">
+            <span class="material-icons">delete</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="empty-list-notice" *ngIf="addingSimBatch.length === 0">
+        <span class="material-icons">inbox</span>
+        <p>Ajoutez des cartes SIM à la liste</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="closeAddSimModal()">Annuler</button>
+      <button class="btn btn-primary" (click)="saveNewStock()" [disabled]="addingSimBatch.length === 0 || savingStock">
+        <span class="material-icons">{{ savingStock ? 'hourglass_empty' : 'save' }}</span>
+        {{ savingStock ? 'Enregistrement...' : 'Enregistrer le stock' }}
+      </button>
+    </div>
+  </div>
+</div>
