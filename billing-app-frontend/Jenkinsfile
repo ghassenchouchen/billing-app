@@ -39,7 +39,7 @@ pipeline {
 
         stage('Code Quality') {
             steps {
-                withSonarQubeEnv('sonarqube') {
+                withSonarQubeEnv('SonarQube') {
                     script {
                         def scanner = tool name: 'sonarqube-scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                         dir('billing-app-frontend') {
