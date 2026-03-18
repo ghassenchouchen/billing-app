@@ -269,11 +269,57 @@ public class BillingService {
     public void runMonthlyBilling() {
         log.info("Starting monthly billing run...");
         
-        YearMonth lastMonth = YearMonth.now().minusMonths(1);
-        LocalDate periodeDebut = lastMonth.atDay(1);
-        LocalDate periodeFin = lastMonth.atEndOfMonth();
+        List<SubscriptionClient.AbonnementDto> activeSubscriptions;
+        try {
+            activeSubscriptions = subscriptionClient.getAllActiveAbonnements();
+        } catch (Exception e) {
+            log.error("Failed to fetch active subscriptions - aborting billing run: {}", e.getMessage());
+            return;
+        }
         
-        log.info("Monthly billing would process period {} to {}", periodeDebut, periodeFin);
+        int generated = 0;
+        int skipped = 0;
+        int failed = 0;
+        
+        for (SubscriptionClient.AbonnementDto sub : activeSubscriptions) {
+            try {
+                // Determine if subscription is due for billing
+                LocalDate nextBilling = sub.nextBillingDate() != null 
+                    ? LocalDate.parse(sub.nextBillingDate()) : null;
+                
+                if (nextBilling != null && LocalDate.now().isBefore(nextBilling)) {
+                    skipped++;
+                    continue; // Not yet due
+                }
+                
+                // Calculate billing period
+                LocalDate periodeDebut;
+                if (sub.lastBillingDate() != null) {
+                    periodeDebut = LocalDate.parse(sub.lastBillingDate());
+                } else if (sub.dateDebut() != null) {
+                    periodeDebut = LocalDate.parse(sub.dateDebut());
+                } else {
+                    periodeDebut = YearMonth.now().minusMonths(1).atDay(1);
+                }
+                
+                LocalDate periodeFin = periodeDebut.plusMonths(1).minusDays(1);
+                
+                // Cap the period end to today at most
+                if (periodeFin.isAfter(LocalDate.now())) {
+                    periodeFin = LocalDate.now();
+                }
+                
+                generateInvoiceForSubscription(sub.id(), periodeDebut, periodeFin);
+                generated++;
+                
+            } catch (Exception e) {
+                failed++;
+                log.error("Failed to generate invoice for subscription {}: {}", sub.id(), e.getMessage());
+            }
+        }
+        
+        log.info("Monthly billing run complete - generated: {}, skipped: {}, failed: {}, total: {}", 
+            generated, skipped, failed, activeSubscriptions.size());
     }
     
     private String generateInvoiceNumber() {

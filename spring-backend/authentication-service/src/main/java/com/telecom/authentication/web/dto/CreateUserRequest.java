@@ -13,7 +13,6 @@ public record CreateUserRequest(
         @NotBlank(message = "Password is required")
         @Size(min = 8, message = "Password must be at least 8 characters")
         String password,
-
         @NotBlank(message = "First name is required")
         String firstName,
 
@@ -23,6 +22,5 @@ public record CreateUserRequest(
         @NotNull(message = "Role is required")
         Role role,
 
-      
         Long boutiqueId
 ) {}

@@ -13,7 +13,7 @@ pipeline {
     }
 
     stages {
-        stage('Build + Test') {
+        stage('Build') {
             steps {
                 dir('spring-backend/authentication-service') {
                     sh 'mvn -B -ntp clean verify'
@@ -40,11 +40,7 @@ pipeline {
 
     post {
         always {
-            script {
-                if (fileExists("${SERVICE_DIR}/target/surefire-reports")) {
-                    junit "${SERVICE_DIR}/target/surefire-reports/*.xml"
-                }
-            }
+           
             sh 'docker rmi ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest || true'
             sh 'docker image prune -f || true'
             sh 'docker logout || true'

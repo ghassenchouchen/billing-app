@@ -13,6 +13,9 @@ public interface SubscriptionClient {
     @GetMapping("/subscriptions/client/{clientId}/active")
     java.util.List<AbonnementDto> getActiveAbonnementsByClient(@PathVariable("clientId") Long clientId);
     
+    @GetMapping("/subscriptions/active")
+    java.util.List<AbonnementDto> getAllActiveAbonnements();
+    
     record AbonnementDto(
         Long id,
         Long clientId,

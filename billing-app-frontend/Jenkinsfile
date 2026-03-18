@@ -15,7 +15,7 @@ pipeline {
         stage('Install') {
             steps {
                 dir('billing-app-frontend') {
-                    sh 'npm ci --prefer-offline'
+                    sh 'npm ci'
                 }
             }
         }
