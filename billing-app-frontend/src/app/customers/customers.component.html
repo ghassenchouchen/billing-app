@@ -144,12 +144,15 @@ Business
 </div>
 </td>
 <td>
-<div class="subscriptions-cell" *ngIf="customer.abonnements?.length; else noSub">
-<span class="sub-tag">{{customer.abonnements[0]?.offreId || 'Forfait'}}</span>
-<span class="sub-extra" *ngIf="customer.abonnements.length > 1">+{{customer.abonnements.length - 1}}</span>
+<div class="subscriptions-cell" *ngIf="customer.abonnements?.length > 0; else noSub">
+<span class="status-pill success" style="margin-left:0; padding:4px 8px;">
+<span class="status-dot-sm"></span> {{ customer.abonnements.length === 1 ? 'Actif' : 'Actifs (' + customer.abonnements.length + ')' }}
+</span>
 </div>
 <ng-template #noSub>
-<span class="no-sub">Aucun abonnement</span>
+<span class="status-pill neutral" style="margin-left:0; padding:4px 8px;">
+<span class="status-dot-sm"></span> Aucun
+</span>
 </ng-template>
 </td>
 <td>

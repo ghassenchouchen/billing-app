@@ -50,11 +50,13 @@ pipeline {
             }
         }
 
-        stage('Docker Build & Push') {
+        stage('Docker Build, Scan & Push') {
             steps {
                 sh 'echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin'
                 dir('billing-app-frontend') {
                     sh 'docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest .'
+                    // Scan the newly built image with Trivy (fail build on CRITICAL vulnerabilities)
+                    sh 'trivy image --severity CRITICAL --exit-code 1 --no-progress ${DOCKER_IMAGE}:${BUILD_NUMBER}'
                     sh 'docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}'
                     sh 'docker push ${DOCKER_IMAGE}:latest'
                 }

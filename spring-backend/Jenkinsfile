@@ -1,0 +1,84 @@
+pipeline {
+    agent { label 'built-in' }
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '5'))
+    }
+
+    environment {
+        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentials')
+        DOCKER_HUB_USER        = 'ghassenchouchen'
+    }
+
+    stages {
+        stage('Detect Changes') {
+            steps {
+                script {
+                    def base = env.GIT_PREVIOUS_SUCCESSFUL_COMMIT ?: 'HEAD~1'
+                    def changedFiles = sh(
+                        script: "git diff --name-only ${base} ${GIT_COMMIT}",
+                        returnStdout: true
+                    ).trim()
+
+                    def services = [
+                        'api-gateway', 'authentication-service', 'billing-service',
+                        'boutique-service', 'catalog-service', 'customer-service',
+                        'subscription-service', 'usage-service'
+                    ]
+
+                    env.CHANGED_SERVICES = services.findAll { svc ->
+                        changedFiles.contains("spring-backend/${svc}/")
+                    }.join(',')
+
+                    echo "Changed services: ${env.CHANGED_SERVICES ?: 'none — skipping build'}"
+                }
+            }
+        }
+
+        stage('Build & Test') {
+            when { expression { env.CHANGED_SERVICES } }
+            steps {
+                script {
+                    env.CHANGED_SERVICES.split(',').each { svc ->
+                        dir("spring-backend/${svc}") {
+                            sh 'mvn -B -ntp clean verify'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Docker Build, Scan & Push') {
+            when { expression { env.CHANGED_SERVICES } }
+            steps {
+                sh 'echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin'
+                script {
+                    env.CHANGED_SERVICES.split(',').each { svc ->
+                        def image = "${env.DOCKER_HUB_USER}/${svc}"
+                        dir("spring-backend/${svc}") {
+                            sh "docker build -t ${image}:${BUILD_NUMBER} -t ${image}:latest ."
+                            // Scan the newly built image with Trivy (fail build on CRITICAL vulnerabilities)
+                            sh "trivy image --severity CRITICAL --exit-code 1 --no-progress ${image}:${BUILD_NUMBER}"
+                            sh "docker push ${image}:${BUILD_NUMBER}"
+                            sh "docker push ${image}:latest"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                if (env.CHANGED_SERVICES) {
+                    env.CHANGED_SERVICES.split(',').each { svc ->
+                        sh "docker rmi ${env.DOCKER_HUB_USER}/${svc}:${BUILD_NUMBER} ${env.DOCKER_HUB_USER}/${svc}:latest || true"
+                    }
+                }
+            }
+            sh 'docker image prune -f || true'
+            sh 'docker logout || true'
+        }
+    }
+}

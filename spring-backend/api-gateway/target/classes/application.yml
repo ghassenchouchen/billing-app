@@ -11,7 +11,7 @@ spring:
       routes:
         # Authentication Service Routes
         - id: authentication-service
-          uri: http://localhost:8087
+          uri: http://authentication-service:8087
           predicates:
             - Path=/api/auth/**,/api/users/**
           filters:
@@ -19,7 +19,7 @@ spring:
 
         # Authentication Service Swagger
         - id: authentication-service-docs
-          uri: http://localhost:8087
+          uri: http://authentication-service:8087
           predicates:
             - Path=/authentication-service/v3/api-docs
           filters:
@@ -27,7 +27,7 @@ spring:
 
         # Customer Service Routes 
         - id: customer-service
-          uri: http://localhost:8081
+          uri: http://customer-service:8081
           predicates:
             - Path=/api/customers/**
           filters:
@@ -35,7 +35,7 @@ spring:
         
         # Customer Service Swagger
         - id: customer-service-docs
-          uri: http://localhost:8081
+          uri: http://customer-service:8081
           predicates:
             - Path=/customer-service/v3/api-docs
           filters:
@@ -43,7 +43,7 @@ spring:
             
         # Catalog Service Routes 
         - id: catalog-service
-          uri: http://localhost:8082
+          uri: http://catalog-service:8082
           predicates:
             - Path=/api/services/**,/api/offres/**
           filters:
@@ -51,7 +51,7 @@ spring:
         
         # Catalog Service Swagger
         - id: catalog-service-docs
-          uri: http://localhost:8082
+          uri: http://catalog-service:8082
           predicates:
             - Path=/catalog-service/v3/api-docs
           filters:
@@ -59,7 +59,7 @@ spring:
             
         # Subscription Service Routes 
         - id: subscription-service
-          uri: http://localhost:8083
+          uri: http://subscription-service:8083
           predicates:
             - Path=/api/subscriptions/**,/api/abonnements/**
           filters:
@@ -67,7 +67,7 @@ spring:
         
         # Subscription Service Swagger
         - id: subscription-service-docs
-          uri: http://localhost:8083
+          uri: http://subscription-service:8083
           predicates:
             - Path=/subscription-service/v3/api-docs
           filters:
@@ -75,7 +75,7 @@ spring:
             
         # Usage Service Routes 
         - id: usage-service
-          uri: http://localhost:8084
+          uri: http://usage-service:8084
           predicates:
             - Path=/api/usage/**
           filters:
@@ -83,7 +83,7 @@ spring:
         
         # Usage Service Swagger
         - id: usage-service-docs
-          uri: http://localhost:8084
+          uri: http://usage-service:8084
           predicates:
             - Path=/usage-service/v3/api-docs
           filters:
@@ -91,13 +91,13 @@ spring:
             
         # Billing Service Routes 
         - id: billing-service
-          uri: http://localhost:8085
+          uri: http://billing-service:8085
           predicates:
             - Path=/api/invoices/**,/api/bills/**,/api/factures/**
         
         # Billing Service Swagger
         - id: billing-service-docs
-          uri: http://localhost:8085
+          uri: http://billing-service:8085
           predicates:
             - Path=/billing-service/v3/api-docs
           filters:
@@ -105,17 +105,33 @@ spring:
             
         # Payment Service Routes 
         - id: payment-service
-          uri: http://localhost:8086
+          uri: http://payment-service:8086
           predicates:
             - Path=/api/payments/**
         
         # Payment Service Swagger
         - id: payment-service-docs
-          uri: http://localhost:8086
+          uri: http://payment-service:8086
           predicates:
             - Path=/payment-service/v3/api-docs
           filters:
             - RewritePath=/payment-service/v3/api-docs, /v3/api-docs
+            
+        # Boutique Service Routes 
+        - id: boutique-service
+          uri: http://boutique-service:8088
+          predicates:
+            - Path=/api/boutiques/**,/api/sims/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+        
+        # Boutique Service Swagger
+        - id: boutique-service-docs
+          uri: http://boutique-service:8088
+          predicates:
+            - Path=/boutique-service/v3/api-docs
+          filters:
+            - RewritePath=/boutique-service/v3/api-docs, /v3/api-docs
 
       default-filters:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
@@ -159,6 +175,8 @@ springdoc:
         url: /billing-service/v3/api-docs
       - name: Payment Service
         url: /payment-service/v3/api-docs
+      - name: Boutique Service
+        url: /boutique-service/v3/api-docs
 
 jwt:
   secret: your-256-bit-secret-key-for-jwt-token-generation-minimum-32-chars
