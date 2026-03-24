@@ -2,13 +2,18 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-# Install Docker CLI, Maven, Node.js, and build tools
+# Install docker cli, Maven, and Java 21
 RUN apt-get update && \
     apt-get install -y docker.io git curl maven && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get clean
+# Install Node.js 
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
+    rm -rf /var/lib/apt/lists/*
 RUN usermod -aG docker jenkins
 
 USER jenkins
+
+
+
+

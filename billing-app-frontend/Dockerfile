@@ -1,4 +1,4 @@
-FROM node:14-alpine AS builder
+FROM node:18-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
@@ -7,4 +7,5 @@ RUN npm run build -- --configuration production
 
 FROM nginx:alpine
 COPY --from=builder /app/dist/factureProjet /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80

@@ -1,9 +1,9 @@
 pipeline {
     agent { label 'built-in' }
 
-
     options {
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '5'))
+        timestamps()
     }
 
     environment {
@@ -12,32 +12,34 @@ pipeline {
     }
 
     stages {
-        stage('Install') {
+
+        stage('Detect Changes') {
             steps {
-                dir('billing-app-frontend') {
-                    sh 'npm ci'
+                script {
+                    def base = env.GIT_PREVIOUS_SUCCESSFUL_COMMIT ?: 'HEAD~1'
+                    def changedFiles = sh(
+                        script: "git diff --name-only ${base} ${GIT_COMMIT}",
+                        returnStdout: true
+                    ).trim()
+
+                    env.FRONTEND_CHANGED = changedFiles.contains('billing-app-frontend/') ? 'true' : ''
+                    echo "Frontend changes: ${env.FRONTEND_CHANGED ? 'yes' : 'none — skipping build'}"
                 }
             }
         }
 
         stage('Build') {
+            when { expression { env.FRONTEND_CHANGED } }
             steps {
                 dir('billing-app-frontend') {
+                    sh 'npm ci'
                     sh 'npm run build -- --configuration production'
                 }
             }
         }
-    /*
-        stage('Test & Coverage') {
-            steps {
-                dir('billing-app-frontend') {
-                    sh 'npm run test -- --no-watch --no-progress --code-coverage --browsers=ChromeHeadless'
-                }
-            }
-        }
-        */
 
         stage('Code Quality') {
+            when { expression { env.FRONTEND_CHANGED } }
             steps {
                 withSonarQubeEnv('SonarQube') {
                     script {
@@ -51,14 +53,14 @@ pipeline {
         }
 
         stage('Docker Build, Scan & Push') {
+            when { expression { env.FRONTEND_CHANGED } }
             steps {
                 sh 'echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin'
                 dir('billing-app-frontend') {
-                    sh 'docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest .'
-                    // Scan the newly built image with Trivy (fail build on CRITICAL vulnerabilities)
-                    sh 'trivy image --severity CRITICAL --exit-code 1 --no-progress ${DOCKER_IMAGE}:${BUILD_NUMBER}'
-                    sh 'docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}'
-                    sh 'docker push ${DOCKER_IMAGE}:latest'
+                    sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest ."
+                    sh "trivy image --severity CRITICAL --exit-code 1 --no-progress ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                    sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                    sh "docker push ${DOCKER_IMAGE}:latest"
                 }
             }
         }
@@ -66,7 +68,7 @@ pipeline {
 
     post {
         always {
-            sh 'docker rmi ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest || true'
+            sh "docker rmi ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest || true"
             sh 'docker image prune -f || true'
             sh 'docker logout || true'
         }

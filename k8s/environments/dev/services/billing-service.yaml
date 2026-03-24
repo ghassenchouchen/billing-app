@@ -1,0 +1,101 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: billing-service
+  namespace: billing-dev
+  labels:
+    app: billing-service
+spec:
+  ports:
+    - port: 8085
+      targetPort: 8085
+  selector:
+    app: billing-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing-service
+  namespace: billing-dev
+  labels:
+    app: billing-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: billing-service
+  template:
+    metadata:
+      labels:
+        app: billing-service
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z mysql 3306; do sleep 2; done']
+      containers:
+        - name: billing-service
+          image: billing/billing-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8085
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: billing-config
+                  key: BILLING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: billing-config
+                  key: DB_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: billing-secret
+                  key: DB_PASSWORD
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: billing-config
+                  key: KAFKA_BOOTSTRAP_SERVERS
+            - name: CUSTOMER_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: billing-config
+                  key: CUSTOMER_SERVICE_URL
+            - name: SUBSCRIPTION_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: billing-config
+                  key: SUBSCRIPTION_SERVICE_URL
+            - name: CATALOG_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: billing-config
+                  key: CATALOG_SERVICE_URL
+            - name: USAGE_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: billing-config
+                  key: USAGE_SERVICE_URL
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8085
+            initialDelaySeconds: 45
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"

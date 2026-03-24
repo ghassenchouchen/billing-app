@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentication-service
+  namespace: billing-dev
+  labels:
+    app: authentication-service
+spec:
+  ports:
+    - port: 8087
+      targetPort: 8087
+  selector:
+    app: authentication-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentication-service
+  namespace: billing-dev
+  labels:
+    app: authentication-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authentication-service
+  template:
+    metadata:
+      labels:
+        app: authentication-service
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z mysql 3306; do sleep 2; done']
+      containers:
+        - name: authentication-service
+          image: billing/authentication-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8087
+          env:
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: billing-config
+                  key: AUTH_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: billing-config
+                  key: DB_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: billing-secret
+                  key: DB_PASSWORD
+            - name: BOUTIQUE_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: billing-config
+                  key: BOUTIQUE_SERVICE_URL
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8087
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8087
+            initialDelaySeconds: 45
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
