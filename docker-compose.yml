@@ -1,6 +1,7 @@
 networks:
   billing-network:
-    driver: bridge
+    name: billing-network
+    external: true
 
 volumes:
   mysql_data:
@@ -8,7 +9,11 @@ volumes:
   sonarqube_logs:
   sonarqube_extensions:
   sonarqube_db_data:
+    name: sonarqube_db_data
+    external: true
   jenkins_home:
+    name: jenkins_home
+    external: true
 
 services:
 
