@@ -3,16 +3,17 @@ pipeline {
 
     options {
         buildDiscarder(logRotator(numToKeepStr: '20', artifactNumToKeepStr: '5'))
-        timestamps()
     }
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentials')
-        DOCKER_IMAGE           = 'ghassenchouchen/billing-frontend'
+        AWS_CREDENTIALS  = credentials('aws-credentials')
+        AWS_REGION       = 'us-east-1'
+        AWS_ACCOUNT_ID   = credentials('aws-account-id')
+        ECR_REGISTRY     = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        DOCKER_IMAGE     = "${ECR_REGISTRY}/billing/frontend"
     }
 
     stages {
-
         stage('Detect Changes') {
             steps {
                 script {
@@ -52,15 +53,17 @@ pipeline {
             }
         }
 
-        stage('Docker Build, Scan & Push') {
+        stage('Docker Build & Push to ECR') {
             when { expression { env.FRONTEND_CHANGED } }
             steps {
-                sh 'echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin'
-                dir('billing-app-frontend') {
-                    sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest ."
-                    //sh "trivy image --severity CRITICAL --exit-code 1 --no-progress ${DOCKER_IMAGE}:${BUILD_NUMBER}"
-                    sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
-                    sh "docker push ${DOCKER_IMAGE}:latest"
+                script {
+                    docker.withRegistry("https://${ECR_REGISTRY}", "ecr:${AWS_REGION}:aws-credentials") {
+                        dir('billing-app-frontend') {
+                            sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} -t ${DOCKER_IMAGE}:latest ."
+                            sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                            sh "docker push ${DOCKER_IMAGE}:latest"
+                        }
+                    }
                 }
             }
         }
