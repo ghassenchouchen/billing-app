@@ -70,6 +70,16 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsersByBoutique(boutiqueId));
     }
 
+    @GetMapping("/boutique/{boutiqueId}/team")
+    public ResponseEntity<List<UserDto>> getTeamByBoutique(
+            @PathVariable Long boutiqueId,
+            @RequestHeader(value = "X-Auth-Role", required = false) String role) {
+        if (role == null || (!Role.ADMIN.name().equals(role) && !Role.RESPONSABLE_BOUTIQUE.name().equals(role))) {
+            throw new SecurityException("Access denied. ADMIN or RESPONSABLE_BOUTIQUE role required.");
+        }
+        return ResponseEntity.ok(userService.getUsersByBoutique(boutiqueId));
+    }
+
     /*
       Create a new user (RESPONSABLE_BOUTIQUE ou AGENT_COMMERCIAL).
      */
