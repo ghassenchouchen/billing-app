@@ -86,9 +86,8 @@ pipeline {
             steps {
                 script {
                     env.CHANGED_SERVICES.split(',').each { svc ->
-                        def image = "${env.ECR_REGISTRY}/billing/${svc}"
                         dir("spring-backend/${svc}") {
-                            sh "docker build -t ${image}:${BUILD_NUMBER} -t ${image}:latest ."
+                            sh "docker build -t \$ECR_REGISTRY/billing/${svc}:\$BUILD_NUMBER -t \$ECR_REGISTRY/billing/${svc}:latest ."
                         }
                     }
                 }
@@ -100,9 +99,8 @@ pipeline {
             steps {
                 script {
                     env.CHANGED_SERVICES.split(',').each { svc ->
-                        def image = "${env.ECR_REGISTRY}/billing/${svc}:${BUILD_NUMBER}"
-                        echo "Scanning ${image} for vulnerabilities..."
-                        sh "trivy image --severity CRITICAL --exit-code 1 --no-progress ${image}"
+                        echo "Scanning billing/${svc}:${BUILD_NUMBER} for vulnerabilities..."
+                        sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity CRITICAL --exit-code 1 --no-progress \$ECR_REGISTRY/billing/${svc}:\$BUILD_NUMBER"
                     }
                 }
             }
@@ -114,9 +112,8 @@ pipeline {
                 script {
                     docker.withRegistry("https://${ECR_REGISTRY}", "ecr:${AWS_REGION}:aws-credentials-2") {
                         env.CHANGED_SERVICES.split(',').each { svc ->
-                            def image = "${env.ECR_REGISTRY}/billing/${svc}"
-                            sh "docker push ${image}:${BUILD_NUMBER}"
-                            sh "docker push ${image}:latest"
+                            sh "docker push \$ECR_REGISTRY/billing/${svc}:\$BUILD_NUMBER"
+                            sh "docker push \$ECR_REGISTRY/billing/${svc}:latest"
                         }
                     }
                 }
@@ -128,16 +125,14 @@ pipeline {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
-                        sh "rm -rf billing-app-config"
-                        sh "git clone https://${GH_TOKEN}@github.com/ghassenchouchen/billing-app-config.git"
+                        sh 'rm -rf billing-app-config'
+                        sh 'git clone https://$GH_TOKEN@github.com/ghassenchouchen/billing-app-config.git'
 
                         dir('billing-app-config') {
                             env.CHANGED_SERVICES.split(',').each { svc ->
                                 def valuesFile = "charts/backend/services/${svc}/values.yaml"
                                 if (fileExists(valuesFile)) {
-                                    sh """
-                                        sed -i 's|tag:.*|tag: "${BUILD_NUMBER}"|' ${valuesFile}
-                                    """
+                                    sh "sed -i 's|tag:.*|tag: \"${BUILD_NUMBER}\"|' ${valuesFile}"
                                     echo "Updated ${svc} image tag to ${BUILD_NUMBER}"
                                 } else {
                                     echo "WARNING: ${valuesFile} not found - skipping ${svc}"
@@ -149,7 +144,7 @@ pipeline {
                                 git config user.name 'Jenkins CI'
                                 git add -A
                                 git diff --cached --quiet || git commit -m "ci: update image tags to build ${BUILD_NUMBER}"
-                                git push origin main || echo "No changes to push
+                                git push origin main || echo "No changes to push"
                             """
                         }
                     }
@@ -163,7 +158,7 @@ pipeline {
             script {
                 if (env.CHANGED_SERVICES) {
                     env.CHANGED_SERVICES.split(',').each { svc ->
-                        sh "docker rmi ${ECR_REGISTRY}/billing/${svc}:${BUILD_NUMBER} ${ECR_REGISTRY}/billing/${svc}:latest || true"
+                        sh "docker rmi \$ECR_REGISTRY/billing/${svc}:\$BUILD_NUMBER \$ECR_REGISTRY/billing/${svc}:latest || true"
                     }
                 }
             }
