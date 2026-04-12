@@ -14,11 +14,8 @@ public class SecurityConfig {
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
             .csrf(ServerHttpSecurity.CsrfSpec::disable)
+            .cors(ServerHttpSecurity.CorsSpec::disable)
             .authorizeExchange(exchanges -> exchanges
-                .pathMatchers("/actuator/**").permitAll()
-                .pathMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/webjars/**").permitAll()
-                .pathMatchers("/api/**").permitAll()
-                .pathMatchers("/**").permitAll()
                 .anyExchange().permitAll()
             )
             .build();

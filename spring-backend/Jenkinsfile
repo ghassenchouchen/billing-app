@@ -6,11 +6,15 @@ pipeline {
     }
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentials')
-        DOCKER_HUB_USER        = 'ghassenchouchen'
+        AWS_CREDENTIALS  = credentials('aws-credentials-2')
+        AWS_REGION       = 'us-east-1'
+        AWS_ACCOUNT_ID   = credentials('aws-account-id-2')
+        ECR_REGISTRY     = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        CONFIG_REPO_URL  = 'https://github.com/ghassenchouchen/billing-app-config.git'
     }
 
     stages {
+
         stage('Detect Changes') {
             steps {
                 script {
@@ -46,21 +50,107 @@ pipeline {
                     }
                 }
             }
+            post {
+                always {
+                    script {
+                        if (env.CHANGED_SERVICES) {
+                            env.CHANGED_SERVICES.split(',').each { svc ->
+                                def reportDir = "spring-backend/${svc}/target/surefire-reports"
+                                if (fileExists(reportDir)) {
+                                    junit "${reportDir}/*.xml"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        stage('Docker Build, Scan & Push') {
+        stage('Code Quality') {
             when { expression { env.CHANGED_SERVICES } }
             steps {
-                sh 'echo $DOCKER_HUB_CREDENTIALS_PSW | docker login -u $DOCKER_HUB_CREDENTIALS_USR --password-stdin'
+                withSonarQubeEnv('SonarQube') {
+                    script {
+                        env.CHANGED_SERVICES.split(',').each { svc ->
+                            dir("spring-backend/${svc}") {
+                                sh 'mvn -B -ntp sonar:sonar'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            when { expression { env.CHANGED_SERVICES } }
+            steps {
                 script {
                     env.CHANGED_SERVICES.split(',').each { svc ->
-                        def image = "${env.DOCKER_HUB_USER}/${svc}"
+                        def image = "${env.ECR_REGISTRY}/billing/${svc}"
                         dir("spring-backend/${svc}") {
                             sh "docker build -t ${image}:${BUILD_NUMBER} -t ${image}:latest ."
-                            // Scan the newly built image with Trivy (fail build on CRITICAL vulnerabilities)
-                            //sh "trivy image --severity CRITICAL --exit-code 1 --no-progress ${image}:${BUILD_NUMBER}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Trivy Security Scan') {
+            when { expression { env.CHANGED_SERVICES } }
+            steps {
+                script {
+                    env.CHANGED_SERVICES.split(',').each { svc ->
+                        def image = "${env.ECR_REGISTRY}/billing/${svc}:${BUILD_NUMBER}"
+                        echo "Scanning ${image} for vulnerabilities..."
+                        sh "trivy image --severity CRITICAL --exit-code 1 --no-progress ${image}"
+                    }
+                }
+            }
+        }
+
+        stage('Push to ECR') {
+            when { expression { env.CHANGED_SERVICES } }
+            steps {
+                script {
+                    docker.withRegistry("https://${ECR_REGISTRY}", "ecr:${AWS_REGION}:aws-credentials-2") {
+                        env.CHANGED_SERVICES.split(',').each { svc ->
+                            def image = "${env.ECR_REGISTRY}/billing/${svc}"
                             sh "docker push ${image}:${BUILD_NUMBER}"
                             sh "docker push ${image}:latest"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Update Config Repo') {
+            when { expression { env.CHANGED_SERVICES } }
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
+                        sh "rm -rf billing-app-config"
+                        sh "git clone https://${GH_TOKEN}@github.com/ghassenchouchen/billing-app-config.git"
+
+                        dir('billing-app-config') {
+                            env.CHANGED_SERVICES.split(',').each { svc ->
+                                def valuesFile = "charts/backend/services/${svc}/values.yaml"
+                                if (fileExists(valuesFile)) {
+                                    sh """
+                                        sed -i 's|tag:.*|tag: "${BUILD_NUMBER}"|' ${valuesFile}
+                                    """
+                                    echo "Updated ${svc} image tag to ${BUILD_NUMBER}"
+                                } else {
+                                    echo "WARNING: ${valuesFile} not found - skipping ${svc}"
+                                }
+                            }
+
+                            sh """
+                                git config user.email 'jenkins@billing-app.ci'
+                                git config user.name 'Jenkins CI'
+                                git add -A
+                                git diff --cached --quiet || git commit -m "ci: update image tags to build ${BUILD_NUMBER}"
+                                git push origin main || echo "No changes to push
+                            """
                         }
                     }
                 }
@@ -73,12 +163,13 @@ pipeline {
             script {
                 if (env.CHANGED_SERVICES) {
                     env.CHANGED_SERVICES.split(',').each { svc ->
-                        sh "docker rmi ${env.DOCKER_HUB_USER}/${svc}:${BUILD_NUMBER} ${env.DOCKER_HUB_USER}/${svc}:latest || true"
+                        sh "docker rmi ${ECR_REGISTRY}/billing/${svc}:${BUILD_NUMBER} ${ECR_REGISTRY}/billing/${svc}:latest || true"
                     }
                 }
             }
             sh 'docker image prune -f || true'
             sh 'docker logout || true'
+            sh 'rm -rf billing-app-config || true'
         }
     }
 }
