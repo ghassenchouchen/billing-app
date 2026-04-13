@@ -9,12 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 
-/**
- * JWT Configuration for the API Gateway.
- * 
- * Holds the shared signing key used to validate tokens issued by the customer-service.
- * The secret MUST match the one configured in customer-service's application.yml.
- */
+
 @Configuration
 @Getter
 @Slf4j

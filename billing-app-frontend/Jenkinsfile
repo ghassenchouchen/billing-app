@@ -42,13 +42,22 @@ pipeline {
         stage('Code Quality') {
             when { expression { env.FRONTEND_CHANGED } }
             steps {
-                withSonarQubeEnv('SonarQube') {
+                withSonarQubeEnv('SonarCloud') {
                     script {
                         def scanner = tool name: 'sonarqube-scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                         dir('billing-app-frontend') {
-                            sh "${scanner}/bin/sonar-scanner"
+                            sh "${scanner}/bin/sonar-scanner -Dsonar.organization=ghassenchouchen -Dsonar.projectKey=billing-app_frontend"
                         }
                     }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            when { expression { env.FRONTEND_CHANGED } }
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
@@ -57,7 +66,7 @@ pipeline {
             when { expression { env.FRONTEND_CHANGED } }
             steps {
                 script {
-                    docker.withRegistry("https://${ECR_REGISTRY}", "ecr:${AWS_REGION}:aws-credentials") {
+                    docker.withRegistry("https://${ECR_REGISTRY}", "ecr:${AWS_REGION}:aws-credentials-2") {
                         dir('billing-app-frontend') {
                             sh 'docker build -t $DOCKER_IMAGE:$BUILD_NUMBER -t $DOCKER_IMAGE:latest .'
                             sh 'docker push $DOCKER_IMAGE:$BUILD_NUMBER'
