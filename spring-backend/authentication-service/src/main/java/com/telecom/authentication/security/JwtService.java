@@ -16,8 +16,9 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * JWT Service for token generation and validation.*/
- 
+ * JWT Service for token generation and validation.
+ */
+
 @Service
 @Slf4j
 public class JwtService {
@@ -35,7 +36,6 @@ public class JwtService {
         this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
-   
     public String generateAccessToken(String username, String role, Long boutiqueId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
@@ -45,12 +45,11 @@ public class JwtService {
         return buildToken(username, claims, accessTokenExpiration);
     }
 
-    
+    // keep the uesr logged in
     public String generateRefreshToken(String username, String role) {
         return buildToken(username, Map.of("role", role, "type", "refresh"), refreshTokenExpiration);
     }
 
-   
     public Claims parseToken(String token) {
         return Jwts.parser()
                 .verifyWith(signingKey)
