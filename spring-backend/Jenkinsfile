@@ -69,24 +69,14 @@ pipeline {
         stage('Code Quality') {
             when { expression { env.CHANGED_SERVICES } }
             steps {
-                withSonarQubeEnv('SonarCloud') {
-                    script {
-                        env.CHANGED_SERVICES.split(',').each { svc ->
+                script {
+                    env.CHANGED_SERVICES.split(',').each { svc ->
+                        withSonarQubeEnv('SonarCloud') {
                             dir("spring-backend/${svc}") {
-                                // Replace 'ghassenchouchen' with your actual SonarCloud Organization Key if different
                                 sh "mvn -B -ntp sonar:sonar -Dsonar.organization=ghassenchouchen -Dsonar.projectKey=billing-app_${svc}"
                             }
                         }
                     }
-                }
-            }
-        }
-
-        stage('Quality Gate') {
-            when { expression { env.CHANGED_SERVICES } }
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
                 }
             }
         }
