@@ -15,7 +15,7 @@
     <artifactId>boutique-service</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <name>Boutique Service</name>
-    <description>Boutique (retail store) management for Telecom BSS</description>
+    <description>Boutique (point de vente) management for Telecom BSS</description>
 
     <properties>
         <java.version>21</java.version>
@@ -40,6 +40,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+         <dependency>
+    <groupId>io.micrometer</groupId>
+    <artifactId>micrometer-registry-prometheus</artifactId>
+</dependency>
 
         <!-- MySQL -->
         <dependency>
