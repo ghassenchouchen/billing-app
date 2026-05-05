@@ -55,9 +55,8 @@ management:
       exposure:
         include: health,info,metrics,prometheus
   metrics:
-    export:
-      simple:
-        enabled: true
+    tags:
+      application: ${spring.application.name}
 
 logging:
   level:

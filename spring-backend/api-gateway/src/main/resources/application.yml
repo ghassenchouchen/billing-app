@@ -191,6 +191,9 @@ management:
       show-details: always
     gateway:
       enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 logging:
   level:
