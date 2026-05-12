@@ -79,3 +79,10 @@ kafka:
     initial-interval-ms: ${SIM_EVENT_RETRY_INITIAL_INTERVAL_MS:1000}
     multiplier: ${SIM_EVENT_RETRY_MULTIPLIER:2.0}
     max-interval-ms: ${SIM_EVENT_RETRY_MAX_INTERVAL_MS:30000}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true

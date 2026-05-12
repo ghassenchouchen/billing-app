@@ -82,3 +82,10 @@ services:
 kafka:
   topics:
     usage-events: usage.events
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true

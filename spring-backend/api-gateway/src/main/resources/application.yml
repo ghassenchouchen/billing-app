@@ -199,3 +199,10 @@ logging:
   level:
     org.springframework.cloud.gateway: DEBUG
     reactor.netty: INFO
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true

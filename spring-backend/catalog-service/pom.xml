@@ -25,6 +25,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.exclusions>**/dto/**,**/config/**,**/CatalogServiceApplication.java</sonar.exclusions>
         <sonar.test.exclusions>src/test/**</sonar.test.exclusions>
+        <spring-cloud.version>2023.0.0</spring-cloud.version>
     </properties>
     
     <dependencies>
@@ -92,8 +93,26 @@
     <artifactId>h2</artifactId>
     <scope>test</scope>
 </dependency>
+    
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
     </dependencies>
     
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <build>
         <plugins>
             <plugin>

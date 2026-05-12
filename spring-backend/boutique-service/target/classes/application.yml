@@ -74,3 +74,10 @@ kafka:
 customer:
   service:
     url: ${CUSTOMER_SERVICE_URL:http://localhost:8081}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
