@@ -141,15 +141,12 @@
 									title="Envoyer relance">
 									<span class="material-icons">{{ sendingReminderId === bill.id ? 'hourglass_empty' :
 										'notification_important' }}</span>
-									<span class="icon-label">Envoyer</span>
 								</button>
 								<button class="btn-icon" type="button" (click)="downloadPdf(bill)" title="Télécharger PDF">
 									<span class="material-icons">picture_as_pdf</span>
-									<span class="icon-label">PDF</span>
 								</button>
 								<button class="btn-icon" type="button" (click)="exportBill(bill)" title="Exporter CSV">
 									<span class="material-icons">download</span>
-									<span class="icon-label">CSV</span>
 								</button>
 								<button class="btn-icon danger-hover" type="button" *ngIf="bill.statut === 'OVERDUE'"
 									(click)="cancelBill(bill)" title="Annuler la facture">

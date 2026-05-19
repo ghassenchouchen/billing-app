@@ -21,8 +21,6 @@
 **/.DS_Store
 **/Thumbs.db
 
+
 **/*.log
 **/logs/
-
-k8s/**/secret.yaml
-k8s/**/secrets.yaml

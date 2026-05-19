@@ -13,7 +13,6 @@ import com.telecom.billing.infrastructure.client.UsageClient.UsageRecordDto;
 import com.telecom.billing.infrastructure.kafka.InvoiceEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -38,14 +37,13 @@ public class BillingService {
     private final CatalogClient catalogClient;
     private final UsageClient usageClient;
     private final InvoiceEventPublisher eventPublisher;
-    private final ObjectProvider<EmailNotificationService> emailServiceProvider;
     
     @Value("${billing.tax-rate:0.0}")
     private BigDecimal taxRate;
     
     @Value("${billing.due-days:15}")
     private int dueDays;
-
+    
     public List<Facture> getAllInvoices() {
         return factureRepository.findAll();
     }
@@ -188,10 +186,7 @@ public class BillingService {
         
         return facture;
     }
-
-    /**
-     * Mark invoice as sent and trigger email delivery.
-     */
+    
     public Facture markInvoiceAsSent(Long invoiceId) {
         Facture facture = factureRepository.findById(invoiceId)
             .orElseThrow(() -> new RuntimeException("Invoice not found: " + invoiceId));
@@ -199,15 +194,6 @@ public class BillingService {
         facture.markAsSent();
         facture = factureRepository.save(facture);
         
-        // Trigger email notification if enabled
-        emailServiceProvider.ifAvailable(service -> {
-            try {
-                service.sendInvoiceEmail(facture);
-            } catch (Exception e) {
-                log.error("Failed to trigger email for invoice {}: {}", facture.getNumeroFacture(), e.getMessage());
-            }
-        });
-
         eventPublisher.publishInvoiceSent(
             facture.getId(),
             facture.getNumeroFacture(),
