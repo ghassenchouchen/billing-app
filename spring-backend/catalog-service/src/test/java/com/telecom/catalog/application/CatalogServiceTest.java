@@ -195,7 +195,7 @@ class CatalogServiceTest {
 
         catalogService.deleteService(1L);
 
-        verify(serviceRepository).delete(serviceVoix);
+        verify(serviceRepository).save(serviceVoix);
     }
 
     @Test

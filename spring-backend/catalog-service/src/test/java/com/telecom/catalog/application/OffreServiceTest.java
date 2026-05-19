@@ -268,7 +268,7 @@ class OffreServiceTest {
 
         offreService.deleteOffre(1L);
         
-        verify(offreRepository).delete(offreActive);
+        verify(offreRepository).save(offreActive);
     }
 
     @Test
