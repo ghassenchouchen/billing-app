@@ -1,0 +1,141 @@
+\chapter{Release 2 --- Mise en place de l'infrastructure}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+Cette release couvre la containerisation des microservices et leur déploiement, d'abord sur un cluster Kubernetes local (Minikube), puis sur l'infrastructure cloud AWS. Elle est répartie sur deux sprints.
+
+%======================================================================
+% SPRINT 4
+%======================================================================
+\section{Sprint 4 --- Containerisation et déploiement local}
+
+\subsection{Objectif du sprint}
+Containeriser l'ensemble des microservices avec Docker et valider leur déploiement sur un cluster Kubernetes local avec Minikube.
+
+\subsection{Sprint Backlog}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|c|p{9cm}|c|c|}
+\hline
+\textbf{ID} & \textbf{Tâche} & \textbf{Priorité} & \textbf{Points} \\
+\hline
+4.1 & Rédaction des Dockerfiles multi-étapes pour chaque microservice & Must & 5 \\
+\hline
+4.2 & Rédaction du fichier docker-compose.yml pour l'environnement local & Must & 5 \\
+\hline
+4.3 & Rédaction des manifests Kubernetes (Deployment, Service, ConfigMap) & Must & 8 \\
+\hline
+4.4 & Déploiement et validation sur Minikube & Must & 5 \\
+\hline
+\end{tabular}
+\caption{Sprint Backlog --- Sprint 4}
+\label{tab:sprint4_backlog}
+\end{table}
+
+\subsection{Containerisation avec Docker}
+
+Chaque microservice dispose d'un Dockerfile multi-étapes qui sépare la phase de compilation (build) de la phase d'exécution (runtime), permettant de réduire la taille de l'image finale.
+
+\begin{lstlisting}[language=bash, caption={Exemple de Dockerfile multi-étapes}, label={lst:dockerfile}]
+# Etape 1 : Compilation
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+# Etape 2 : Execution
+FROM eclipse-temurin:21-jre-alpine
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8081
+ENTRYPOINT ["java", "-jar", "app.jar"]
+\end{lstlisting}
+
+\subsection{Orchestration locale avec Docker Compose}
+Le fichier \texttt{docker-compose.yml} orchestre l'ensemble des services en environnement de développement local : base de données MySQL, les microservices Spring Boot, l'API Gateway, le frontend Angular et le serveur Eureka.
+
+\subsection{Déploiement sur Minikube}
+Minikube fournit un cluster Kubernetes local pour valider les manifests avant le déploiement en production. Les manifests sont organisés en quatre répertoires :
+\begin{itemize}
+    \item \texttt{infra/} : MySQL (StatefulSet avec PersistentVolumeClaim).
+    \item \texttt{config/} : ConfigMap et Secrets pour les variables d'environnement.
+    \item \texttt{services/} : Deployments et Services pour chaque microservice.
+    \item \texttt{frontend/} : Deployment et Service pour l'application Angular.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \fbox{\parbox{0.85\textwidth}{\centering\vspace{2.5cm}\textbf{[Capture d'écran --- Pods sur Minikube]}\\\texttt{kubectl get pods -n billing-dev}\vspace{2.5cm}}}
+    \caption{Pods déployés sur le cluster Minikube}
+    \label{fig:minikube_pods}
+\end{figure}
+
+%======================================================================
+% SPRINT 5
+%======================================================================
+\section{Sprint 5 --- Déploiement sur le cloud AWS}
+
+\subsection{Objectif du sprint}
+Provisionner l'infrastructure cloud AWS et déployer la plateforme en environnement de production.
+
+\subsection{Sprint Backlog}
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|c|p{9cm}|c|c|}
+\hline
+\textbf{ID} & \textbf{Tâche} & \textbf{Priorité} & \textbf{Points} \\
+\hline
+5.1 & Provisionnement du cluster EKS via la console et CLI AWS & Must & 8 \\
+\hline
+5.2 & Création de l'instance RDS MySQL & Must & 5 \\
+\hline
+5.3 & Configuration du registre ECR pour les images Docker & Must & 3 \\
+\hline
+5.4 & Adaptation des manifests K8s pour l'environnement cloud & Must & 5 \\
+\hline
+5.5 & Premier déploiement sur EKS et validation & Must & 5 \\
+\hline
+\end{tabular}
+\caption{Sprint Backlog --- Sprint 5}
+\label{tab:sprint5_backlog}
+\end{table}
+
+\subsection{Architecture de l'infrastructure AWS}
+L'infrastructure de production repose sur les services managés suivants :
+\begin{itemize}
+    \item \textbf{Amazon EKS :} Cluster Kubernetes managé pour l'orchestration des conteneurs.
+    \item \textbf{Amazon RDS :} Instance MySQL managée pour la persistance des données.
+    \item \textbf{Amazon ECR :} Registre privé pour le stockage des images Docker.
+    \item \textbf{Amazon EC2 :} Instance hébergeant le serveur Jenkins pour le pipeline CI/CD.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \fbox{\parbox{0.85\textwidth}{\centering\vspace{3cm}\textbf{[Diagramme d'architecture AWS]}\\\textit{EC2 (Jenkins) $\rightarrow$ ECR $\rightarrow$ EKS $\rightarrow$ RDS}\vspace{3cm}}}
+    \caption{Architecture de l'infrastructure AWS}
+    \label{fig:aws_architecture}
+\end{figure}
+
+\subsection{Provisionnement du cluster EKS}
+Le cluster EKS a été provisionné via la console AWS et l'outil \texttt{eksctl}. La configuration inclut la création de groupes de n\oe{}uds (node groups) avec les ressources nécessaires pour l'exécution des microservices.
+
+\subsection{Configuration d'Amazon RDS}
+Une instance MySQL 8.0 a été créée sur Amazon RDS. Les bases de données suivantes sont provisionnées :
+\texttt{db\_authentication}, \texttt{db\_customer}, \texttt{db\_catalog}, \texttt{db\_subscription}, \texttt{db\_boutique}, \texttt{db\_billing}.
+
+\begin{figure}[H]
+    \centering
+    \fbox{\parbox{0.85\textwidth}{\centering\vspace{2.5cm}\textbf{[Capture d'écran --- Console AWS EKS]}\vspace{2.5cm}}}
+    \caption{Cluster EKS sur la console AWS}
+    \label{fig:aws_eks}
+\end{figure}
+
+\section*{Conclusion}
+\addcontentsline{toc}{section}{Conclusion}
+Au terme de cette release, l'infrastructure de déploiement est opérationnelle : les microservices sont containerisés, validés localement sur Minikube, et l'environnement cloud AWS (EKS, RDS, ECR) est provisionné. Le chapitre suivant abordera l'automatisation du pipeline CI/CD.
+
+\newpage

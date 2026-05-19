@@ -23,7 +23,7 @@ services:
     image: mysql:8.0
     container_name: billing-mysql
     ports:
-      - "3306:3306"
+      - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_ROOT_HOST: '%'
@@ -124,10 +124,27 @@ services:
 
   # SPRING MICROSERVICES (BACKEND)
 
+  eureka-server:
+    build:
+      context: ./spring-backend/eureka-server
+      dockerfile: Dockerfile
+    image: billing/eureka-server:latest
+    container_name: billing-eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - billing-network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   authentication-service:
     build:
       context: ./spring-backend/authentication-service
       dockerfile: Dockerfile
+    image: billing/authentication-service:latest
     container_name: billing-authentication-service
     depends_on:
       mysql:
@@ -135,6 +152,7 @@ services:
     ports:
       - "8087:8087"
     environment:
+      EUREKA_URI: http://eureka-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_authentication?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
@@ -146,6 +164,7 @@ services:
     build:
       context: ./spring-backend/customer-service
       dockerfile: Dockerfile
+    image: billing/customer-service:latest
     container_name: billing-customer-service
     depends_on:
       mysql:
@@ -155,6 +174,7 @@ services:
     ports:
       - "8081:8081"
     environment:
+      EUREKA_URI: http://eureka-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_customer?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
@@ -166,6 +186,7 @@ services:
     build:
       context: ./spring-backend/catalog-service
       dockerfile: Dockerfile
+    image: billing/catalog-service:latest
     container_name: billing-catalog-service
     depends_on:
       mysql:
@@ -175,6 +196,7 @@ services:
     ports:
       - "8082:8082"
     environment:
+      EUREKA_URI: http://eureka-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_catalog?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
@@ -186,6 +208,7 @@ services:
     build:
       context: ./spring-backend/boutique-service
       dockerfile: Dockerfile
+    image: billing/boutique-service:latest
     container_name: billing-boutique-service
     depends_on:
       mysql:
@@ -195,6 +218,7 @@ services:
     ports:
       - "8088:8088"
     environment:
+      EUREKA_URI: http://eureka-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_boutique?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
@@ -209,6 +233,7 @@ services:
     build:
       context: ./spring-backend/subscription-service
       dockerfile: Dockerfile
+    image: billing/subscription-service:latest
     container_name: billing-subscription-service
     depends_on:
       mysql:
@@ -218,6 +243,7 @@ services:
     ports:
       - "8083:8083"
     environment:
+      EUREKA_URI: http://eureka-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_subscription?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
@@ -231,6 +257,7 @@ services:
     build:
       context: ./spring-backend/usage-service
       dockerfile: Dockerfile
+    image: billing/usage-service:latest
     container_name: billing-usage-service
     depends_on:
       mysql:
@@ -240,6 +267,7 @@ services:
     ports:
       - "8084:8084"
     environment:
+      EUREKA_URI: http://eureka-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_usage?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
@@ -254,6 +282,7 @@ services:
     build:
       context: ./spring-backend/billing-service
       dockerfile: Dockerfile
+    image: billing/billing-service:latest
     container_name: billing-billing-service
     depends_on:
       mysql:
@@ -263,6 +292,7 @@ services:
     ports:
       - "8085:8085"
     environment:
+      EUREKA_URI: http://eureka-server:8761/eureka
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_billing?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
@@ -278,6 +308,7 @@ services:
     build:
       context: ./spring-backend/api-gateway
       dockerfile: Dockerfile
+    image: billing/api-gateway:latest
     container_name: billing-api-gateway
     depends_on:
       mysql:
@@ -285,6 +316,7 @@ services:
     ports:
       - "8090:8090"
     environment:
+      EUREKA_URI: http://eureka-server:8761/eureka
       AUTH_SERVICE_URL: http://authentication-service:8087
       CUSTOMER_SERVICE_URL: http://customer-service:8081
       CATALOG_SERVICE_URL: http://catalog-service:8082
@@ -301,6 +333,7 @@ services:
     build:
       context: ./billing-app-frontend
       dockerfile: Dockerfile
+    image: billing/frontend:latest
     container_name: billing-app-frontend
     depends_on:
       - api-gateway

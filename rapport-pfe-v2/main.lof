@@ -1,0 +1,40 @@
+\babel@toc {french}{}\relax 
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Logo de la société d'accueil}}{3}{figure.caption.8}%
+\contentsline {figure}{\numberline {1.2}{\ignorespaces Les clients de Billcom Consulting}}{4}{figure.caption.10}%
+\contentsline {figure}{\numberline {1.3}{\ignorespaces Interface de gestion client de la solution Telkoware}}{5}{figure.caption.11}%
+\contentsline {figure}{\numberline {1.4}{\ignorespaces La méthodologie Scrum}}{8}{figure.caption.14}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces Diagramme global des cas d'utilisation}}{12}{figure.caption.16}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Diagramme de cas d'utilisation du Sprint 1}}{18}{figure.caption.22}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Diagramme de classes du Boutique-service}}{18}{figure.caption.23}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Diagramme de classes du Customer-service}}{19}{figure.caption.24}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Diagramme de séquence : création d'un client}}{19}{figure.caption.25}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Interface de gestion des boutiques}}{20}{figure.caption.26}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Interface de gestion des clients}}{20}{figure.caption.27}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Diagramme de cas d'utilisation du Sprint 2}}{21}{figure.caption.29}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Diagramme de classes du Catalog-service}}{22}{figure.caption.30}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Diagramme de classes du Subscription-service}}{22}{figure.caption.31}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Diagramme de séquence : souscription d'un abonnement}}{23}{figure.caption.32}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Interface du catalogue des offres}}{23}{figure.caption.33}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Diagramme de cas d'utilisation du Sprint 3}}{24}{figure.caption.35}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Diagramme de classes du Billing-service}}{25}{figure.caption.36}%
+\contentsline {figure}{\numberline {3.14}{\ignorespaces Diagramme de classes de l'Authentication-service}}{25}{figure.caption.37}%
+\contentsline {figure}{\numberline {3.15}{\ignorespaces Diagramme de séquence : génération d'une facture}}{26}{figure.caption.38}%
+\contentsline {figure}{\numberline {3.16}{\ignorespaces Architecture technique des microservices}}{26}{figure.caption.39}%
+\contentsline {figure}{\numberline {3.17}{\ignorespaces Interface de gestion des factures}}{27}{figure.caption.40}%
+\contentsline {figure}{\numberline {3.18}{\ignorespaces Interface d'authentification}}{27}{figure.caption.41}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Pods déployés sur le cluster Minikube}}{29}{figure.caption.44}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Architecture de l'infrastructure AWS}}{31}{figure.caption.46}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Cluster EKS sur la console AWS}}{31}{figure.caption.47}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Architecture du pipeline CI/CD}}{34}{figure.caption.50}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Pipeline Jenkins avec les différentes étapes}}{35}{figure.caption.51}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Résultats d'analyse SonarQube}}{35}{figure.caption.52}%
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Dashboard ArgoCD}}{36}{figure.caption.53}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Architecture de la stack de monitoring}}{38}{figure.caption.56}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Dashboard Grafana de supervision}}{39}{figure.caption.57}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Targets Prometheus}}{39}{figure.caption.58}%

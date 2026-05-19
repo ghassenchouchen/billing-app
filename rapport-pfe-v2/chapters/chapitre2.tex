@@ -1,0 +1,246 @@
+\chapter{Analyse et spécification des besoins}
+
+\section*{Introduction}
+\addcontentsline{toc}{section}{Introduction}
+
+L'étape de spécification des besoins constitue la base de départ de ce travail. Ce chapitre comprend l'analyse des besoins fonctionnels et non fonctionnels, l'identification des acteurs, la définition du backlog produit et la planification des releases et des sprints selon la méthodologie Scrum.
+
+\section{Spécification des besoins}
+
+\subsection{Identification des acteurs}
+
+Un acteur représente une entité externe qui interagit avec le système. L'analyse des besoins métier et de l'architecture de l'application a permis d'identifier trois acteurs principaux :
+
+\begin{itemize}
+\item[•] \textbf{Administrateur :} Supervise l'ensemble de la plateforme. Il gère les utilisateurs et leurs rôles, administre le catalogue des offres et des services télécom, consulte l'historique de facturation et dispose d'un accès complet à toutes les fonctionnalités du système.
+
+\item[•] \textbf{Agent commercial :} Représente l'utilisateur opérationnel. Il crée et gère les fiches clients, souscrit des abonnements, consulte le catalogue des offres disponibles et effectue les opérations de vente au niveau de la boutique.
+
+\item[•] \textbf{Responsable boutique :} Gère un point de vente. Il administre le stock de cartes SIM, supervise l'équipe commerciale, met à jour les informations des clients rattachés à sa boutique et consulte les abonnements au niveau de son point de vente.
+\end{itemize}
+
+\subsection{Besoins fonctionnels}
+Les besoins fonctionnels représentent les attentes de chaque acteur vis-à-vis des modules à développer.\newline
+Le tableau suivant détaille les besoins fonctionnels identifiés, regroupés par acteur du système :
+\newpage
+\vspace*{0.75cm}
+\renewcommand{\arraystretch}{1.35}
+
+\begin{longtable}{|>{\bfseries}p{4.3cm}|p{11.5cm}|}
+    \hline
+    \textbf{Acteur} & \textbf{Besoin fonctionnel} \\
+    \hline
+    \endfirsthead
+    \hline
+    \textbf{Acteur} & \textbf{Besoin fonctionnel} \\
+    \hline
+    \endhead
+    \hline
+    \endfoot
+    
+    \multirow{6}{*}{Administrateur} 
+    & Gérer les utilisateurs et attribuer les rôles. \\ \cline{2-2}
+    & Gérer les offres commerciales et les services télécom. \\ \cline{2-2}
+    & Consulter l'historique détaillé de facturation des clients. \\ \cline{2-2}
+    & Gérer les boutiques. \\ \cline{2-2}
+    & Gérer le cycle de vie des abonnements. \\ \cline{2-2}
+    \hline
+    
+    \multirow{6}{*}{Agent commercial}
+    & Créer un nouveau client avec validation (CIN, téléphone). \\ \cline{2-2}
+    & Consulter et rechercher le profil d'un client. \\ \cline{2-2}
+    & Consulter le catalogue des offres disponibles. \\ \cline{2-2}
+    & Souscrire un abonnement liant un client à une offre. \\ \cline{2-2}
+    & Générer et exporter des factures en PDF. \\ \cline{2-2}
+    & Envoyer une facture par email au client. \\ \cline{2-2}
+    \hline
+    
+    \multirow{5}{3cm}{Responsable boutique}
+    & Consulter la liste et les détails des boutiques. \\ \cline{2-2}
+    & Gérer le stock de cartes SIM (ajout, activation, suspension). \\ \cline{2-2}
+    & Gérer l'équipe commerciale de la boutique. \\ \cline{2-2}
+    & Mettre à jour les informations des clients rattachés. \\ \cline{2-2}
+    & Consulter les abonnements au niveau du point de vente. \\ \cline{2-2}
+    \hline
+    
+    \caption{Besoins fonctionnels par acteur}
+    \label{tab:besoins_fonctionnels}
+\end{longtable}
+
+
+\subsection{Besoins non fonctionnels}
+Les besoins non fonctionnels définissent les contraintes de qualité, de performance et de sécurité que le système doit respecter.
+\begin{itemize}
+    \item[•] \textbf{Scalabilité :} Chaque microservice doit pouvoir être mis à l'échelle individuellement en fonction de sa charge, sans impacter les autres services.
+    \item[•] \textbf{Disponibilité :} La plateforme doit garantir une haute disponibilité. La défaillance d'un service ne doit pas entraîner l'arrêt du système.
+    \item[•] \textbf{Sécurité :} L'accès doit être sécurisé par l'authentification JWT et le contrôle d'accès basé sur les rôles (RBAC). Les mots de passe sont chiffrés.
+    \item[•] \textbf{Performance :} Les microservices doivent répondre rapidement aux requêtes, avec des temps de réponse optimisés.
+    \item[•] \textbf{Ergonomie :} L'interface doit être intuitive, avec un design minimaliste facilitant la navigation.
+\end{itemize}
+
+\section{Diagramme global des cas d'utilisation}
+
+Le diagramme de cas d'utilisation global ci-dessous présente une vue d'ensemble des interactions entre les trois acteurs et les principales fonctionnalités du système.
+
+\begin{figure}[H]
+    \centering
+    % PLACEHOLDER : Insérer ici le diagramme global des cas d'utilisation
+    % Généré à partir du code PlantUML fourni séparément
+    % \includegraphics[width=0.95\textwidth]{images/diagramme_cas_utilisation_global.png}
+    \fbox{\parbox{0.9\textwidth}{\centering\vspace{3cm}\textbf{[Diagramme global des cas d'utilisation]}\\\vspace{0.2cm}\textit{À générer depuis le code PlantUML fourni}\vspace{3cm}}}
+    \caption{Diagramme global des cas d'utilisation}
+    \label{fig:use_case_global}
+\end{figure}
+
+Les principales interactions sont :
+\begin{itemize}
+    \item L'\textbf{administrateur} gère le catalogue des services, les offres commerciales et les utilisateurs.
+    \item L'\textbf{agent commercial} gère les clients, souscrit des abonnements et traite la facturation.
+    \item Le \textbf{responsable boutique} gère le stock de cartes SIM, supervise l'équipe et consulte les données de sa boutique.
+\end{itemize}
+
+
+\section{Planification et priorisation du projet}
+
+\subsection{Pilotage du projet}
+Dans le contexte de la méthodologie Scrum, l'équipe se structure autour de trois rôles :
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|>{\bfseries}p{6cm}|p{5cm}|}
+        \hline
+        \textbf{Rôle} & \textbf{Responsable} \\
+        \hline
+        Product Owner & Mr. Mohamed Louragini  \\ 
+        \hline
+        Scrum Master & Mr. Adnen Rouatbi \\ 
+        \hline
+        Équipe de développement & Ghassen Chouchen \\
+        \hline
+    \end{tabular}
+    \caption{Équipe Scrum du projet}
+    \label{tab:pilotage_projet}
+\end{table}
+
+\subsection{Technique de priorisation --- MoSCoW}
+Le backlog produit est une liste ordonnée de tous les éléments sources de valeur pour le client. Pour assurer une livraison rapide de valeur, il est essentiel de prioriser les éléments du backlog.\newline
+Comme technique de priorisation, on a adopté \textbf{la méthode MoSCoW} :
+\begin{itemize}
+    \item[•] \textbf{M -- Must have :} Éléments essentiels pour le projet.
+    \item[•] \textbf{S -- Should have :} Éléments importants mais pas critiques.
+    \item[•] \textbf{C -- Could have :} Éléments souhaitables mais non essentiels.
+    \item[•] \textbf{W -- Won't have :} Éléments exclus du périmètre actuel.
+\end{itemize}
+
+\section{Product Backlog}
+Le \textit{backlog produit} regroupe l'ensemble des fonctionnalités à développer, exprimées sous forme de \textit{User Stories} pour les besoins fonctionnels et d'\textit{Enablers} pour les tâches techniques. Ces éléments sont ordonnés et priorisés selon la méthode MoSCoW.
+
+Le tableau~\ref{tab:backlog} présente le backlog produit global du projet.
+
+\renewcommand{\arraystretch}{1.2}
+\begin{longtable}{|c|p{2cm}|p{2.2cm}|p{6.8cm}|c|c|}
+    \hline
+    \textbf{Ordre} & \textbf{Type} & \textbf{Thème} & \textbf{Description} & \textbf{Priorité} & \textbf{Points} \\
+    \hline
+    \endfirsthead
+    \hline
+    \textbf{Ordre} & \textbf{Type} & \textbf{Thème} & \textbf{Description} & \textbf{Priorité} & \textbf{Points} \\
+    \hline
+    \endhead
+    \hline
+    \endfoot
+    
+    1 & US & Boutiques & ETQ agent, je veux créer et consulter les boutiques afin de gérer les points de vente. & Must & 5 \\
+    \hline
+    2 & US & Clients & ETQ agent, je veux créer un client afin de pouvoir lui associer un abonnement. & Must & 8 \\
+    \hline
+    3 & US & Clients & ETQ agent, je veux modifier un client afin de garder ses informations à jour. & Must & 3 \\
+    \hline
+    4 & US & Catalogue & ETQ administrateur, je veux gérer le catalogue afin de structurer les services télécom. & Must & 5 \\
+    \hline
+    5 & US & Offres & ETQ administrateur, je veux créer des offres afin de les proposer aux clients. & Must & 8 \\
+    \hline
+    6 & US & Abonnements & ETQ agent, je veux souscrire un client à une offre afin de lui fournir un service. & Must & 13 \\
+    \hline
+    7 & US & SIM & ETQ responsable, je veux gérer le stock SIM afin d'activer les lignes des clients. & Must & 8 \\
+    \hline
+    8 & US & Auth & ETQ utilisateur, je veux m'authentifier afin d'accéder au système de façon sécurisée. & Must & 5 \\
+    \hline
+    9 & Enabler & Architecture & Mise en place de l'API Gateway et d'Eureka pour le routage et la découverte des services. & Must & 8 \\
+    \hline
+    10 & US & Facturation & ETQ agent, je veux générer des factures afin de facturer les abonnements. & Must & 13 \\
+    \hline
+    11 & US & Facturation & ETQ agent, je veux exporter une facture en PDF afin de la fournir au client. & Must & 5 \\
+    \hline
+    12 & US & Notification & ETQ agent, je veux envoyer les factures par email afin de notifier le client. & Should & 5 \\
+    \hline
+    13 & US & Interface & ETQ agent, je veux une interface web afin de gérer facilement les opérations. & Must & 13 \\
+    \hline
+    14 & Enabler & Déploiement & Création des Dockerfiles et déploiement local des services sur Minikube. & Must & 8 \\
+    \hline
+    15 & Enabler & Cloud & Provisionnement de l'infrastructure AWS (EKS, RDS, ECR). & Must & 13 \\
+    \hline
+    16 & Enabler & CI/CD & Mise en place du pipeline Jenkins (build, SonarQube, Trivy, push ECR). & Must & 13 \\
+    \hline
+    17 & Enabler & GitOps & Configuration d'ArgoCD et Helm pour le déploiement continu. & Must & 8 \\
+    \hline
+    18 & Enabler & Monitoring & Déploiement de Prometheus et Grafana pour la supervision. & Should & 5 \\
+    \hline
+    
+    \caption{Product Backlog du projet}
+    \label{tab:backlog}
+\end{longtable}
+
+\textbf{Légende :} US = User Story (besoin fonctionnel), Enabler = Tâche technique.
+
+\section{Plan de release}
+
+Le projet s'étend sur 15 semaines et est organisé en 4 releases contenant au total 7 sprints de 2 semaines chacun, précédés d'une semaine de cadrage et d'analyse.
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabular}{|c|p{4cm}|p{8cm}|}
+        \hline
+        \textbf{Release} & \textbf{Nom du sprint} & \textbf{Objectif} \\
+        \hline
+        0 & \textit{Cadrage et analyse} & Analyse des besoins et planification \\
+        \hline
+        1 & Sprint 1, Sprint 2, Sprint 3 &
+        \begin{itemize}
+            \item Authentification.
+            \item Gestion des utilisateurs et des rôles.
+            \item Gestion des services métier, des offres et des abonnements.
+        \end{itemize} \\
+        \hline
+        2 & Sprint 4, Sprint 5 &
+        \begin{itemize}
+            \item Gestion de la containerisation.
+            \item Déploiement local sur Minikube.
+            \item Déploiement sur AWS avec EKS, RDS et ECR.
+        \end{itemize} \\
+        \hline
+        3 & Sprint 6 &
+        \begin{itemize}
+            \item Mise en place du pipeline CI Jenkins.
+            \item Intégration de SonarQube, Trivy, ArgoCD et Helm.
+        \end{itemize} \\
+        \hline
+        4 & Sprint 7 &
+        \begin{itemize}
+            \item Mise en place du monitoring.
+            \item Déploiement de Prometheus et Grafana.
+            \item Création des dashboards de supervision.
+        \end{itemize} \\
+        \hline
+    \end{tabular}
+    \caption{Plan de release du projet}
+    \label{tab:plan_release}
+\end{table}
+
+\section*{Conclusion}
+\addcontentsline{toc}{section}{Conclusion}
+Dans ce chapitre, nous avons identifié les acteurs du système, spécifié les besoins fonctionnels et non fonctionnels, élaboré le backlog produit priorisé et défini le plan de release. Le chapitre suivant présentera la première release consacrée à la conception et au développement des microservices métier.
+
+\newpage

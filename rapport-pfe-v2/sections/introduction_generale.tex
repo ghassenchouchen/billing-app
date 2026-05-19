@@ -1,0 +1,27 @@
+\section*{Introduction générale}
+\addcontentsline{toc}{section}{Introduction générale}
+
+\section*{Introduction générale}
+\addcontentsline{toc}{section}{Introduction générale}
+
+Dans le domaine de l'ingénierie logicielle contemporaine, la conception et le déploiement d'applications d'entreprise connaissent une mutation technologique profonde. Pendant de nombreuses années, les architectures monolithiques ont constitué le standard pour développer des systèmes d'information complets. Bien que ce modèle de conception centralisé ait fait ses preuves pour des projets de complexité modérée, il montre rapidement ses limites dans les environnements soumis à de fortes contraintes de pérennité : les cycles de déploiement sont lents, la dette technique s'accumule, et une défaillance locale peut entraîner l'indisponibilité totale du système. 
+
+C'est pour répondre à cette rigidité structurelle que le paradigme des microservices s'est imposé, complété par l'émergence incontournable de la culture DevOps. Cette nouvelle approche ne se limite plus à écrire du code ; elle redéfinit l'intégralité du cycle de vie du logiciel en prônant l'automatisation, la containerisation, et l'orchestration dynamique sur le Cloud.
+
+C'est dans ce contexte d'innovation technologique que s'inscrit le présent projet de fin d'études, réalisé au sein de la société Billcom Consulting. L'objectif principal est de concevoir, développer, et automatiser le déploiement d'une plateforme métier orientée microservices (ici appliquée à un cas d'usage de facturation et de gestion). Au-delà de la réingénierie logicielle, l'enjeu majeur de ce projet réside dans la mise en \oe{}uvre d'une chaîne DevSecOps complète : de l'intégration continue jusqu'au déploiement GitOps sur un cluster Kubernetes managé, avec une supervision en temps réel.
+
+Pour structurer ce travail, nous avons adopté la méthodologie agile Scrum, articulée autour de quatre "Releases" majeures. Le présent rapport s'organise ainsi en six chapitres distincts :
+
+Le \textbf{premier chapitre} dresse le cadre général du projet, en présentant l'organisme d'accueil, le contexte technologique, la problématique rencontrée ainsi que la solution proposée et la méthodologie de travail adoptée.
+
+Le \textbf{deuxième chapitre} est consacré à l'analyse et la spécification des besoins. Il identifie les acteurs du système, détaille les fonctionnalités attendues sous forme de cas d'utilisation et présente le \textit{Product Backlog} ainsi que le plan de release.
+
+Le \textbf{troisième chapitre} marque le début de la réalisation (Release 1). Il détaille la conception et le développement de l'ensemble des microservices (gestion des clients, catalogue, abonnements et facturation) et la sécurisation des échanges.
+
+Le \textbf{quatrième chapitre} (Release 2) aborde la mise en place de l'infrastructure logicielle. Il explique la containerisation des applications via Docker et leur déploiement sur les environnements Kubernetes, allant d'un cluster local (Minikube) vers le cloud AWS (Amazon EKS).
+
+Le \textbf{cinquième chapitre} (Release 3) est dédié à l'automatisation. Il décrit la mise en place du pipeline CI/CD avec Jenkins, l'intégration des outils d'analyse de qualité et de sécurité (SonarQube, Trivy), et le déploiement continu via ArgoCD.
+
+Enfin, le \textbf{sixième chapitre} (Release 4) expose la mise en place d'une stack complète de monitoring et de supervision à l'aide de Prometheus et Grafana, garantissant ainsi la fiabilité de la solution en production.
+
+\newpage
