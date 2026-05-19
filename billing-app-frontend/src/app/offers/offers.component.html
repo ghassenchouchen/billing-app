@@ -204,6 +204,6 @@
   [message]="confirmModalConfig.message"
   confirmText="Supprimer"
   confirmClass="danger"
-  (confirmed)="confirmModalConfig.action && confirmModalConfig.action()"
+  (confirmed)="onConfirmDelete()"
   (cancelled)="cancelConfirm()">
 </app-confirm-modal>

@@ -7,6 +7,7 @@
 -- ────────────────────────────────────────────────────────────
 -- 1. CUSTOMER SERVICE (db_customer)
 -- ────────────────────────────────────────────────────────────
+CREATE DATABASE IF NOT EXISTS db_customer CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE db_customer;
 
 -- Ensure gouvernorat column exists
@@ -46,6 +47,7 @@ VALUES
 -- ────────────────────────────────────────────────────────────
 -- 2. CATALOG SERVICE (db_catalog) — Services + Offres
 -- ────────────────────────────────────────────────────────────
+CREATE DATABASE IF NOT EXISTS db_catalog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE db_catalog;
 
 -- Clear existing data and reset auto-increment
@@ -91,6 +93,7 @@ VALUES
 -- ────────────────────────────────────────────────────────────
 -- 3. SUBSCRIPTION SERVICE (db_subscription)
 -- ────────────────────────────────────────────────────────────
+CREATE DATABASE IF NOT EXISTS db_subscription CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE db_subscription;
 
 -- Clear existing data and reset auto-increment
@@ -115,6 +118,7 @@ VALUES
 -- ────────────────────────────────────────────────────────────
 -- 4. BILLING SERVICE (db_billing)
 -- ────────────────────────────────────────────────────────────
+CREATE DATABASE IF NOT EXISTS db_billing CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE db_billing;
 
 -- Clear existing data and reset auto-increment
@@ -150,6 +154,7 @@ VALUES
 -- ────────────────────────────────────────────────────────────
 -- 5. PAYMENT SERVICE (db_payment)
 -- ────────────────────────────────────────────────────────────
+CREATE DATABASE IF NOT EXISTS db_payment CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE db_payment;
 
 -- Ensure payment table exists even if payment-service has not been started yet
@@ -184,6 +189,7 @@ VALUES
 -- ────────────────────────────────────────────────────────────
 -- 6. AUTHENTICATION SERVICE (db_authentication)
 -- ────────────────────────────────────────────────────────────
+CREATE DATABASE IF NOT EXISTS db_authentication CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE db_authentication;
 
 -- Default users (password: admin123 — BCrypt hash)
@@ -209,6 +215,7 @@ ON DUPLICATE KEY UPDATE username = VALUES(username);
 -- ────────────────────────────────────────────────────────────
 -- 7. BOUTIQUE SERVICE (db_boutique)
 -- ────────────────────────────────────────────────────────────
+CREATE DATABASE IF NOT EXISTS db_boutique CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE db_boutique;
 
 -- Clear existing data and reset auto-increment

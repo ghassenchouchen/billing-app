@@ -170,6 +170,12 @@ export class OffersComponent implements OnInit, OnDestroy {
     this.showConfirmModal = false;
   }
 
+  onConfirmDelete(): void {
+    if (this.confirmModalConfig.action) {
+      this.confirmModalConfig.action();
+    }
+  }
+
   closeForm(): void {
     this.showForm = false;
     this.formData = { libelle: '', serviceId: '', description: '', prixMensuel: 0, paymentType: 'POSTPAID', status: 'ACTIVE' };
