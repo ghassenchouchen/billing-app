@@ -85,12 +85,12 @@ export class CreateSubscriptionComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          this.customers = data && data.length ? data : this.getSampleCustomers();
+          this.customers = data && data.length ? data : [];
           this.filteredCustomers = this.customers.filter(c => c.status === 'ACTIVE');
           this.loadingCustomers = false;
         },
         error: () => {
-          this.customers = this.getSampleCustomers();
+          this.customers = [];
           this.filteredCustomers = this.customers.filter(c => c.status === 'ACTIVE');
           this.loadingCustomers = false;
         }
@@ -103,12 +103,12 @@ export class CreateSubscriptionComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          this.offers = data && data.length ? data : this.getSampleOffers();
+          this.offers = data && data.length ? data : [];
           this.filteredOffers = this.offers.filter(o => o.status === 'ACTIVE' || o.active);
           this.loadingOffers = false;
         },
         error: () => {
-          this.offers = this.getSampleOffers();
+          this.offers = [];
           this.filteredOffers = this.offers.filter(o => o.status === 'ACTIVE' || o.active);
           this.loadingOffers = false;
         }
@@ -136,7 +136,6 @@ export class CreateSubscriptionComponent implements OnInit, OnDestroy {
       });
   }
 
-  // ─── Customer search ───
   searchCustomers(): void {
     const term = this.customerSearch.toLowerCase().trim();
     this.filteredCustomers = this.customers
@@ -481,28 +480,4 @@ export class CreateSubscriptionComponent implements OnInit, OnDestroy {
     return (this.selectedOffer.paymentType || 'POSTPAID').toUpperCase() === 'PREPAID';
   }
 
-  // ─── Sample Data ───
-  private getSampleCustomers(): Customer[] {
-    return [
-      { customerRef: 'CLT-2024-001', nom: 'Ben Ali', prenom: 'Mohamed', email: 'mohamed.benali@email.tn', telephone: '+216 71 234 567', pieceIdentite: '09876543', adresse: 'Av. Habib Bourguiba, 15', ville: 'Tunis', codePostal: '1000', type: 'INDIVIDUAL', status: 'ACTIVE' },
-      { customerRef: 'CLT-2024-002', nom: 'Trabelsi', prenom: 'Amira', email: 'amira.trabelsi@email.tn', telephone: '+216 22 345 678', pieceIdentite: '12345678', adresse: 'Rue de Marseille, 42', ville: 'Tunis', codePostal: '1001', type: 'INDIVIDUAL', status: 'ACTIVE' },
-      { customerRef: 'CLT-2024-003', nom: 'Digital Solutions SARL', prenom: '', email: 'contact@digitalsol.tn', telephone: '+216 71 456 789', pieceIdentite: 'RNE-B0147523', adresse: 'Zone Industrielle, Lot 8', ville: 'Sousse', codePostal: '4000', type: 'BUSINESS', status: 'ACTIVE' },
-      { customerRef: 'CLT-2024-004', nom: 'Hamdi', prenom: 'Yassine', email: 'yassine.hamdi@email.tn', telephone: '+216 55 123 456', pieceIdentite: '07654321', adresse: 'Rue Ibn Khaldoun, 7', ville: 'Sfax', codePostal: '3000', type: 'INDIVIDUAL', status: 'ACTIVE' },
-      { customerRef: 'CLT-2024-005', nom: 'MédiaPlus SARL', prenom: '', email: 'info@mediaplus.tn', telephone: '+216 71 789 012', pieceIdentite: 'RNE-A0298341', adresse: 'Centre Urbain Nord', ville: 'Tunis', codePostal: '1082', type: 'BUSINESS', status: 'ACTIVE' },
-      { customerRef: 'CLT-2024-006', nom: 'Gharbi', prenom: 'Fatma', email: 'fatma.gharbi@email.tn', telephone: '+216 98 765 432', pieceIdentite: '11223344', adresse: 'Av. de la République, 23', ville: 'Monastir', codePostal: '5000', type: 'INDIVIDUAL', status: 'SUSPENDED' }
-    ];
-  }
-
-  private getSampleOffers(): Offer[] {
-    return [
-      { id: 1, code: 'FIBRE-20M', libelle: 'Fibre Essentiel 20M', description: 'Internet fibre optique 20 Mbps — idéal pour les foyers', prixMensuel: 35.00, status: 'ACTIVE', paymentType: 'POSTPAID', serviceIds: [1, 2] },
-      { id: 2, code: 'FIBRE-100M', libelle: 'Fibre Pro 100M', description: 'Internet fibre 100 Mbps — pour les professionnels exigeants', prixMensuel: 89.00, status: 'ACTIVE', paymentType: 'POSTPAID', serviceIds: [1, 2] },
-      { id: 3, code: 'MOB-5G-10G', libelle: 'Mobile 5G 10Go', description: 'Forfait mobile 5G avec 10 Go de data + appels illimités', prixMensuel: 25.00, status: 'ACTIVE', paymentType: 'POSTPAID', serviceIds: [1, 2, 3] },
-      { id: 4, code: 'MOB-4G-25G', libelle: 'Forfait Mobile 4G 25 Go', description: 'Forfait mobile 4G, 25 Go data, appels & SMS illimités', prixMensuel: 45.00, status: 'ACTIVE', paymentType: 'POSTPAID', serviceIds: [1, 2, 3] },
-      { id: 5, code: 'MOB-PREPAID', libelle: 'Prépayé Mobile', description: 'Forfait prépayé flexible — rechargez selon vos besoins', prixMensuel: 15.00, status: 'ACTIVE', paymentType: 'PREPAID', serviceIds: [1, 3] },
-      { id: 6, code: 'ENT-CONV', libelle: 'Entreprise Convergent', description: 'Pack convergent entreprise — voix, data, fibre en un seul contrat', prixMensuel: 199.00, status: 'ACTIVE', paymentType: 'POSTPAID', serviceIds: [1, 2, 3, 4] },
-      { id: 7, code: 'ROAMING-MAG', libelle: 'Pack Roaming Maghreb', description: 'Roaming voix & data — Algérie, Maroc, Libye, Mauritanie', prixMensuel: 30.00, status: 'ACTIVE', paymentType: 'POSTPAID', serviceIds: [4] },
-      { id: 8, code: 'MOB-YOUTH', libelle: 'Forfait Jeune 4G', description: 'Forfait mobile jeune < 25 ans — 15 Go + réseaux sociaux illimités', prixMensuel: 19.90, status: 'ACTIVE', paymentType: 'PREPAID', serviceIds: [1, 2, 3] }
-    ];
-  }
 }

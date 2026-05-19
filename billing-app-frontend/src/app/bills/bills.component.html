@@ -19,7 +19,8 @@
 				<span class="metric-card__trend success" *ngIf="paidCount">{{paidCount}} payées</span>
 			</div>
 			<div class="metric-card__label">Paiements Reçus</div>
-			<div class="metric-card__value">{{totalPaid | number:'1.2-2'}} <span class="metric-card__unit">TND</span></div>
+			<div class="metric-card__value">{{totalPaid | number:'1.2-2'}} <span class="metric-card__unit">TND</span>
+			</div>
 		</div>
 
 		<div class="metric-card warning">
@@ -30,7 +31,8 @@
 				<span class="metric-card__trend warning" *ngIf="pendingCount">{{pendingCount}} en attente</span>
 			</div>
 			<div class="metric-card__label">En Attente de Règlement</div>
-			<div class="metric-card__value">{{totalPending | number:'1.2-2'}} <span class="metric-card__unit">TND</span></div>
+			<div class="metric-card__value">{{totalPending | number:'1.2-2'}} <span class="metric-card__unit">TND</span>
+			</div>
 		</div>
 
 		<div class="metric-card danger">
@@ -41,7 +43,8 @@
 				<span class="metric-card__trend danger" *ngIf="overdueCount">{{overdueCount}} en retard</span>
 			</div>
 			<div class="metric-card__label">En Retard</div>
-			<div class="metric-card__value">{{totalOverdue | number:'1.2-2'}} <span class="metric-card__unit">TND</span></div>
+			<div class="metric-card__value">{{totalOverdue | number:'1.2-2'}} <span class="metric-card__unit">TND</span>
+			</div>
 		</div>
 	</div>
 
@@ -52,9 +55,8 @@
 				<div class="search-input-wrapper">
 					<span class="material-icons search-icon">search</span>
 					<input class="form-control search-input" type="text"
-					       placeholder="Rechercher par n° de facture ou client..."
-					       [(ngModel)]="searchTerm"
-					       (ngModelChange)="applyFilters()" />
+						placeholder="Rechercher par n° de facture ou client..." [(ngModel)]="searchTerm"
+						(ngModelChange)="applyFilters()" />
 				</div>
 				<select class="form-control filter-select" [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
 					<option value="">Statut: Tous</option>
@@ -65,8 +67,10 @@
 					<option value="OVERDUE">En retard</option>
 					<option value="CANCELLED">Annulée</option>
 				</select>
-				<input class="form-control date-input" type="date" [(ngModel)]="filterStart" (ngModelChange)="applyFilters()" />
-				<input class="form-control date-input" type="date" [(ngModel)]="filterEnd" (ngModelChange)="applyFilters()" />
+				<input class="form-control date-input" type="date" [(ngModel)]="filterStart"
+					(ngModelChange)="applyFilters()" />
+				<input class="form-control date-input" type="date" [(ngModel)]="filterEnd"
+					(ngModelChange)="applyFilters()" />
 				<button class="btn btn-ghost btn-sm" type="button" (click)="clearFilter()" *ngIf="hasActiveFilters">
 					<span class="material-icons">clear</span>
 					Réinitialiser
@@ -106,12 +110,13 @@
 							<td class="mono-id">{{bill.numeroFacture || bill.id}}</td>
 							<td>
 								<div class="client-cell">
-									<span class="client-name">Client #{{bill.clientId}}</span>
+									<span class="client-name">{{getClientDisplay(bill)}}</span>
 								</div>
 							</td>
 							<td class="text-right amount-cell">{{bill.montantTTC | number:'1.2-2'}} TND</td>
 							<td class="date-cell">{{bill.dateFacture || '—'}}</td>
-							<td class="date-cell" [class.overdue-date]="bill.statut === 'OVERDUE'">{{bill.dateEcheance || '—'}}</td>
+							<td class="date-cell" [class.overdue-date]="bill.statut === 'OVERDUE'">{{bill.dateEcheance
+								|| '—'}}</td>
 							<td>
 								<span class="badge-soft success" *ngIf="bill.statut === 'PAID'">Payée</span>
 								<span class="badge-soft info" *ngIf="bill.statut === 'SENT'">Envoyée</span>
@@ -121,25 +126,30 @@
 								<span class="badge-soft neutral" *ngIf="bill.statut === 'CANCELLED'">Annulée</span>
 							</td>
 							<td class="actions-cell">
-								<button class="btn-icon" type="button" (click)="detail(bill.id)" title="Voir les détails">
+								<button class="btn-icon" type="button" (click)="detail(bill.id)"
+									title="Voir les détails">
 									<span class="material-icons">visibility</span>
 								</button>
 								<button class="btn-icon success-hover" type="button"
-								        *ngIf="bill.statut !== 'PAID' && bill.statut !== 'CANCELLED'"
-								        (click)="openMarkPaidDialog(bill)" title="Marquer payée">
+									*ngIf="bill.statut !== 'PAID' && bill.statut !== 'CANCELLED'"
+									(click)="openMarkPaidDialog(bill)" title="Marquer payée">
 									<span class="material-icons">payments</span>
 								</button>
 								<button class="btn-icon warning-hover" type="button"
-								        *ngIf="bill.statut === 'OVERDUE' || bill.statut === 'PENDING' || bill.statut === 'SENT'"
-								        (click)="sendReminder(bill)" [disabled]="sendingReminderId === bill.id" title="Envoyer relance">
-									<span class="material-icons">{{ sendingReminderId === bill.id ? 'hourglass_empty' : 'notification_important' }}</span>
+									*ngIf="bill.statut === 'OVERDUE' || bill.statut === 'PENDING' || bill.statut === 'SENT'"
+									(click)="sendReminder(bill)" [disabled]="sendingReminderId === bill.id"
+									title="Envoyer relance">
+									<span class="material-icons">{{ sendingReminderId === bill.id ? 'hourglass_empty' :
+										'notification_important' }}</span>
 								</button>
-								<button class="btn-icon" type="button" (click)="exportBill(bill)" title="Exporter">
+								<button class="btn-icon" type="button" (click)="downloadPdf(bill)" title="Télécharger PDF">
+									<span class="material-icons">picture_as_pdf</span>
+								</button>
+								<button class="btn-icon" type="button" (click)="exportBill(bill)" title="Exporter CSV">
 									<span class="material-icons">download</span>
 								</button>
-								<button class="btn-icon danger-hover" type="button"
-								        *ngIf="bill.statut === 'OVERDUE'"
-								        (click)="cancelBill(bill)" title="Annuler la facture">
+								<button class="btn-icon danger-hover" type="button" *ngIf="bill.statut === 'OVERDUE'"
+									(click)="cancelBill(bill)" title="Annuler la facture">
 									<span class="material-icons">cancel</span>
 								</button>
 							</td>
@@ -172,11 +182,12 @@
 				</div>
 				<div class="detail-item">
 					<span class="detail-label">Client</span>
-					<span class="detail-value">Client #{{billdetails.clientId}}</span>
+					<span class="detail-value">{{billdetails.clientName || 'Client #' + billdetails.clientId}}</span>
 				</div>
 				<div class="detail-item">
 					<span class="detail-label">Période</span>
-					<span class="detail-value">{{billdetails.periodeDebut || '—'}} au {{billdetails.periodeFin || '—'}}</span>
+					<span class="detail-value">{{billdetails.periodeDebut || '—'}} au {{billdetails.periodeFin ||
+						'—'}}</span>
 				</div>
 				<div class="detail-item">
 					<span class="detail-label">Montant HT</span>
@@ -194,7 +205,8 @@
 					<span class="detail-label">Statut</span>
 					<span class="detail-value">
 						<span class="badge-soft success" *ngIf="billdetails.statut === 'PAID'">Payée</span>
-						<span class="badge-soft warning" *ngIf="billdetails.statut === 'PENDING' || billdetails.statut === 'DRAFT'">{{billdetails.statut}}</span>
+						<span class="badge-soft warning"
+							*ngIf="billdetails.statut === 'PENDING' || billdetails.statut === 'DRAFT'">{{billdetails.statut}}</span>
 						<span class="badge-soft danger" *ngIf="billdetails.statut === 'OVERDUE'">En retard</span>
 						<span class="badge-soft info" *ngIf="billdetails.statut === 'SENT'">Envoyée</span>
 						<span class="badge-soft neutral" *ngIf="billdetails.statut === 'CANCELLED'">Annulée</span>
@@ -206,7 +218,9 @@
 				</div>
 				<div class="detail-item">
 					<span class="detail-label">Date échéance</span>
-					<span class="detail-value" [class.overdue-date]="billdetails.statut === 'OVERDUE'">{{billdetails.dateEcheance || '—'}}</span>
+					<span class="detail-value"
+						[class.overdue-date]="billdetails.statut === 'OVERDUE'">{{billdetails.dateEcheance ||
+						'—'}}</span>
 				</div>
 			</div>
 
@@ -235,7 +249,8 @@
 			</div>
 
 			<!-- Admin Actions in Detail Panel -->
-			<div class="detail-actions" *ngIf="billdetails && billdetails.statut !== 'PAID' && billdetails.statut !== 'CANCELLED'">
+			<div class="detail-actions"
+				*ngIf="billdetails && billdetails.statut !== 'PAID' && billdetails.statut !== 'CANCELLED'">
 				<h6 class="bill-lines-title">Actions administratives</h6>
 				<div class="admin-actions-bar">
 					<button class="btn btn-action" type="button" (click)="openMarkPaidDialog(billdetails)">
@@ -243,14 +258,13 @@
 						Marquer comme payée
 					</button>
 					<button class="btn btn-ghost" type="button"
-					        *ngIf="billdetails.statut === 'OVERDUE' || billdetails.statut === 'PENDING' || billdetails.statut === 'SENT'"
-					        (click)="sendReminder(billdetails)" [disabled]="sendingReminderId === billdetails.id">
+						*ngIf="billdetails.statut === 'OVERDUE' || billdetails.statut === 'PENDING' || billdetails.statut === 'SENT'"
+						(click)="sendReminder(billdetails)" [disabled]="sendingReminderId === billdetails.id">
 						<span class="material-icons">notification_important</span>
 						Envoyer une relance
 					</button>
-					<button class="btn btn-action danger" type="button"
-					        *ngIf="billdetails.statut === 'OVERDUE'"
-					        (click)="cancelBill(billdetails)">
+					<button class="btn btn-action danger" type="button" *ngIf="billdetails.statut === 'OVERDUE'"
+						(click)="cancelBill(billdetails)">
 						<span class="material-icons">cancel</span>
 						Annuler la facture
 					</button>
@@ -269,15 +283,18 @@
 				</button>
 			</div>
 			<div class="modal-body">
-				<p class="modal-info">Facture <strong>{{payDialogBill?.numeroFacture || payDialogBill?.id}}</strong> — Montant : <strong>{{payDialogBill?.montantTTC | number:'1.2-2'}} TND</strong></p>
+				<p class="modal-info">Facture <strong>{{payDialogBill?.numeroFacture || payDialogBill?.id}}</strong> —
+					Montant : <strong>{{payDialogBill?.montantTTC | number:'1.2-2'}} TND</strong></p>
 				<div class="form-group">
 					<label>Référence de paiement</label>
-					<input class="form-control" type="text" [(ngModel)]="paymentRef" placeholder="Ex: VIR-2026-001, CB-REF-XYZ" />
+					<input class="form-control" type="text" [(ngModel)]="paymentRef"
+						placeholder="Ex: VIR-2026-001, CB-REF-XYZ" />
 					<span class="form-text">Entrez la référence du virement, chèque ou transaction.</span>
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button class="btn btn-action" type="button" (click)="confirmMarkPaid()" [disabled]="!paymentRef || markingPaidId">
+				<button class="btn btn-action" type="button" (click)="confirmMarkPaid()"
+					[disabled]="!paymentRef || markingPaidId">
 					<span class="material-icons">{{ markingPaidId ? 'hourglass_empty' : 'check_circle' }}</span>
 					{{ markingPaidId ? 'Traitement…' : 'Confirmer le paiement' }}
 				</button>

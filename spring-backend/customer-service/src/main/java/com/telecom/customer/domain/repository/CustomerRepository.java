@@ -19,6 +19,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     List<Customer> findAllActive();
     Optional<Customer> findByPieceIdentite(String pieceIdentite);
     List<Customer> findByBoutiqueRef(String boutiqueRef);
+    List<Customer> findByBoutiqueRefAndStatus(String boutiqueRef, Customer.ClientStatus status);
 
     
     

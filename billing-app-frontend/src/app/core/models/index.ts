@@ -77,6 +77,7 @@ export interface Bill {
   id: number;
   numeroFacture: string;
   clientId: number;
+  clientName?: string;
   abonnementId?: number;
   dateFacture: string;
   dateEcheance: string;

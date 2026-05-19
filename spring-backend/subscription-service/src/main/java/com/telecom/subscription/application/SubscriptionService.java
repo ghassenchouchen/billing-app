@@ -83,8 +83,8 @@ public class SubscriptionService {
         }
 
         if (resolvedClientId == null) {
-            resolvedClientId = 1L;
-            log.warn("Client id could not be resolved; defaulting clientId to 1 to satisfy DB constraint");
+            log.error("Client resolution failed for request: id={}, ref={}", request.clientId(), request.clientRef());
+            throw new RuntimeException("Cannot create subscription: Client must be explicitly resolved. Invalid clientId or clientRef provided.");
         }
 
         if (!customerValidated) {

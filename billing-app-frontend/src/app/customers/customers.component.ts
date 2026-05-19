@@ -68,7 +68,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
     const boutiqueId = this.getCurrentBoutiqueId();
     forkJoin({
       customers: this.customerService.getCustomers().pipe(
-        catchError(() => of(this.getSampleCustomers()))
+        catchError(() => of([] as Customer[]))
       ),
       abonnements: this.abonnementService.getAbonnements().pipe(
         catchError(() => of([] as Abonnement[]))
@@ -79,8 +79,7 @@ export class CustomersComponent implements OnInit, OnDestroy {
     })
       .pipe(takeUntil(this.destroy$))
       .subscribe(({ customers, abonnements, stock }) => {
-        const customersData = customers && customers.length ? customers : this.getSampleCustomers();
-        this.listOfCustomer = this.attachAbonnements(customersData, abonnements);
+        this.listOfCustomer = this.attachAbonnements(customers || [], abonnements);
         this.customerSimsByRef = this.mapCustomerSims(this.listOfCustomer, stock);
         this.filteredCustomers = this.listOfCustomer;
       });
@@ -359,14 +358,4 @@ export class CustomersComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getSampleCustomers(): Customer[] {
-    return [
-      { customerRef: 'CLT-2024-001', nom: 'Ben Ali', prenom: 'Mohamed', email: 'mohamed.benali@email.tn', telephone: '+216 71 234 567', adresse: 'Av. Habib Bourguiba, 15', ville: 'Tunis', codePostal: '1000', type: 'INDIVIDUAL', status: 'ACTIVE', accountBalance: 45.50, creditLimit: 200, createdAt: '2024-10-24' },
-      { customerRef: 'CLT-2024-002', nom: 'Trabelsi', prenom: 'Amira', email: 'amira.trabelsi@email.tn', telephone: '+216 98 765 432', adresse: 'Rue de la R\u00e9publique, 42', ville: 'Sfax', codePostal: '3000', type: 'INDIVIDUAL', status: 'ACTIVE', accountBalance: 0, creditLimit: 150, createdAt: '2024-10-23' },
-      { customerRef: 'CLT-2024-003', nom: 'Digital Solutions SARL', prenom: '', email: 'contact@digitalsol.tn', telephone: '+216 71 456 789', adresse: 'Zone Industrielle, Lot 8', ville: 'Sousse', codePostal: '4000', type: 'BUSINESS', status: 'ACTIVE', accountBalance: 1250.00, creditLimit: 5000, createdAt: '2024-10-23' },
-      { customerRef: 'CLT-2024-004', nom: 'Gharbi', prenom: 'Youssef', email: 'youssef.gharbi@email.tn', telephone: '+216 55 111 222', adresse: 'Cit\u00e9 El Khadra, Bloc 3', ville: 'Tunis', codePostal: '1003', type: 'INDIVIDUAL', status: 'SUSPENDED', accountBalance: 89.90, creditLimit: 200, createdAt: '2024-09-15' },
-      { customerRef: 'CLT-2024-005', nom: 'TechnoServ SA', prenom: '', email: 'admin@technoserv.tn', telephone: '+216 71 888 999', adresse: 'Centre Urbain Nord, Tour A', ville: 'Tunis', codePostal: '1082', type: 'BUSINESS', status: 'ACTIVE', accountBalance: 3420.00, creditLimit: 10000, createdAt: '2024-08-10' },
-      { customerRef: 'CLT-2024-006', nom: 'Mansouri', prenom: 'Fatma', email: 'fatma.mansouri@email.tn', telephone: '+216 22 333 444', adresse: 'Rue Ibn Khaldoun, 7', ville: 'Monastir', codePostal: '5000', type: 'INDIVIDUAL', status: 'ACTIVE', accountBalance: 12.30, creditLimit: 150, createdAt: '2024-11-02' },
-    ];
-  }
 }

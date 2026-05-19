@@ -59,7 +59,7 @@ public class DashboardService {
         BigDecimal revenueToday = transactionRepository
                 .sumRevenueByBoutique(boutiqueId, todayStart, todayEnd);
         long contractsMonth = transactionRepository
-                .countByBoutiqueIdAndCreatedAtBetween(boutiqueId, monthStart, todayEnd);
+                .countCompletedContractsByBoutiqueIdAndCreatedAtBetween(boutiqueId, monthStart, todayEnd);
         long simAvailable = stockSimService.countAvailable(boutiqueId);
 
         Map<String, Long> simByType = new HashMap<>();

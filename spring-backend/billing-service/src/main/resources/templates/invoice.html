@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        @page { margin: 30px 40px; size: A4; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 10pt; color: #1a1a2e; line-height: 1.4; }
+
+        .header { display: block; margin-bottom: 30px; border-bottom: 3px solid #0f3460; padding-bottom: 15px; }
+        .company-name { font-size: 22pt; font-weight: bold; color: #0f3460; }
+        .company-sub { font-size: 9pt; color: #555; margin-top: 2px; }
+        .invoice-title { font-size: 16pt; color: #0f3460; text-align: right; margin-top: -40px; }
+        .invoice-number { font-size: 11pt; color: #333; text-align: right; margin-top: 2px; }
+
+        .info-section { width: 100%; margin-bottom: 20px; }
+        .info-section td { vertical-align: top; padding: 0; }
+        .info-block { background: #f4f6fb; border-radius: 6px; padding: 12px 15px; }
+        .info-block h3 { font-size: 9pt; color: #0f3460; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; border-bottom: 1px solid #dde; padding-bottom: 4px; }
+        .info-block p { font-size: 9pt; color: #333; margin: 2px 0; }
+        .info-block .value { font-weight: bold; color: #1a1a2e; }
+
+        /* Status badge */
+        .status { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 8pt; font-weight: bold; text-transform: uppercase; }
+        .status-DRAFT { background: #fff3cd; color: #856404; }
+        .status-PENDING { background: #cce5ff; color: #004085; }
+        .status-SENT { background: #d1ecf1; color: #0c5460; }
+        .status-PAID { background: #d4edda; color: #155724; }
+        .status-OVERDUE { background: #f8d7da; color: #721c24; }
+        .status-CANCELLED { background: #e2e3e5; color: #383d41; }
+
+        /* Table */
+        .lines-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .lines-table th { background: #0f3460; color: white; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 10px; text-align: left; }
+        .lines-table th:nth-child(3), .lines-table th:nth-child(4), .lines-table th:nth-child(5) { text-align: right; }
+        .lines-table td { padding: 7px 10px; border-bottom: 1px solid #e8e8e8; font-size: 9pt; }
+        .lines-table td:nth-child(3), .lines-table td:nth-child(4), .lines-table td:nth-child(5) { text-align: right; font-family: 'Courier New', monospace; }
+        .lines-table tr:nth-child(even) { background: #f9fafe; }
+
+        /* Totals */
+        .totals { width: 280px; margin-left: auto; margin-top: 15px; }
+        .totals td { padding: 5px 10px; font-size: 9pt; }
+        .totals .label { text-align: right; color: #555; }
+        .totals .amount { text-align: right; font-family: 'Courier New', monospace; font-weight: bold; }
+        .totals .total-row td { border-top: 2px solid #0f3460; font-size: 12pt; color: #0f3460; padding-top: 8px; }
+
+        /* Footer */
+        .footer { margin-top: 40px; padding-top: 15px; border-top: 1px solid #dde; font-size: 8pt; color: #888; text-align: center; }
+        .footer .terms { margin-bottom: 8px; color: #555; font-size: 8.5pt; }
+        .payment-info { background: #f4f6fb; padding: 10px 15px; border-radius: 6px; margin-top: 20px; font-size: 8.5pt; }
+        .payment-info strong { color: #0f3460; }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+    <div class="company-name">TélécomBilling</div>
+    <div class="company-sub">Opérateur Télécom — Tunisie</div>
+    <div class="company-sub">Av. Habib Bourguiba, Tunis 1000 — MF: 1234567/A/B/000</div>
+    <div class="invoice-title">FACTURE</div>
+    <div class="invoice-number" th:text="'N° ' + ${invoiceNumber}"></div>
+</div>
+
+<!-- Info Section -->
+<table class="info-section">
+    <tr>
+        <td style="width: 48%;">
+            <div class="info-block">
+                <h3>Facturé à</h3>
+                <p class="value" th:text="${clientName}"></p>
+                <p th:text="'Réf: ' + ${clientRef}"></p>
+                <p th:text="${clientAddress}"></p>
+                <p th:text="'Email: ' + ${clientEmail}"></p>
+                <p th:text="'Tél: ' + ${clientPhone}"></p>
+            </div>
+        </td>
+        <td style="width: 4%;"></td>
+        <td style="width: 48%;">
+            <div class="info-block">
+                <h3>Détails de la facture</h3>
+                <p>Date d'émission: <span class="value" th:text="${invoiceDate}"></span></p>
+                <p>Date d'échéance: <span class="value" th:text="${dueDate}"></span></p>
+                <p th:if="${periodStart != null}">Période: <span class="value" th:text="${periodStart} + ' au ' + ${periodEnd}"></span></p>
+                <p>Statut: <span class="status" th:classappend="'status-' + ${status}" th:text="${status}"></span></p>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<!-- Invoice Lines -->
+<table class="lines-table">
+    <thead>
+        <tr>
+            <th style="width: 45%;">Description</th>
+            <th style="width: 12%;">Type</th>
+            <th style="width: 10%;">Qté</th>
+            <th style="width: 16%;">Prix unit. (TND)</th>
+            <th style="width: 17%;">Total (TND)</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="line : ${lines}">
+            <td th:text="${line.description}"></td>
+            <td th:text="${line.type}"></td>
+            <td style="text-align: center;" th:text="${line.quantity}"></td>
+            <td th:text="${line.unitPrice}"></td>
+            <td th:text="${line.total}"></td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(lines)}">
+            <td colspan="5" style="text-align:center; color: #999; padding: 20px;">Aucune ligne de facturation</td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Totals -->
+<table class="totals">
+    <tr>
+        <td class="label">Sous-total HT</td>
+        <td class="amount" th:text="${montantHT} + ' TND'"></td>
+    </tr>
+    <tr>
+        <td class="label">TVA (19%)</td>
+        <td class="amount" th:text="${montantTVA} + ' TND'"></td>
+    </tr>
+    <tr class="total-row">
+        <td class="label">Total TTC</td>
+        <td class="amount" th:text="${montantTTC} + ' TND'"></td>
+    </tr>
+</table>
+
+<!-- Payment Info -->
+<div class="payment-info">
+    <strong>Modalités de paiement :</strong> Virement bancaire — BIAT Tunis — RIB: 08 123 0456789012345 67<br/>
+    <strong>Conditions :</strong> Paiement à réception. Pénalités de retard : 1.5% par mois de retard.
+</div>
+
+<!-- Footer -->
+<div class="footer">
+    <div class="terms">Ce document est une facture originale. En cas de litige, les tribunaux de Tunis sont seuls compétents.</div>
+    TélécomBilling — Société Anonyme au capital de 100 000 TND — MF: 1234567/A/B/000
+</div>
+
+</body>
+</html>

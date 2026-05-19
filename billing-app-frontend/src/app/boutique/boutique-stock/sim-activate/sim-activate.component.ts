@@ -76,12 +76,7 @@ export class SimActivateComponent implements OnInit, OnDestroy {
           }
         },
         error: () => {
-          // Fallback sample SIM
-          this.sim = {
-            id: 1, iccid: this.iccid, imsi: '60501000000001', msisdn: '+21620100001',
-            simType: 'STANDARD', status: 'AVAILABLE', boutiqueId: this.boutiqueId,
-            assignedToClientId: null, assignedAt: null, createdAt: '2025-01-10T08:00:00'
-          };
+          this.sim = null;
         }
       });
 
@@ -95,14 +90,7 @@ export class SimActivateComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
         error: () => {
-          // Fallback sample customers
-          this.customers = [
-            { customerRef: 'CL-000001', nom: 'Ben Ali', prenom: 'Mohamed', email: 'mohamed.benali@email.tn', telephone: '+216 20 100 001', adresse: 'Rue de la Liberté, Tunis', type: 'INDIVIDUAL', status: 'ACTIVE' },
-            { customerRef: 'CL-000002', nom: 'Trabelsi', prenom: 'Amira', email: 'amira.trabelsi@email.tn', telephone: '+216 20 200 002', adresse: 'Av. Bourguiba, Sfax', type: 'INDIVIDUAL', status: 'ACTIVE' },
-            { customerRef: 'CL-000003', nom: 'Mansouri', prenom: 'Fatma', email: 'fatma.mansouri@email.tn', telephone: '+216 20 300 003', adresse: 'Rue Ibn Khaldoun, Sousse', type: 'INDIVIDUAL', status: 'ACTIVE' },
-            { customerRef: 'CL-000004', nom: 'Gharbi', prenom: 'Youssef', email: 'youssef.gharbi@email.tn', telephone: '+216 20 400 004', adresse: 'Av. de France, Tunis', type: 'INDIVIDUAL', status: 'ACTIVE' },
-            { customerRef: 'CL-000005', nom: 'TechnoServ', prenom: 'SA', email: 'contact@technoserv.tn', telephone: '+216 71 500 005', adresse: 'Zone Industrielle, Ben Arous', type: 'BUSINESS', status: 'ACTIVE' },
-          ];
+          this.customers = [];
           this.filteredCustomers = this.customers;
           this.loading = false;
         }
@@ -135,12 +123,12 @@ export class SimActivateComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          this.offers = data && data.length ? data : this.getSampleOffers();
+          this.offers = data && data.length ? data : [];
           this.filteredOffers = this.offers.filter(o => o.status === 'ACTIVE' || o.active);
           this.loadingOffers = false;
         },
         error: () => {
-          this.offers = this.getSampleOffers();
+          this.offers = [];
           this.filteredOffers = this.offers.filter(o => o.status === 'ACTIVE' || o.active);
           this.loadingOffers = false;
         }
@@ -226,14 +214,6 @@ export class SimActivateComponent implements OnInit, OnDestroy {
       });
   }
 
-  private getSampleOffers(): Offer[] {
-    return [
-      { id: 1, code: 'FIBRE-20M', libelle: 'Fibre Essentiel 20M', description: 'Internet fibre optique 20 Mbps', prixMensuel: 35.00, status: 'ACTIVE', paymentType: 'POSTPAID', serviceIds: [] },
-      { id: 2, code: 'MOB-5G-10G', libelle: 'Mobile 5G 10Go', description: 'Forfait mobile 5G avec 10 Go', prixMensuel: 25.00, status: 'ACTIVE', paymentType: 'POSTPAID', serviceIds: [] },
-      { id: 3, code: 'MOB-4G-25G', libelle: 'Forfait Mobile 4G 25 Go', description: 'Forfait mobile 4G, 25 Go data', prixMensuel: 45.00, status: 'ACTIVE', paymentType: 'POSTPAID', serviceIds: [] },
-      { id: 4, code: 'MOB-PREPAID', libelle: 'Prépayé Mobile', description: 'Forfait prépayé flexible', prixMensuel: 15.00, status: 'ACTIVE', paymentType: 'PREPAID', serviceIds: [] },
-    ];
-  }
 
   goBack(): void {
     this.router.navigate(['/Boutique/stock']);

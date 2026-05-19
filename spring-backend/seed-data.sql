@@ -252,8 +252,8 @@ INSERT INTO transaction_boutique (reference, boutique_id, agent_id, client_id, c
 VALUES
   ('TXN-BTQ-2025-001', 1, 2, 1, 'Mohamed Ben Ali',    'Forfait Mobile 4G 25 Go',  'NEW_SUBSCRIPTION',  19.90, 'COMPLETED', '2025-02-16 09:15:00'),
   ('TXN-BTQ-2025-002', 1, 2, 6, 'Fatma Mansouri',     'Forfait Mobile 4G 25 Go',  'NEW_SUBSCRIPTION',  19.90, 'COMPLETED', '2025-02-16 10:30:00'),
-  ('TXN-BTQ-2025-003', 1, 2, 2, 'Amira Trabelsi',     'Recharge Data 10 Go',      'TOP_UP',             8.00, 'COMPLETED', '2025-02-16 11:00:00'),
-  ('TXN-BTQ-2025-004', 1, 2, 5, 'TechnoServ SA',      'Entreprise Convergent',    'RENEWAL',          280.00, 'COMPLETED', '2025-02-16 14:00:00'),
-  ('TXN-BTQ-2025-005', 1, 2, 4, 'Youssef Gharbi',     'Mobile 5G Illimité',       'SIM_SWAP',          15.00, 'PENDING',   '2025-02-16 15:30:00');
+  ('TXN-BTQ-2025-003', 1, 2, 5, 'TechnoServ SA',      'Entreprise Convergent',    'RENEWAL',          280.00, 'COMPLETED', '2025-02-16 14:00:00'),
+  ('TXN-BTQ-2025-004', 1, 2, 2, 'Amira Trabelsi',     'Facture FAC-2025-0003',    'INVOICE_PAYMENT',   12.00, 'COMPLETED', '2025-02-16 15:30:00'),
+  ('TXN-BTQ-2025-005', 1, 2, 4, 'Youssef Gharbi',     'Forfait Mobile 4G 25 Go',  'CANCELLATION',      19.90, 'COMPLETED', '2025-02-16 16:00:00');
 
 

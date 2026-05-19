@@ -7,6 +7,8 @@ import com.telecom.customer.web.dto.ClientDto;
 import com.telecom.customer.web.dto.CreateClientRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,12 @@ public class CustomerService {
         return customerRepository.findAll().stream()
             .map(this::toDto)
             .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ClientDto> getAllCustomersPaged(Pageable pageable) {
+        return customerRepository.findAll(pageable)
+            .map(this::toDto);
     }
     
     @Transactional(readOnly = true)
@@ -74,8 +82,7 @@ public class CustomerService {
     
     @Transactional(readOnly = true)
     public List<ClientDto> getActiveCustomersByBoutique(String boutiqueRef) {
-        return customerRepository.findByBoutiqueRef(boutiqueRef).stream()
-            .filter(c -> c.getStatus() == Customer.ClientStatus.ACTIVE)
+        return customerRepository.findByBoutiqueRefAndStatus(boutiqueRef, Customer.ClientStatus.ACTIVE).stream()
             .map(this::toDto)
             .toList();
     }
@@ -98,8 +105,11 @@ public class CustomerService {
             throw new RuntimeException("boutiqueRef is required to create a customer");
         }
         
+        // Pre-generate a unique ref (will be replaced with ID-based ref after save)
+        String tempRef = "CLT-" + Year.now().getValue() + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+
         Customer customer = Customer.builder()
-            .customerRef("TMP-" + UUID.randomUUID().toString().substring(0, 32))
+            .customerRef(tempRef)
             .nom(request.nom())
             .prenom(request.prenom())
             .email(request.email())
@@ -119,6 +129,7 @@ public class CustomerService {
             .build();
         
         customer = customerRepository.save(customer);
+        // Update ref to use the auto-generated ID for a deterministic format
         customer.setCustomerRef(generateCustomerRef(customer.getId()));
         customer = customerRepository.save(customer);
         log.info("Created customer: {} (ref: {})", customer.getId(), customer.getCustomerRef());

@@ -17,10 +17,19 @@ public interface TransactionRepository extends JpaRepository<TransactionBoutique
     List<TransactionBoutique> findByBoutiqueIdAndCreatedAtBetweenOrderByCreatedAtDesc(
             Long boutiqueId, LocalDateTime from, LocalDateTime to);
 
-    @Query("SELECT COALESCE(SUM(t.montant), 0) FROM TransactionBoutique t " +
+    @Query("SELECT COALESCE(SUM(CASE WHEN t.typeTransaction = 'CANCELLATION' THEN -t.montant ELSE t.montant END), 0) " +
+           "FROM TransactionBoutique t " +
            "WHERE t.boutiqueId = :boutiqueId AND t.status = 'COMPLETED' " +
            "AND t.createdAt BETWEEN :from AND :to")
     BigDecimal sumRevenueByBoutique(Long boutiqueId, LocalDateTime from, LocalDateTime to);
 
     long countByBoutiqueIdAndCreatedAtBetween(Long boutiqueId, LocalDateTime from, LocalDateTime to);
+
+    @Query("SELECT COUNT(t) FROM TransactionBoutique t " +
+           "WHERE t.boutiqueId = :boutiqueId " +
+           "AND t.typeTransaction NOT IN ('CANCELLATION') " +
+           "AND t.status = 'COMPLETED' " +
+           "AND t.createdAt BETWEEN :from AND :to")
+    long countCompletedContractsByBoutiqueIdAndCreatedAtBetween(
+            Long boutiqueId, LocalDateTime from, LocalDateTime to);
 }

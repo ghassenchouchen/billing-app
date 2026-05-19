@@ -98,8 +98,10 @@ public class OffreService {
     public void deleteOffre(Long id) {
         Offre offre = offreRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Offre not found: " + id));
-        offreRepository.delete(offre);
-        log.info("Deleted offre: {}", id);
+        // SOFT DELETE: Preserve data integrity for existing subscriptions and billing history
+        offre.setStatus(Offre.OffreStatus.DISCONTINUED);
+        offreRepository.save(offre);
+        log.info("Soft deleted offre (marked NO longer available): {}", id);
     }
     
     private OffreDto toDto(Offre offre) {

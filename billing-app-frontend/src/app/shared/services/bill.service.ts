@@ -68,4 +68,14 @@ export class BillService {
       params: { paymentRef }
     });
   }
+
+  cancelInvoice(billId: string): Observable<Bill> {
+    return this.http.post<Bill>(`${this.baseUrl}/${billId}/cancel`, null);
+  }
+
+  downloadPdf(billId: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/${billId}/pdf`, {
+      responseType: 'blob'
+    });
+  }
 }

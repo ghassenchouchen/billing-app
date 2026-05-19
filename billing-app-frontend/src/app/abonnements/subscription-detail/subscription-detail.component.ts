@@ -55,11 +55,11 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          this.subscription = data || this.getSampleSubscription(id);
+          this.subscription = data || null;
           this.loadRelatedData();
         },
         error: () => {
-          this.subscription = this.getSampleSubscription(id);
+          this.subscription = null;
           this.loadRelatedData();
         }
       });
@@ -78,13 +78,13 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: ({ customer, offer }) => {
-        this.customer = customer || this.getSampleCustomer(customerId);
-        this.offer = offer || this.getSampleOffer(offerId);
+        this.customer = customer || null;
+        this.offer = offer || null;
         this.loading = false;
       },
       error: () => {
-        this.customer = this.getSampleCustomer(this.subscription!.clientId);
-        this.offer = this.getSampleOffer(this.subscription!.offreId);
+        this.customer = null;
+        this.offer = null;
         this.loading = false;
       }
     });
@@ -236,36 +236,4 @@ export class SubscriptionDetailComponent implements OnInit, OnDestroy {
     return colors[Math.abs(hash) % colors.length];
   }
 
-  // ─── Sample Data ───
-  private getSampleSubscription(id: string): Abonnement {
-    const samples: { [key: string]: Abonnement } = {
-      '1': { id: 1, clientId: 1, offreId: 4, dateDebut: '2024-10-24', status: 'ACTIVE', createdAt: '2024-10-24' },
-      '2': { id: 2, clientId: 1, offreId: 7, dateDebut: '2024-11-01', status: 'ACTIVE', createdAt: '2024-11-01' },
-      '3': { id: 3, clientId: 3, offreId: 6, dateDebut: '2024-10-23', status: 'ACTIVE', createdAt: '2024-10-23' },
-      '4': { id: 4, clientId: 2, offreId: 1, dateDebut: '2024-09-15', status: 'SUSPENDED', createdAt: '2024-09-15' }
-    };
-    return samples[id] || { id: parseInt(id, 10), clientId: 1, offreId: 1, dateDebut: '2024-01-01', status: 'ACTIVE', createdAt: '2024-01-01' };
-  }
-
-  private getSampleCustomer(clientId: number): Customer {
-    const samples: { [key: number]: Customer } = {
-      1: { customerRef: 'CLT-2024-001', nom: 'Ben Ali', prenom: 'Mohamed', email: 'mohamed.benali@email.tn', telephone: '+216 71 234 567', adresse: 'Av. Habib Bourguiba, 15', ville: 'Tunis', type: 'INDIVIDUAL', status: 'ACTIVE' },
-      2: { customerRef: 'CLT-2024-002', nom: 'Trabelsi', prenom: 'Amira', email: 'amira.trabelsi@email.tn', telephone: '+216 22 345 678', adresse: 'Rue de Marseille, 42', ville: 'Tunis', type: 'INDIVIDUAL', status: 'ACTIVE' },
-      3: { customerRef: 'CLT-2024-003', nom: 'Digital Solutions SARL', prenom: '', email: 'contact@digitalsol.tn', telephone: '+216 71 456 789', adresse: 'Zone Industrielle, Lot 8', ville: 'Sousse', type: 'BUSINESS', status: 'ACTIVE' }
-    };
-    return samples[clientId] || { customerRef: `CLT-${clientId}`, nom: 'Client', prenom: 'Inconnu', email: 'client@email.tn', adresse: '—', type: 'INDIVIDUAL', status: 'ACTIVE' };
-  }
-
-  private getSampleOffer(offreId: number): Offer {
-    const samples: { [key: number]: Offer } = {
-      1: { id: 1, code: 'FIBRE-20M', libelle: 'Fibre Essentiel 20M', description: 'Internet fibre optique 20 Mbps', prixMensuel: 35.00, status: 'ACTIVE', paymentType: 'POSTPAID' },
-      2: { id: 2, code: 'FIBRE-100M', libelle: 'Fibre Pro 100M', description: 'Internet fibre 100 Mbps', prixMensuel: 89.00, status: 'ACTIVE', paymentType: 'POSTPAID' },
-      3: { id: 3, code: 'MOB-5G-10G', libelle: 'Mobile 5G 10Go', description: 'Forfait mobile 5G avec 10 Go de data', prixMensuel: 25.00, status: 'ACTIVE', paymentType: 'POSTPAID' },
-      4: { id: 4, code: 'MOB-4G-25G', libelle: 'Forfait Mobile 4G 25 Go', description: 'Forfait mobile 4G, 25 Go data, appels & SMS illimités', prixMensuel: 45.00, status: 'ACTIVE', paymentType: 'POSTPAID' },
-      5: { id: 5, code: 'MOB-PREPAID', libelle: 'Prépayé Mobile', description: 'Forfait prépayé flexible', prixMensuel: 15.00, status: 'ACTIVE', paymentType: 'PREPAID' },
-      6: { id: 6, code: 'ENT-CONV', libelle: 'Entreprise Convergent', description: 'Pack convergent entreprise', prixMensuel: 199.00, status: 'ACTIVE', paymentType: 'POSTPAID' },
-      7: { id: 7, code: 'ROAMING-MAG', libelle: 'Pack Roaming Maghreb', description: 'Roaming voix & data Maghreb', prixMensuel: 30.00, status: 'ACTIVE', paymentType: 'POSTPAID' }
-    };
-    return samples[offreId] || { id: offreId, code: `OFF-${offreId}`, libelle: `Offre #${offreId}`, prixMensuel: 0, status: 'ACTIVE' };
-  }
 }

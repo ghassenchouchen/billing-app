@@ -96,8 +96,12 @@ public class Facture {
         this.montantHT = lignes.stream()
             .map(InvoiceLine::getMontant)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
-        this.montantTVA = BigDecimal.ZERO;
-        this.montantTTC = this.montantHT;
+        if (taxRate != null && taxRate.compareTo(BigDecimal.ZERO) > 0) {
+            this.montantTVA = this.montantHT.multiply(taxRate).setScale(2, java.math.RoundingMode.HALF_UP);
+        } else {
+            this.montantTVA = BigDecimal.ZERO;
+        }
+        this.montantTTC = this.montantHT.add(this.montantTVA);
     }
     
     public void finalize() {

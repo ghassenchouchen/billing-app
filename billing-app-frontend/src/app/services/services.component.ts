@@ -23,7 +23,7 @@ export class ServicesComponent implements OnInit, OnDestroy {
     message: '',
     action: null as (() => void) | null
   };
-  usingSampleData = false;
+  loadError = false;
   private destroy$ = new Subject<void>();
 
   get activeCount(): number {
@@ -46,21 +46,16 @@ export class ServicesComponent implements OnInit, OnDestroy {
   }
 
   loadServices(): void {
+    this.loadError = false;
     this.serviceService.getServices()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          if (data && data.length) {
-            this.listofServices = data;
-            this.usingSampleData = false;
-          } else {
-            this.listofServices = this.getSampleServices();
-            this.usingSampleData = true;
-          }
+          this.listofServices = data || [];
         },
         error: () => {
-          this.listofServices = this.getSampleServices();
-          this.usingSampleData = true;
+          this.listofServices = [];
+          this.loadError = true;
         }
       });
   }
@@ -144,15 +139,11 @@ export class ServicesComponent implements OnInit, OnDestroy {
 
   confirmDelete(id: string): void {
     this.showConfirmModal = false;
-    if (this.usingSampleData) {
-      this.listofServices = this.listofServices.filter(s => String(s.id) !== id);
-    } else {
-      this.serviceService.deleteService(id)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(() => {
-          this.loadServices();
-        });
-    }
+    this.serviceService.deleteService(id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadServices();
+      });
   }
 
   cancelConfirm(): void {
@@ -209,12 +200,4 @@ export class ServicesComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getSampleServices(): Service[] {
-    return [
-      { id: 1, code: 'SVC_APPELS', libelle: 'Appels', unite: 'SECONDE', prixUnitaire: 0.005, category: 'VOICE', active: true },
-      { id: 2, code: 'SVC_DATA', libelle: 'Données Mobiles', unite: 'OCTET', prixUnitaire: 0.010, category: 'DATA', active: true },
-      { id: 3, code: 'SVC_SMS', libelle: 'SMS', unite: 'SMS', prixUnitaire: 0.040, category: 'SMS', active: true },
-      { id: 4, code: 'SVC_ROAMING', libelle: 'Roaming', unite: 'SECONDE', prixUnitaire: 0.090, category: 'ROAMING', active: true },
-    ];
-  }
 }

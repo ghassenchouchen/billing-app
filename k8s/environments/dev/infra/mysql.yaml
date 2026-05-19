@@ -56,8 +56,9 @@ spec:
                 - 127.0.0.1
                 - -uroot
                 - -proot
-            initialDelaySeconds: 15
+            initialDelaySeconds: 90
             periodSeconds: 10
+            failureThreshold: 10
           livenessProbe:
             exec:
               command:
@@ -67,8 +68,16 @@ spec:
                 - 127.0.0.1
                 - -uroot
                 - -proot
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: 120
+            periodSeconds: 15
+            failureThreshold: 10
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
           volumeMounts:
             - name: mysql-data
               mountPath: /var/lib/mysql

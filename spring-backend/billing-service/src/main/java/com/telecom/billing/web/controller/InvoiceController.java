@@ -1,12 +1,17 @@
 package com.telecom.billing.web.controller;
 
 import com.telecom.billing.application.BillingService;
+import com.telecom.billing.application.InvoicePdfService;
 import com.telecom.billing.domain.entity.Facture;
 import com.telecom.billing.domain.entity.Facture.FactureStatus;
+import com.telecom.billing.infrastructure.client.CustomerClient;
 import com.telecom.billing.web.dto.FactureDto;
 import com.telecom.billing.web.dto.GenerateInvoiceRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +23,12 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/invoices")
 @RequiredArgsConstructor
+@Slf4j
 public class InvoiceController {
     
     private final BillingService billingService;
+    private final InvoicePdfService pdfService;
+    private final CustomerClient customerClient;
     
     @GetMapping
     public ResponseEntity<List<FactureDto>> getAllInvoices() {
@@ -112,6 +120,22 @@ public class InvoiceController {
         Facture facture = billingService.cancelInvoice(id, reason);
         return ResponseEntity.ok(toDto(facture));
     }
+
+    @GetMapping("/{id}/pdf")
+    public ResponseEntity<byte[]> downloadPdf(@PathVariable Long id) {
+        Facture facture = billingService.getInvoiceById(id)
+            .orElseThrow(() -> new RuntimeException("Invoice not found: " + id));
+        
+        byte[] pdfBytes = pdfService.generatePdf(facture);
+        
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", 
+            "facture-" + facture.getNumeroFacture() + ".pdf");
+        headers.setContentLength(pdfBytes.length);
+        
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+    }
     
     private FactureDto toDto(Facture facture) {
         var lines = facture.getLignes().stream()
@@ -127,10 +151,20 @@ public class InvoiceController {
             ))
             .collect(Collectors.toList());
         
+        // Resolve client name
+        String clientName = null;
+        try {
+            CustomerClient.ClientDto client = customerClient.getCustomerById(facture.getClientId());
+            clientName = client.fullName();
+        } catch (Exception e) {
+            log.warn("Could not resolve client name for id {}", facture.getClientId());
+        }
+        
         return new FactureDto(
             facture.getId(),
             facture.getNumeroFacture(),
             facture.getClientId(),
+            clientName,
             facture.getAbonnementId(),
             facture.getDateFacture(),
             facture.getDateEcheance(),

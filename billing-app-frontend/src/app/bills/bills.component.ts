@@ -64,7 +64,7 @@ export class BillsComponent implements OnInit, OnDestroy {
     return this.allBills.filter(b => b.statut === 'OVERDUE').length;
   }
 
-  constructor(private billService: BillService) {}
+  constructor(private billService: BillService) { }
 
   ngOnInit(): void {
     this.billService.getBills()
@@ -259,5 +259,27 @@ export class BillsComponent implements OnInit, OnDestroy {
     if (index >= 0) {
       this.listofbills = this.listofbills.map((bill, idx) => idx === index ? { ...bill, ...updated } : bill);
     }
+  }
+
+  downloadPdf(bill: Bill): void {
+    this.billService.downloadPdf(String(bill.id))
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `facture-${bill.numeroFacture}.pdf`;
+          link.click();
+          window.URL.revokeObjectURL(url);
+        },
+        error: () => {
+          alert('Erreur lors du téléchargement du PDF.');
+        }
+      });
+  }
+
+  getClientDisplay(bill: Bill): string {
+    return bill.clientName || ('Client #' + bill.clientId);
   }
 }

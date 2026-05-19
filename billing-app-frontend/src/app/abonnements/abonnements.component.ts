@@ -16,7 +16,7 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
   searchTerm = '';
   statusFilter = '';
   totalCount = 0;
-  usingSampleData = false;
+  loadError = false;
 
   deactivatingId: string | null = null;
   showConfirmModal = false;
@@ -65,24 +65,19 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
   }
 
   loadAbonnements(): void {
+    this.loadError = false;
     this.abonnementService.getAbonnements()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          if (data && data.length) {
-            this.listofAbonnements = data;
-            this.usingSampleData = false;
-          } else {
-            this.listofAbonnements = this.getSampleAbonnements();
-            this.usingSampleData = true;
-          }
+          this.listofAbonnements = data || [];
           this.totalCount = this.listofAbonnements.length;
           this.applyFilters();
         },
         error: () => {
-          this.listofAbonnements = this.getSampleAbonnements();
-          this.usingSampleData = true;
-          this.totalCount = this.listofAbonnements.length;
+          this.listofAbonnements = [];
+          this.loadError = true;
+          this.totalCount = 0;
           this.applyFilters();
         }
       });
@@ -228,13 +223,6 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
     this.showConfirmModal = false;
     this.deactivatingId = String(a.id);
 
-    if (this.usingSampleData) {
-      a.status = 'SUSPENDED';
-      this.deactivatingId = null;
-      this.applyFilters();
-      return;
-    }
-
     this.abonnementService.suspendAbonnement(String(a.id))
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -258,16 +246,4 @@ export class AbonnementsComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getSampleAbonnements(): Abonnement[] {
-    return [
-      { id: 1, clientId: 1, offreId: 4, dateDebut: '2024-10-24', status: 'ACTIVE', createdAt: '2024-10-24' },
-      { id: 2, clientId: 1, offreId: 7, dateDebut: '2024-11-01', status: 'ACTIVE', createdAt: '2024-11-01' },
-      { id: 3, clientId: 3, offreId: 6, dateDebut: '2024-10-23', status: 'ACTIVE', createdAt: '2024-10-23' },
-      { id: 4, clientId: 2, offreId: 1, dateDebut: '2024-09-15', status: 'ACTIVE', createdAt: '2024-09-15' },
-      { id: 5, clientId: 4, offreId: 3, dateDebut: '2024-08-01', status: 'SUSPENDED', createdAt: '2024-08-01' },
-      { id: 6, clientId: 5, offreId: 2, dateDebut: '2024-07-10', status: 'ACTIVE', createdAt: '2024-07-10' },
-      { id: 7, clientId: 6, offreId: 8, dateDebut: '2024-11-15', status: 'PENDING', createdAt: '2024-11-15' },
-      { id: 8, clientId: 2, offreId: 5, dateDebut: '2024-06-01', dateFin: '2024-12-31', status: 'TERMINATED', createdAt: '2024-06-01' }
-    ];
-  }
 }

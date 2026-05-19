@@ -220,7 +220,7 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
           this.loadingSims = false;
         },
         error: () => {
-          this.availableSims = this.getSampleSims();
+          this.availableSims = [];
           this.filteredSims = this.availableSims;
           this.loadingSims = false;
         }
@@ -247,7 +247,7 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => {
-          let offers = (data && data.length) ? data.filter(o => o.status === 'ACTIVE') : this.getSampleOffers();
+          let offers = (data && data.length) ? data.filter(o => o.status === 'ACTIVE') : [];
           if (mobileOnly) {
             offers = this.filterMobileOffers(offers);
           }
@@ -256,7 +256,7 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
           this.loadingOffers = false;
         },
         error: () => {
-          let offers = this.getSampleOffers();
+          let offers: Offer[] = [];
           if (mobileOnly) {
             offers = this.filterMobileOffers(offers);
           }
@@ -376,21 +376,4 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
     return type === 'ESIM' ? 'eSIM' : 'Standard';
   }
 
-  private getSampleOffers(): Offer[] {
-    return [
-      { id: 1, code: 'FIBRE_20', libelle: 'Fibre Essentiel 20M', description: 'Connexion fibre optique 20 Mbps', prixMensuel: 35.00, status: 'ACTIVE', paymentType: 'POSTPAID' },
-      { id: 3, code: 'MOB_5G_ILL', libelle: 'Mobile 5G Illimité', description: 'Appels & SMS illimités + 100 Go 5G', prixMensuel: 75.00, status: 'ACTIVE', paymentType: 'POSTPAID' },
-      { id: 4, code: 'MOB_4G_25', libelle: 'Forfait Mobile 4G 25 Go', description: '25 Go data 4G + 2h d\'appels', prixMensuel: 19.90, status: 'ACTIVE', paymentType: 'PREPAID' },
-      { id: 5, code: 'MOB_4G_10', libelle: 'Forfait Mobile 4G 10 Go', description: '10 Go data 4G + 1h d\'appels', prixMensuel: 12.00, status: 'ACTIVE', paymentType: 'PREPAID' },
-      { id: 6, code: 'PRO_CONV', libelle: 'Entreprise Convergent', description: 'Fibre 200M + 5 lignes mobiles + IP', prixMensuel: 280.00, status: 'ACTIVE', paymentType: 'POSTPAID' },
-    ];
-  }
-
-  private getSampleSims(): StockSim[] {
-    return [
-      { id: 1, iccid: '8921601234567890001', imsi: '60501000000001', msisdn: '+21620100001', simType: 'STANDARD', status: 'AVAILABLE', boutiqueId: this.boutiqueId, assignedToClientId: null, assignedAt: null, createdAt: '2025-01-10' },
-      { id: 2, iccid: '8921601234567890002', imsi: '60501000000002', msisdn: '+21620100002', simType: 'STANDARD', status: 'AVAILABLE', boutiqueId: this.boutiqueId, assignedToClientId: null, assignedAt: null, createdAt: '2025-01-10' },
-      { id: 3, iccid: '8921601234567890003', imsi: '60501000000003', msisdn: '+21620100003', simType: 'ESIM', status: 'AVAILABLE', boutiqueId: this.boutiqueId, assignedToClientId: null, assignedAt: null, createdAt: '2025-01-15' },
-    ];
-  }
 }

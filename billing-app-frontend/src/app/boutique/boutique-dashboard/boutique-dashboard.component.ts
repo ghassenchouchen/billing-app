@@ -94,9 +94,8 @@ export class BoutiqueDashboardComponent implements OnInit, OnDestroy {
           this.recentTransactions = [
             { id: 1, reference: 'TXN-BTQ-2025-001', boutiqueId: 1, agentId: 2, clientId: 1, clientNom: 'Mohamed Ben Ali', offreLibelle: 'Forfait Mobile 4G 25 Go', typeTransaction: 'NEW_SUBSCRIPTION', montant: 19.90, status: 'COMPLETED', createdAt: '2025-02-16T09:15:00' },
             { id: 2, reference: 'TXN-BTQ-2025-002', boutiqueId: 1, agentId: 2, clientId: 6, clientNom: 'Fatma Mansouri', offreLibelle: 'Forfait Mobile 4G 25 Go', typeTransaction: 'NEW_SUBSCRIPTION', montant: 19.90, status: 'COMPLETED', createdAt: '2025-02-16T10:30:00' },
-            { id: 3, reference: 'TXN-BTQ-2025-003', boutiqueId: 1, agentId: 2, clientId: 2, clientNom: 'Amira Trabelsi', offreLibelle: 'Recharge Data 10 Go', typeTransaction: 'TOP_UP', montant: 8.00, status: 'COMPLETED', createdAt: '2025-02-16T11:00:00' },
-            { id: 4, reference: 'TXN-BTQ-2025-004', boutiqueId: 1, agentId: 2, clientId: 5, clientNom: 'TechnoServ SA', offreLibelle: 'Entreprise Convergent', typeTransaction: 'RENEWAL', montant: 280.00, status: 'COMPLETED', createdAt: '2025-02-16T14:00:00' },
-            { id: 5, reference: 'TXN-BTQ-2025-005', boutiqueId: 1, agentId: 2, clientId: 4, clientNom: 'Youssef Gharbi', offreLibelle: 'Mobile 5G Illimité', typeTransaction: 'SIM_SWAP', montant: 15.00, status: 'PENDING', createdAt: '2025-02-16T15:30:00' }
+            { id: 3, reference: 'TXN-BTQ-2025-003', boutiqueId: 1, agentId: 2, clientId: 5, clientNom: 'TechnoServ SA', offreLibelle: 'Entreprise Convergent', typeTransaction: 'RENEWAL', montant: 280.00, status: 'COMPLETED', createdAt: '2025-02-16T14:00:00' },
+            { id: 4, reference: 'TXN-BTQ-2025-004', boutiqueId: 1, agentId: 2, clientId: 2, clientNom: 'Amira Trabelsi', offreLibelle: 'Facture FAC-2025-0003', typeTransaction: 'INVOICE_PAYMENT', montant: 12.00, status: 'COMPLETED', createdAt: '2025-02-16T15:30:00' }
           ];
         }
       });
@@ -129,10 +128,9 @@ export class BoutiqueDashboardComponent implements OnInit, OnDestroy {
     switch (type) {
       case 'NEW_SUBSCRIPTION': return 'Nouvel abonnement';
       case 'RENEWAL': return 'Renouvellement';
-      case 'SIM_SWAP': return 'Échange SIM';
       case 'ACCESSORY_SALE': return 'Accessoire';
-      case 'TOP_UP': return 'Recharge';
       case 'CANCELLATION': return 'Résiliation';
+      case 'INVOICE_PAYMENT': return 'Paiement facture';
       default: return type;
     }
   }
@@ -141,10 +139,9 @@ export class BoutiqueDashboardComponent implements OnInit, OnDestroy {
     switch (type) {
       case 'NEW_SUBSCRIPTION': return 'add_circle';
       case 'RENEWAL': return 'autorenew';
-      case 'SIM_SWAP': return 'sim_card';
       case 'ACCESSORY_SALE': return 'devices';
-      case 'TOP_UP': return 'bolt';
       case 'CANCELLATION': return 'cancel';
+      case 'INVOICE_PAYMENT': return 'payments';
       default: return 'receipt';
     }
   }

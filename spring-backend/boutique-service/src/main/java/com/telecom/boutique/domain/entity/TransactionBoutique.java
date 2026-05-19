@@ -64,7 +64,7 @@ public class TransactionBoutique {
     }
 
     public enum TransactionType {
-        NEW_SUBSCRIPTION, RENEWAL, SIM_SWAP, ACCESSORY_SALE, TOP_UP, CANCELLATION
+        NEW_SUBSCRIPTION, RENEWAL, SIM_SWAP, ACCESSORY_SALE, TOP_UP, CANCELLATION, INVOICE_PAYMENT
     }
 
     public enum TransactionStatus {

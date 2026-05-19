@@ -185,10 +185,9 @@ export class AdminBoutiquesComponent implements OnInit, OnDestroy {
     switch (type) {
       case 'NEW_SUBSCRIPTION': return 'Nouvel abonnement';
       case 'RENEWAL': return 'Renouvellement';
-      case 'SIM_SWAP': return 'Échange SIM';
       case 'ACCESSORY_SALE': return 'Accessoire';
-      case 'TOP_UP': return 'Recharge';
       case 'CANCELLATION': return 'Résiliation';
+      case 'INVOICE_PAYMENT': return 'Paiement facture';
       default: return type;
     }
   }
@@ -197,9 +196,9 @@ export class AdminBoutiquesComponent implements OnInit, OnDestroy {
     switch (type) {
       case 'NEW_SUBSCRIPTION': return 'add_circle';
       case 'RENEWAL': return 'autorenew';
-      case 'SIM_SWAP': return 'sim_card';
-      case 'TOP_UP': return 'bolt';
+      case 'ACCESSORY_SALE': return 'devices';
       case 'CANCELLATION': return 'cancel';
+      case 'INVOICE_PAYMENT': return 'payments';
       default: return 'receipt';
     }
   }

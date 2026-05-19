@@ -76,6 +76,36 @@ pipeline {
                 }
             }
         }
+
+        stage('Update Config Repo') {
+            when { expression { env.FRONTEND_CHANGED } }
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
+                        sh 'rm -rf billing-app-config'
+                        sh 'git clone https://$GH_TOKEN@github.com/ghassenchouchen/billing-app-config.git'
+
+                        dir('billing-app-config') {
+                            def valuesFile = 'charts/frontend/values.yaml'
+                            if (fileExists(valuesFile)) {
+                                sh "sed -i 's|tag:.*|tag: \"${BUILD_NUMBER}\"|' ${valuesFile}"
+                                echo "Updated frontend image tag to ${BUILD_NUMBER}"
+                            } else {
+                                echo "WARNING: ${valuesFile} not found - skipping"
+                            }
+
+                            sh """
+                                git config user.email 'jenkins@billing-app.ci'
+                                git config user.name 'Jenkins CI'
+                                git add -A
+                                git diff --cached --quiet || git commit -m "ci: update frontend image tag to build ${BUILD_NUMBER}"
+                                git push origin main || echo "No changes to push"
+                            """
+                        }
+                    }
+                }
+            }
+        }
     }
 
     post {
@@ -83,6 +113,7 @@ pipeline {
             sh 'docker rmi $DOCKER_IMAGE:$BUILD_NUMBER $DOCKER_IMAGE:latest || true'
             sh 'docker image prune -f || true'
             sh 'docker logout || true'
+            sh 'rm -rf billing-app-config || true'
         }
     }
 }

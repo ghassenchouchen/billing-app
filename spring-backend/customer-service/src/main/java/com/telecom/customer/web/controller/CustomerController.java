@@ -5,10 +5,14 @@ import com.telecom.customer.web.dto.ClientDto;
 import com.telecom.customer.web.dto.CreateClientRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +50,13 @@ public class CustomerController {
             return ResponseEntity.ok(customerService.getCustomersByBoutique(boutiqueRef));
         }
         return ResponseEntity.ok(customerService.getAllCustomers());
+    }
+
+    @GetMapping("/paged")
+    public ResponseEntity<Page<ClientDto>> getAllCustomersPaged(
+        @PageableDefault(size = 20, sort = "id") Pageable pageable
+    ) {
+        return ResponseEntity.ok(customerService.getAllCustomersPaged(pageable));
     }
     
     @GetMapping("/active")
@@ -101,7 +112,7 @@ public class CustomerController {
     
     @PostMapping
     public ResponseEntity<ClientDto> createCustomer(
-        @RequestBody CreateClientRequest request,
+        @Valid @RequestBody CreateClientRequest request,
         @RequestHeader(value = "X-Auth-Role", required = false) String role,
         @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId
     ) {

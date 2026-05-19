@@ -9,6 +9,7 @@ public record FactureDto(
     Long id,
     String numeroFacture,
     Long clientId,
+    String clientName,
     Long abonnementId,
     LocalDate dateFacture,
     LocalDate dateEcheance,

@@ -83,8 +83,10 @@ public class CatalogService {
     public void deleteService(Long id) {
         ServiceEntity service = serviceRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Service not found: " + id));
-        serviceRepository.delete(service);
-        log.info("Deleted service: {}", id);
+        // SOFT DELETE: Preserve data integrity for historical billing and existing offers
+        service.setActive(false);
+        serviceRepository.save(service);
+        log.info("Soft deleted service (deactivated): {}", id);
     }
     
     private ServiceDto toDto(ServiceEntity service) {
