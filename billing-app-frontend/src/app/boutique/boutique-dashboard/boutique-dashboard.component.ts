@@ -143,7 +143,7 @@ export class BoutiqueDashboardComponent implements OnInit, OnDestroy {
       case 'ACCESSORY_SALE': return 'devices';
       case 'CANCELLATION': return 'cancel';
       case 'INVOICE_PAYMENT': return 'payments';
-      case 'RECHARGE': return 'battery_charging_full';
+      case 'RECHARGE': return 'recharge';
       default: return 'receipt';
     }
   }

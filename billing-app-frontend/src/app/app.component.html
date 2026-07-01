@@ -7,11 +7,10 @@
     <aside class="app-sidebar" *ngIf="userRole">
       <div class="brand">
         <div class="brand-icon">TB</div>
-          <div class="brand-title"> Management Dashboard Test</div>
-          <div class="brand-subtitle" *ngIf="userRole === 'ADMIN'">Suite Opérations</div>
-          <div class="brand-subtitle" *ngIf="userRole === 'RESPONSABLE_BOUTIQUE'">Retail Pro</div>
-          <div class="brand-subtitle" *ngIf="userRole === 'AGENT_COMMERCIAL'">Agent Commercial</div>
-        </div>
+        <div class="brand-title"> Management Dashboard Test</div>
+        <div class="brand-subtitle" *ngIf="userRole === 'ADMIN'">Suite Opérations</div>
+        <div class="brand-subtitle" *ngIf="userRole === 'RESPONSABLE_BOUTIQUE'">Retail Pro</div>
+        <div class="brand-subtitle" *ngIf="userRole === 'AGENT_COMMERCIAL'">Agent Commercial</div>
       </div>
 
       <!-- Admin Sidebar -->
