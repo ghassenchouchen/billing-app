@@ -19,34 +19,32 @@ import java.util.Map;
 
 /**
  * CUSTOMER CONTROLLER - REST API for customer management
- 
+ * 
  * ENDPOINTS:
-  customer CRUD operations
-  customer lookup by  customerRef, boutiqueRef, email, cin/passport
-  account balance operations
-  customer lifecycle management (suspend, reactivate)
+ * customer CRUD operations
+ * customer lookup by customerRef, boutiqueRef, email, cin/passport
+ * account balance operations
+ * customer lifecycle management (suspend, reactivate)
  */
 @RestController
 @RequestMapping("/customers")
 @RequiredArgsConstructor
 @Slf4j
 public class CustomerController {
-    
+
     private final CustomerService customerService;
-    
-    
+
     @GetMapping
     public ResponseEntity<List<ClientDto>> getAllCustomers(
-        @RequestParam(required = false) String boutiqueRef,
-        @RequestHeader(value = "X-Auth-Role", required = false) String role,
-        @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId
-    ) {
-        log.info(" Demo PFE - (Live Pipeline)");
+            @RequestParam(required = false) String boutiqueRef,
+            @RequestHeader(value = "X-Auth-Role", required = false) String role,
+            @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId) {
+        log.info(" Demo PFE - (Live Pipeline) Test pour pipeline");
         // Enforce boutique-scoped access for non-ADMIN users
         if (!"ADMIN".equals(role) && authBoutiqueId != null) {
             boutiqueRef = authBoutiqueId; // Force assigned boutique
         }
-        
+
         if (boutiqueRef != null) {
             return ResponseEntity.ok(customerService.getCustomersByBoutique(boutiqueRef));
         }
@@ -55,73 +53,72 @@ public class CustomerController {
 
     @GetMapping("/paged")
     public ResponseEntity<Page<ClientDto>> getAllCustomersPaged(
-        @PageableDefault(size = 20, sort = "id") Pageable pageable
-    ) {
+            @PageableDefault(size = 20, sort = "id") Pageable pageable) {
         return ResponseEntity.ok(customerService.getAllCustomersPaged(pageable));
     }
-    
+
     @GetMapping("/active")
     public ResponseEntity<List<ClientDto>> getAllActiveCustomers(
-        @RequestHeader(value = "X-Auth-Role", required = false) String role,
-        @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId
-    ) {
+            @RequestHeader(value = "X-Auth-Role", required = false) String role,
+            @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId) {
         // Enforce boutique-scoped access
         if (!"ADMIN".equals(role) && authBoutiqueId != null) {
             return ResponseEntity.ok(customerService.getActiveCustomersByBoutique(authBoutiqueId));
         }
         return ResponseEntity.ok(customerService.getAllActiveCustomers());
     }
-    
+
     // Will be removed in future version
     @Deprecated
     @GetMapping("/{id}")
     public ResponseEntity<ClientDto> getCustomerById(@PathVariable Long id) {
         return ResponseEntity.ok(customerService.getCustomerById(id));
     }
-    
+
     @GetMapping("/ref/{customerRef}")
     public ResponseEntity<ClientDto> getCustomerByRef(
-        @PathVariable String customerRef,
-        @RequestHeader(value = "X-Auth-Role", required = false) String role,
-        @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId
-    ) {
+            @PathVariable String customerRef,
+            @RequestHeader(value = "X-Auth-Role", required = false) String role,
+            @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId) {
         ClientDto customer = customerService.getCustomerByRef(customerRef);
-        
-        // Authorization check: boutique-scoped users can only access their own boutique customers
+
+        // Authorization check: boutique-scoped users can only access their own boutique
+        // customers
         if (!"ADMIN".equals(role) && authBoutiqueId != null) {
             if (!authBoutiqueId.equals(customer.boutiqueRef())) {
-                log.warn("Authorization failed: User with boutiqueId={} attempted to access customer {} with boutiqueRef={}", 
-                    authBoutiqueId, customerRef, customer.boutiqueRef());
+                log.warn(
+                        "Authorization failed: User with boutiqueId={} attempted to access customer {} with boutiqueRef={}",
+                        authBoutiqueId, customerRef, customer.boutiqueRef());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
-            log.debug("Customer access granted: ref={}, role={}, authBoutiqueId={}, customerBoutiqueRef={}", 
-                customerRef, role, authBoutiqueId, customer.boutiqueRef());
+            log.debug("Customer access granted: ref={}, role={}, authBoutiqueId={}, customerBoutiqueRef={}",
+                    customerRef, role, authBoutiqueId, customer.boutiqueRef());
         }
-        
+
         return ResponseEntity.ok(customer);
     }
-    
+
     @GetMapping("/email/{email}")
     public ResponseEntity<ClientDto> getCustomerByEmail(@PathVariable String email) {
         return ResponseEntity.ok(customerService.getCustomerByEmail(email));
     }
+
     @GetMapping("/pieceIdentite/{pieceIdentite}")
-    public ResponseEntity<ClientDto> getCustomerBypieceIdentite(@PathVariable String pieceIdentite ){
+    public ResponseEntity<ClientDto> getCustomerBypieceIdentite(@PathVariable String pieceIdentite) {
         return ResponseEntity.ok(customerService.getCustomerBypieceIdentite(pieceIdentite));
-        
+
     }
-    
+
     @PostMapping
     public ResponseEntity<ClientDto> createCustomer(
-        @Valid @RequestBody CreateClientRequest request,
-        @RequestHeader(value = "X-Auth-Role", required = false) String role,
-        @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId
-    ) {
+            @Valid @RequestBody CreateClientRequest request,
+            @RequestHeader(value = "X-Auth-Role", required = false) String role,
+            @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId) {
         // Force boutiqueRef from auth context for boutique-scoped roles
         ClientDto customer = customerService.createCustomer(request, role, authBoutiqueId);
         return ResponseEntity.status(HttpStatus.CREATED).body(customer);
     }
-    
+
     @Deprecated
     @PutMapping("/{id}")
     public ResponseEntity<ClientDto> updateCustomer(
@@ -129,14 +126,13 @@ public class CustomerController {
             @RequestBody CreateClientRequest request) {
         return ResponseEntity.ok(customerService.updateCustomer(id, request));
     }
-    
+
     @PutMapping("/ref/{customerRef}")
     public ResponseEntity<ClientDto> updateCustomerByRef(
             @PathVariable String customerRef,
             @RequestBody CreateClientRequest request,
             @RequestHeader(value = "X-Auth-Role", required = false) String role,
-            @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId
-    ) {
+            @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId) {
         // Check authorization before update
         ClientDto existing = customerService.getCustomerByRef(customerRef);
         if (!"ADMIN".equals(role) && authBoutiqueId != null) {
@@ -144,10 +140,10 @@ public class CustomerController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
         }
-        
+
         return ResponseEntity.ok(customerService.updateCustomerByRef(customerRef, request));
     }
-    
+
     @Deprecated
     @PostMapping("/{id}/suspend")
     public ResponseEntity<Void> suspendCustomer(
@@ -156,7 +152,7 @@ public class CustomerController {
         customerService.suspendCustomer(id, reason);
         return ResponseEntity.ok().build();
     }
-    
+
     @PostMapping("/ref/{customerRef}/suspend")
     public ResponseEntity<Void> suspendCustomerByRef(
             @PathVariable String customerRef,
@@ -164,28 +160,26 @@ public class CustomerController {
         customerService.suspendCustomerByRef(customerRef, reason);
         return ResponseEntity.ok().build();
     }
-    
+
     @Deprecated
     @PostMapping("/{id}/reactivate")
     public ResponseEntity<ClientDto> reactivateCustomer(@PathVariable Long id) {
         return ResponseEntity.ok(customerService.reactivateCustomer(id));
     }
-    
+
     @PostMapping("/ref/{customerRef}/reactivate")
     public ResponseEntity<ClientDto> reactivateCustomerByRef(@PathVariable String customerRef) {
         return ResponseEntity.ok(customerService.reactivateCustomerByRef(customerRef));
     }
-    
-    
+
     @GetMapping("/ref/{customerRef}/balance")
     public ResponseEntity<Map<String, Object>> getBalance(@PathVariable String customerRef) {
         BigDecimal balance = customerService.getBalance(customerRef);
         return ResponseEntity.ok(Map.of(
-            "customerRef", customerRef,
-            "balance", balance
-        ));
+                "customerRef", customerRef,
+                "balance", balance));
     }
-    
+
     @PostMapping("/ref/{customerRef}/credit")
     public ResponseEntity<ClientDto> addCredit(
             @PathVariable String customerRef,
@@ -193,7 +187,7 @@ public class CustomerController {
             @RequestParam(required = false, defaultValue = "Manual credit") String description) {
         return ResponseEntity.ok(customerService.addCredit(customerRef, amount, description));
     }
-    
+
     @PostMapping("/ref/{customerRef}/debit")
     public ResponseEntity<ClientDto> deductCredit(
             @PathVariable String customerRef,
@@ -201,23 +195,22 @@ public class CustomerController {
             @RequestParam(required = false, defaultValue = "Manual debit") String description) {
         return ResponseEntity.ok(customerService.deductCredit(customerRef, amount, description));
     }
-    
+
     @PutMapping("/ref/{customerRef}/credit-limit")
     public ResponseEntity<ClientDto> updateCreditLimit(
             @PathVariable String customerRef,
             @RequestParam BigDecimal creditLimit) {
         return ResponseEntity.ok(customerService.updateCreditLimit(customerRef, creditLimit));
     }
-    
+
     @GetMapping("/ref/{customerRef}/can-charge")
     public ResponseEntity<Map<String, Object>> canCharge(
             @PathVariable String customerRef,
             @RequestParam BigDecimal amount) {
         boolean canCharge = customerService.canCharge(customerRef, amount);
         return ResponseEntity.ok(Map.of(
-            "customerRef", customerRef,
-            "amount", amount,
-            "canCharge", canCharge
-        ));
+                "customerRef", customerRef,
+                "amount", amount,
+                "canCharge", canCharge));
     }
 }
