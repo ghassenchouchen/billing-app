@@ -23,10 +23,9 @@ public class BoutiqueController {
     private final StockSimService stockSimService;
     private final DashboardService dashboardService;
 
-
     @GetMapping
     public ResponseEntity<List<BoutiqueDto>> getAll() {
-        //log.info(" Demo PFE - (Live Pipeline)");
+        log.info(" Demo PFE - (Live Pipeline)");
         return ResponseEntity.ok(boutiqueService.getAllBoutiques());
     }
 
@@ -58,12 +57,10 @@ public class BoutiqueController {
         return ResponseEntity.noContent().build();
     }
 
-
     @GetMapping("/{id}/dashboard")
     public ResponseEntity<DashboardDto> getDashboard(@PathVariable Long id) {
         return ResponseEntity.ok(dashboardService.getDashboard(id));
     }
-
 
     @GetMapping("/{id}/stock")
     public ResponseEntity<List<StockSimDto>> getStock(@PathVariable Long id) {
@@ -106,7 +103,6 @@ public class BoutiqueController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(stockSimService.addSimBatch(id, sims));
     }
-
 
     @GetMapping("/{id}/transactions")
     public ResponseEntity<List<TransactionDto>> getTransactions(@PathVariable Long id) {
