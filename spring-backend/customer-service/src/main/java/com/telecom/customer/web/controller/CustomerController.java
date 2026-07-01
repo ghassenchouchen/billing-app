@@ -41,6 +41,7 @@ public class CustomerController {
         @RequestHeader(value = "X-Auth-Role", required = false) String role,
         @RequestHeader(value = "X-Auth-Boutique-Id", required = false) String authBoutiqueId
     ) {
+        log.info(" Demo PFE - (Live Pipeline)");
         // Enforce boutique-scoped access for non-ADMIN users
         if (!"ADMIN".equals(role) && authBoutiqueId != null) {
             boutiqueRef = authBoutiqueId; // Force assigned boutique

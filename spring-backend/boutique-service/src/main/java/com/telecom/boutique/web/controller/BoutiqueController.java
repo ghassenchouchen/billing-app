@@ -6,6 +6,7 @@ import com.telecom.boutique.application.StockSimService;
 import com.telecom.boutique.web.dto.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/boutiques")
 @RequiredArgsConstructor
+@Slf4j
 public class BoutiqueController {
 
     private final BoutiqueService boutiqueService;
@@ -24,6 +26,7 @@ public class BoutiqueController {
 
     @GetMapping
     public ResponseEntity<List<BoutiqueDto>> getAll() {
+        //log.info(" Demo PFE - (Live Pipeline)");
         return ResponseEntity.ok(boutiqueService.getAllBoutiques());
     }
 
