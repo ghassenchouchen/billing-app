@@ -1,0 +1,290 @@
+@startuml
+skinparam linetype ortho
+skinparam class {
+    BackgroundColor White
+    ArrowColor Black
+    BorderColor Black
+}
+hide circle
+
+package "Authentification" {
+    enum Role {
+        AGENT_COMMERCIAL
+        RESPONSABLE_BOUTIQUE
+        ADMIN
+    }
+    enum UserStatus {
+        ACTIVE
+        DISABLED
+    }
+    class Utilisateur {
+        - id: Long
+        - username: String
+        - passwordHash: String
+        - firstName: String
+        - lastName: String
+        - role: Role
+        - status: UserStatus
+        - boutiqueId: Long
+        - lastLoginAt: LocalDateTime
+        - createdAt: LocalDateTime
+        + canLogin(): boolean
+        + recordSuccessfulLogin(): void
+    }
+}
+
+package "Espace Boutique" {
+    enum BoutiqueStatus {
+        ACTIVE
+        INACTIVE
+        CLOSED
+    }
+    enum SimType {
+        STANDARD
+        ESIM
+    }
+    enum SimStatus {
+        AVAILABLE
+        ASSIGNED
+        ACTIVATED
+        SUSPENDED
+    }
+    enum TransactionType {
+        NEW_SUBSCRIPTION
+        RENEWAL
+        SIM_SWAP
+        TOP_UP
+        CANCELLATION
+    }
+    class Boutique {
+        - id: Long
+        - code: String
+        - nom: String
+        - adresse: String
+        - ville: String
+        - telephone: String
+        - responsableId: Long
+        - status: BoutiqueStatus
+        - createdAt: LocalDateTime
+    }
+    class StockSim {
+        - id: Long
+        - iccid: String
+        - imsi: String
+        - msisdn: String
+        - simType: SimType
+        - status: SimStatus
+        - boutiqueId: Long
+        - assignedToClientId: Long
+        - createdAt: LocalDateTime
+    }
+    class TransactionBoutique {
+        - id: Long
+        - reference: String
+        - boutiqueId: Long
+        - agentId: Long
+        - clientId: Long
+        - typeTransaction: TransactionType
+        - montant: BigDecimal
+        - createdAt: LocalDateTime
+    }
+}
+
+package "Gestion Client" {
+    enum ClientType {
+        INDIVIDUAL
+        BUSINESS
+    }
+    enum ClientStatus {
+        ACTIVE
+        SUSPENDED
+        CLOSED
+    }
+    class Client {
+        - id: Long
+        - customerRef: String
+        - boutiqueRef: String
+        - nom: String
+        - prenom: String
+        - email: String
+        - telephone: String
+        - pieceIdentite: String
+        - type: ClientType
+        - status: ClientStatus
+        - accountBalance: BigDecimal
+        - creditLimit: BigDecimal
+        - hasSim: Boolean
+        - createdAt: LocalDateTime
+        + canCharge(montant): boolean
+        + addCredit(montant): void
+        + deductCredit(montant): void
+    }
+}
+
+package "Catalogue" {
+    enum OffreStatus {
+        ACTIVE
+        INACTIVE
+        DISCONTINUED
+    }
+    enum PaymentType {
+        PREPAID
+        POSTPAID
+    }
+    enum ServiceCategory {
+        VOICE
+        DATA
+        SMS
+        ROAMING
+    }
+    class Offre {
+        - id: Long
+        - code: String
+        - libelle: String
+        - description: String
+        - prixMensuel: BigDecimal
+        - dateDebut: LocalDate
+        - dateFin: LocalDate
+        - status: OffreStatus
+        - paymentType: PaymentType
+        + isValid(): boolean
+    }
+    class ServiceTelecom {
+        - id: Long
+        - code: String
+        - libelle: String
+        - unite: String
+        - prixUnitaire: BigDecimal
+        - category: ServiceCategory
+        - active: boolean
+        + calculateCharge(qte): BigDecimal
+    }
+}
+
+package "Abonnements" {
+    enum AbonnementStatus {
+        PENDING
+        ACTIVE
+        SUSPENDED
+        TERMINATED
+    }
+    enum BillingFrequency {
+        MONTHLY
+        QUARTERLY
+        SEMI_ANNUAL
+        ANNUAL
+    }
+    class Abonnement {
+        - id: Long
+        - clientId: Long
+        - clientRef: String
+        - offreId: Long
+        - dateDebut: LocalDate
+        - dateFin: LocalDate
+        - status: AbonnementStatus
+        - billingFrequency: BillingFrequency
+        - lastBillingDate: LocalDate
+        - nextBillingDate: LocalDate
+        - createdAt: LocalDateTime
+        + isActive(): boolean
+        + suspend(): void
+        + terminate(): void
+        + isDueForBilling(): boolean
+    }
+}
+
+package "Facturation" {
+    enum FactureStatus {
+        DRAFT
+        PENDING
+        SENT
+        PAID
+        OVERDUE
+        CANCELLED
+    }
+    enum LineType {
+        SUBSCRIPTION
+        USAGE_VOICE
+        USAGE_DATA
+        DISCOUNT
+    }
+    class Facture {
+        - id: Long
+        - numeroFacture: String
+        - clientId: Long
+        - abonnementId: Long
+        - dateFacture: LocalDate
+        - dateEcheance: LocalDate
+        - montantHT: BigDecimal
+        - montantTVA: BigDecimal
+        - montantTTC: BigDecimal
+        - statut: FactureStatus
+        - createdAt: LocalDateTime
+        - paidAt: LocalDateTime
+        + calculateTotals(tva): void
+        + markAsPaid(): void
+        + markAsOverdue(): void
+        + cancel(): void
+    }
+    class LigneFacture {
+        - id: Long
+        - type: LineType
+        - description: String
+        - serviceId: Long
+        - quantite: Integer
+        - prixUnitaire: BigDecimal
+        - montant: BigDecimal
+        + calculateMontant(): void
+    }
+}
+
+' ===== RELATIONS =====
+
+' Auth
+Utilisateur ..> Role
+Utilisateur ..> UserStatus
+
+' Utilisateur - Boutique (affecté)
+Utilisateur "0..*" -- "1" Boutique : "affecté à"
+
+' Boutique - responsable
+Boutique ..> Utilisateur : "responsableId"
+
+' Boutique compositions
+Boutique "1" *-- "0..*" StockSim : "contient"
+Boutique "1" -- "0..*" TransactionBoutique : "enregistre"
+
+' Transaction - Agent
+TransactionBoutique ..> Utilisateur : "effectuée par (agentId)"
+
+' Transaction - Client
+TransactionBoutique ..> Client : "pour (clientId)"
+
+' StockSim - Client
+StockSim ..> Client : "attribuée à"
+
+' Client - Boutique
+Client ..> Boutique : "rattaché à"
+
+' Client - Abonnement
+Client "1" -- "0..*" Abonnement : "établit"
+
+' Abonnement - Offre
+Abonnement ..> Offre : "lié à"
+
+' Offre - Service (ManyToMany)
+Offre "*" -- "*" ServiceTelecom : "regroupe"
+
+' Abonnement - Facture
+Abonnement "1" -- "0..*" Facture : "génère"
+
+' Facture - Client
+Facture ..> Client : "émise pour"
+
+' Facture - LigneFacture (Composition)
+Facture "1" *-- "1..*" LigneFacture : "détaille"
+
+' LigneFacture - Service
+LigneFacture ..> ServiceTelecom : "référence"
+
+@enduml

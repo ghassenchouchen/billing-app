@@ -11,6 +11,16 @@ spring:
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  mail:
+    host: ${MAIL_HOST:smtp-relay.brevo.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:your-brevo-login@example.com}
+    password: ${MAIL_PASSWORD:your-brevo-smtp-key}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+    enabled: ${MAIL_ENABLED:false}
+
   jpa:
     hibernate:
       ddl-auto: validate

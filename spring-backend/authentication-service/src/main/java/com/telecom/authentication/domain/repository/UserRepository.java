@@ -23,4 +23,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByRoleAndBoutiqueId(Role role, Long boutiqueId);
 
     List<User> findByStatus(UserStatus status);
+
+    Optional<User> findBySetPasswordToken(String setPasswordToken);
 }

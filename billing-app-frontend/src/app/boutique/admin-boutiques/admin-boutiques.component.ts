@@ -188,6 +188,7 @@ export class AdminBoutiquesComponent implements OnInit, OnDestroy {
       case 'ACCESSORY_SALE': return 'Accessoire';
       case 'CANCELLATION': return 'Résiliation';
       case 'INVOICE_PAYMENT': return 'Paiement facture';
+      case 'RECHARGE': return 'Recharge';
       default: return type;
     }
   }
@@ -199,6 +200,7 @@ export class AdminBoutiquesComponent implements OnInit, OnDestroy {
       case 'ACCESSORY_SALE': return 'devices';
       case 'CANCELLATION': return 'cancel';
       case 'INVOICE_PAYMENT': return 'payments';
+      case 'RECHARGE': return 'recharge';
       default: return 'receipt';
     }
   }

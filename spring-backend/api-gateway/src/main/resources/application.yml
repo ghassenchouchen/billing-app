@@ -94,6 +94,8 @@ spring:
           uri: http://billing-service:8085
           predicates:
             - Path=/api/invoices/**,/api/bills/**,/api/factures/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
         
         # Billing Service Swagger
         - id: billing-service-docs
@@ -108,6 +110,8 @@ spring:
           uri: http://payment-service:8086
           predicates:
             - Path=/api/payments/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
         
         # Payment Service Swagger
         - id: payment-service-docs

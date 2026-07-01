@@ -164,6 +164,7 @@ export class ServicesComponent implements OnInit, OnDestroy {
       case 'SMS': return 'sms';
       case 'ROAMING': return 'public';
       case 'VALUE_ADDED': return 'star';
+      case 'FIXE': return 'router';
       default: return 'miscellaneous_services';
     }
   }
@@ -175,6 +176,7 @@ export class ServicesComponent implements OnInit, OnDestroy {
       case 'SMS': return 'cat-sms';
       case 'ROAMING': return 'cat-roaming';
       case 'VALUE_ADDED': return 'cat-value';
+      case 'FIXE': return 'cat-fixe';
       default: return 'cat-default';
     }
   }
@@ -186,6 +188,7 @@ export class ServicesComponent implements OnInit, OnDestroy {
       case 'SMS': return 'SMS';
       case 'ROAMING': return 'Roaming';
       case 'VALUE_ADDED': return 'Valeur ajoutée';
+      case 'FIXE': return 'Fixe';
       default: return category || 'Autre';
     }
   }
@@ -196,6 +199,7 @@ export class ServicesComponent implements OnInit, OnDestroy {
       case 'OCTET': return 'Mo';
       case 'SMS': return 'sms';
       case 'UNITE': return 'unité';
+      case 'MOIS': return 'mois';
       default: return unite || 'unité';
     }
   }

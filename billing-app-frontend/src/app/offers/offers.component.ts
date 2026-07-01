@@ -27,6 +27,7 @@ export class OffersComponent implements OnInit, OnDestroy {
     action: null as (() => void) | null
   };
   loadError = false;
+  private idToDelete: string | null = null;
   private destroy$ = new Subject<void>();
 
   get activeCount(): number {
@@ -149,10 +150,12 @@ export class OffersComponent implements OnInit, OnDestroy {
   }
 
   deleteOffer(id: any): void {
+    console.log('Delete offer button clicked for ID:', id);
+    this.idToDelete = String(id);
     this.confirmModalConfig = {
       title: 'Supprimer l\'offre',
       message: 'Êtes-vous sûr de vouloir supprimer cette offre ? Cette action est irréversible.',
-      action: () => this.confirmDelete(String(id))
+      action: null
     };
     this.showConfirmModal = true;
   }
@@ -171,8 +174,9 @@ export class OffersComponent implements OnInit, OnDestroy {
   }
 
   onConfirmDelete(): void {
-    if (this.confirmModalConfig.action) {
-      this.confirmModalConfig.action();
+    console.log('Confirmation modal: Supprimer clicked. ID to delete:', this.idToDelete);
+    if (this.idToDelete) {
+      this.confirmDelete(this.idToDelete);
     }
   }
 

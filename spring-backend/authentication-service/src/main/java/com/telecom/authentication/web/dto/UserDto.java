@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 public record UserDto(
         Long id,
         String username,
+        String email,
         String firstName,
         String lastName,
         Role role,
@@ -21,6 +22,7 @@ public record UserDto(
         return new UserDto(
                 user.getId(),
                 user.getUsername(),
+                user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getRole(),

@@ -42,6 +42,15 @@ public class User {
     @Column(name = "boutique_id")
     private Long boutiqueId;
 
+    @Column(length = 255)
+    private String email;
+
+    @Column(name = "set_password_token", length = 255)
+    private String setPasswordToken;
+
+    @Column(name = "set_password_token_expires_at")
+    private LocalDateTime setPasswordTokenExpiresAt;
+
     @Column(name = "last_login_at")
     private LocalDateTime lastLoginAt;
 

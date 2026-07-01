@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mxfile host="Electron" modified="2026-06-28T00:00:00.000Z" agent="Antigravity" version="21.6.8" type="device">
+  <diagram id="releases-dashboard-pfe" name="Planification des Releases">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ================= SLIDE TITLE ================= -->
+        <mxCell id="slide_title" value="RÉPARTITION DES RELEASES ET SPRINTS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#F26419;fontStyle=1;fontSize=20;" parent="1" vertex="1">
+          <mxGeometry x="150" y="30" width="800" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="title_underline" value="" style="line;strokeWidth=3;html=1;strokeColor=#F26419;" parent="1" vertex="1">
+          <mxGeometry x="480" y="65" width="140" height="10" as="geometry" />
+        </mxCell>
+
+
+        <!-- ================= CARD 1: RELEASE 01 ================= -->
+        <!-- Card Base Shadow Container -->
+        <mxCell id="c1_base" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;arcSize=4;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="60" y="100" width="310" height="280" as="geometry" />
+        </mxCell>
+        <!-- Top Color Band -->
+        <mxCell id="c1_band" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F26419;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="60" y="100" width="310" height="8" as="geometry" />
+        </mxCell>
+        <!-- Card Title -->
+        <mxCell id="c1_header" value="&lt;span style=&quot;color: #F26419; font-weight: bold; font-size: 13px;&quot;&gt;RELEASE 01&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;color: #777777; font-size: 9px;&quot;&gt;Conception &amp;amp; Développement Applicatif&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="80" y="118" width="270" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Sprint 1 Elements -->
+        <mxCell id="s1_logo" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/spring/spring-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="80" y="160" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="s1_line" value="" style="line;strokeWidth=1;html=1;strokeColor=#F26419;direction=south;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="91" y="188" width="2" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="s1_text" value="&lt;b&gt;Sprint 1&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;color: #666666;&quot;&gt;Gestion des boutiques &amp;amp; clients&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontColor=#333333;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="115" y="157" width="240" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Sprint 2 Elements -->
+        <mxCell id="s2_logo" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/angularjs/angularjs-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="80" y="206" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="s2_line" value="" style="line;strokeWidth=1;html=1;strokeColor=#F26419;direction=south;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="91" y="234" width="2" height="14" as="geometry" />
+        </mxCell>
+        <mxCell id="s2_text" value="&lt;b&gt;Sprint 2&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;color: #666666;&quot;&gt;Catalogue d'offres &amp;amp; abonnements&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontColor=#333333;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="115" y="203" width="240" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Sprint 3 Elements -->
+        <mxCell id="s3_logo" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/apachekafka/apachekafka-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="80" y="252" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="s3_text" value="&lt;b&gt;Sprint 3&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;color: #666666;&quot;&gt;Facturation &amp;amp; Sécurisation JWT&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontColor=#333333;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="115" y="249" width="240" height="35" as="geometry" />
+        </mxCell>
+
+
+        <!-- ================= CARD 2: RELEASE 02 ================= -->
+        <!-- Card Base Shadow Container -->
+        <mxCell id="c2_base" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;arcSize=4;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="395" y="100" width="310" height="280" as="geometry" />
+        </mxCell>
+        <!-- Top Color Band -->
+        <mxCell id="c2_band" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FF844A;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="395" y="100" width="310" height="8" as="geometry" />
+        </mxCell>
+        <!-- Card Title -->
+        <mxCell id="c2_header" value="&lt;span style=&quot;color: #FF844A; font-weight: bold; font-size: 13px;&quot;&gt;RELEASE 02&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;color: #777777; font-size: 9px;&quot;&gt;Infrastructure &amp;amp; Déploiement Cloud&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="415" y="118" width="270" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Sprint 4 Elements -->
+        <mxCell id="s4_logo" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="415" y="175" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="s4_line" value="" style="line;strokeWidth=1;html=1;strokeColor=#FF844A;direction=south;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="426" y="203" width="2" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s4_text" value="&lt;b&gt;Sprint 4&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;color: #666666;&quot;&gt;Conteneurisation (Docker-Compose)&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontColor=#333333;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="450" y="172" width="240" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Sprint 5 Elements -->
+        <mxCell id="s5_logo" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/kubernetes/kubernetes-plain.svg;" parent="1" vertex="1">
+          <mxGeometry x="415" y="250" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="s5_text" value="&lt;b&gt;Sprint 5&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;color: #666666;&quot;&gt;Déploiement sur Cluster AWS EKS&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontColor=#333333;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="450" y="247" width="240" height="35" as="geometry" />
+        </mxCell>
+
+
+        <!-- ================= CARD 3: RELEASE 03 ================= -->
+        <!-- Card Base Shadow Container -->
+        <mxCell id="c3_base" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=none;arcSize=4;shadow=1;" parent="1" vertex="1">
+          <mxGeometry x="730" y="100" width="310" height="280" as="geometry" />
+        </mxCell>
+        <!-- Top Color Band -->
+        <mxCell id="c3_band" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFA07A;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="730" y="100" width="310" height="8" as="geometry" />
+        </mxCell>
+        <!-- Card Title -->
+        <mxCell id="c3_header" value="&lt;span style=&quot;color: #FFA07A; font-weight: bold; font-size: 13px;&quot;&gt;RELEASE 03&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;color: #777777; font-size: 9px;&quot;&gt;CI/CD, DevOps &amp;amp; Monitoring Stack&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="750" y="118" width="270" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Sprint 6 Elements -->
+        <mxCell id="s6_logo" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/jenkins/jenkins-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="750" y="175" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="s6_line" value="" style="line;strokeWidth=1;html=1;strokeColor=#FFA07A;direction=south;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="761" y="203" width="2" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="s6_text" value="&lt;b&gt;Sprint 6&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;color: #666666;&quot;&gt;GitOps &amp;amp; CI/CD Pipelines (Jenkins / ArgoCD)&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontColor=#333333;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="785" y="172" width="240" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Sprint 7 Elements -->
+        <mxCell id="s7_logo" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/grafana/grafana-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="750" y="250" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="s7_text" value="&lt;b&gt;Sprint 7&lt;/b&gt;&lt;br&gt;&lt;span style=&quot;color: #666666;&quot;&gt;Monitoring centralisé (Prometheus/Grafana)&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;whiteSpace=wrap;rounded=0;fontColor=#333333;fontSize=10;" parent="1" vertex="1">
+          <mxGeometry x="785" y="247" width="240" height="35" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

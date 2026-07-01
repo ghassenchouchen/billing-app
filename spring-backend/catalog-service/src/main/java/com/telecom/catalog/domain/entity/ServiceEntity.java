@@ -44,6 +44,6 @@ public class ServiceEntity {
     }
     
     public enum ServiceCategory {
-        VOICE, DATA, SMS, ROAMING, VALUE_ADDED
+        VOICE, DATA, SMS, ROAMING, VALUE_ADDED, FIXE
     }
 }

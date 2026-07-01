@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mxfile host="Electron" modified="2026-06-28T00:00:00.000Z" agent="Antigravity" version="21.6.8" type="device">
+  <diagram id="stack-tech-pfe" name="Stack Technologique">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ================= ACCENT GRAPHICAL CURVES (Prezi-like Background) ================= -->
+        <mxCell id="bg_curve1" value="" style="curved=1;endArrow=none;html=1;strokeColor=#FFEFE6;strokeWidth=6;fillColor=none;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="40" y="40" as="sourcePoint" />
+            <mxPoint x="300" y="40" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="120" y="160" />
+              <mxPoint x="220" y="120" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="bg_curve2" value="" style="curved=1;endArrow=none;html=1;strokeColor=#FFEFE6;strokeWidth=6;fillColor=none;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="780" as="sourcePoint" />
+            <mxPoint x="1060" y="780" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="880" y="680" />
+              <mxPoint x="980" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ================= TITLE & UNDERLINE ================= -->
+        <mxCell id="main_title" value="STACK TECHNOLOGIQUE" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#F26419;fontStyle=1;fontSize=36;" parent="1" vertex="1">
+          <mxGeometry x="250" y="30" width="600" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="title_underline" value="" style="line;strokeWidth=3;html=1;strokeColor=#F26419;" parent="1" vertex="1">
+          <mxGeometry x="480" y="80" width="140" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="title_dot" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F26419;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="546" y="83" width="8" height="8" as="geometry" />
+        </mxCell>
+
+        <!-- ================= CENTRAL CLOUD / DEVOPS HUB ================= -->
+        <mxCell id="hub" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#FFF2E6;strokeColor=#F26419;strokeWidth=4;shadow=0;" parent="1" vertex="1">
+          <mxGeometry x="470" y="330" width="160" height="160" as="geometry" />
+        </mxCell>
+        <!-- Server Cloud Center Icon -->
+        <mxCell id="hub_icon" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://cdn-icons-png.flaticon.com/512/5220/5220625.png;" parent="1" vertex="1">
+          <mxGeometry x="515" y="355" width="70" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="hub_label" value="AWS Cloud &amp;amp; DevOps" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#F26419;fontStyle=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="490" y="435" width="120" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ================= CENTRAL HUB CONNECTOR DOTS ================= -->
+        <mxCell id="dot_l1" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F26419;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="466" y="406" width="10" height="10" as="geometry" />
+        </mxCell>
+        <mxCell id="dot_r1" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#F26419;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="624" y="406" width="10" height="10" as="geometry" />
+        </mxCell>
+
+
+        <!-- ================= CARD 1: AUTOMATISATION & CI/CD (Top Left) ================= -->
+        <mxCell id="card1_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#DDDDDD;strokeWidth=2;arcSize=10;shadow=0;" parent="1" vertex="1">
+          <mxGeometry x="130" y="90" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="card1_header" value="AUTOMATISATION &amp;amp; CI/CD" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F26419;strokeColor=none;fontColor=#FFFFFF;fontStyle=1;fontSize=10;align=center;arcSize=50;" parent="1" vertex="1">
+          <mxGeometry x="180" y="77" width="180" height="26" as="geometry" />
+        </mxCell>
+        <!-- Jenkins Column -->
+        <mxCell id="c1_jen_img" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/jenkins/jenkins-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="180" y="120" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c1_jen_label" value="Jenkins" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;fontStyle=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="165" y="180" width="80" height="20" as="geometry" />
+        </mxCell>
+        <!-- ArgoCD Column -->
+        <mxCell id="c1_argo_img" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/argocd/argocd-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="300" y="120" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c1_argo_label" value="ArgoCD" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;fontStyle=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="285" y="180" width="80" height="20" as="geometry" />
+        </mxCell>
+        <!-- Line 1 -->
+        <mxCell id="l1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FFBC99;strokeWidth=2;dashed=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="card1_bg" target="hub" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+
+        <!-- ================= CARD 2: GESTION DE CODE (Middle Left) ================= -->
+        <mxCell id="card2_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#DDDDDD;strokeWidth=2;arcSize=10;shadow=0;" parent="1" vertex="1">
+          <mxGeometry x="130" y="280" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="card2_header" value="GESTION DE CODE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F26419;strokeColor=none;fontColor=#FFFFFF;fontStyle=1;fontSize=10;align=center;arcSize=50;" parent="1" vertex="1">
+          <mxGeometry x="180" y="267" width="180" height="26" as="geometry" />
+        </mxCell>
+        <!-- GitHub Column -->
+        <mxCell id="c2_git_img" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/github/github-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="245" y="310" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c2_git_label" value="GitHub" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;fontStyle=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="230" y="370" width="80" height="20" as="geometry" />
+        </mxCell>
+        <!-- Line 2 -->
+        <mxCell id="l2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FFBC99;strokeWidth=2;dashed=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="card2_bg" target="hub" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+
+        <!-- ================= CARD 3: BACKEND & FRONTEND (Bottom Left) ================= -->
+        <mxCell id="card3_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#DDDDDD;strokeWidth=2;arcSize=10;shadow=0;" parent="1" vertex="1">
+          <mxGeometry x="130" y="470" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="card3_header" value="BACKEND &amp;amp; FRONTEND" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F26419;strokeColor=none;fontColor=#FFFFFF;fontStyle=1;fontSize=10;align=center;arcSize=50;" parent="1" vertex="1">
+          <mxGeometry x="180" y="457" width="180" height="26" as="geometry" />
+        </mxCell>
+        <!-- Angular Column -->
+        <mxCell id="c3_ang_img" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/angularjs/angularjs-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="155" y="500" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c3_ang_label" value="Angular v16" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;fontStyle=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="140" y="560" width="80" height="20" as="geometry" />
+        </mxCell>
+        <!-- Spring Column -->
+        <mxCell id="c3_spr_img" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/spring/spring-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="245" y="500" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c3_spr_label" value="Spring Boot" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;fontStyle=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="230" y="560" width="80" height="20" as="geometry" />
+        </mxCell>
+        <!-- Kafka Column -->
+        <mxCell id="c3_kf_img" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/apachekafka/apachekafka-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="335" y="500" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c3_kf_label" value="Kafka" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;fontStyle=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="320" y="560" width="80" height="20" as="geometry" />
+        </mxCell>
+        <!-- Line 3 -->
+        <mxCell id="l3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FFBC99;strokeWidth=2;dashed=1;endArrow=none;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="card3_bg" target="hub" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+
+        <!-- ================= CARD 4: CONTENEURISATION & ORCH. (Top Right) ================= -->
+        <mxCell id="card4_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#DDDDDD;strokeWidth=2;arcSize=10;shadow=0;" parent="1" vertex="1">
+          <mxGeometry x="690" y="90" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="card4_header" value="CONTENEURISATION &amp;amp; ORCH." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F26419;strokeColor=none;fontColor=#FFFFFF;fontStyle=1;fontSize=10;align=center;arcSize=50;" parent="1" vertex="1">
+          <mxGeometry x="740" y="77" width="180" height="26" as="geometry" />
+        </mxCell>
+        <!-- Docker Column -->
+        <mxCell id="c4_doc_img" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="740" y="120" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c4_doc_label" value="Docker" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;fontStyle=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="725" y="180" width="80" height="20" as="geometry" />
+        </mxCell>
+        <!-- Kubernetes Column -->
+        <mxCell id="c4_k8s_img" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/kubernetes/kubernetes-plain.svg;" parent="1" vertex="1">
+          <mxGeometry x="860" y="120" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c4_k8s_label" value="Kubernetes" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;fontStyle=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="845" y="180" width="80" height="20" as="geometry" />
+        </mxCell>
+        <!-- Line 4 -->
+        <mxCell id="l4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FFBC99;strokeWidth=2;dashed=1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" parent="1" source="card4_bg" target="hub" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+
+        <!-- ================= CARD 5: BASE DE DONNÉES (Middle Right) ================= -->
+        <mxCell id="card5_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#DDDDDD;strokeWidth=2;arcSize=10;shadow=0;" parent="1" vertex="1">
+          <mxGeometry x="690" y="280" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="card5_header" value="BASE DE DONNÉES" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F26419;strokeColor=none;fontColor=#FFFFFF;fontStyle=1;fontSize=10;align=center;arcSize=50;" parent="1" vertex="1">
+          <mxGeometry x="740" y="267" width="180" height="26" as="geometry" />
+        </mxCell>
+        <!-- MySQL Column -->
+        <mxCell id="c5_db_img" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="800" y="310" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c5_db_label" value="MySQL / RDS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;fontStyle=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="785" y="370" width="80" height="20" as="geometry" />
+        </mxCell>
+        <!-- Line 5 -->
+        <mxCell id="l5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FFBC99;strokeWidth=2;dashed=1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" parent="1" source="card5_bg" target="hub" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+
+        <!-- ================= CARD 6: MONITORING & OBSERVABILITÉ (Bottom Right) ================= -->
+        <mxCell id="card6_bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#DDDDDD;strokeWidth=2;arcSize=10;shadow=0;" parent="1" vertex="1">
+          <mxGeometry x="690" y="470" width="280" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="card6_header" value="MONITORING &amp;amp; OBSERVABILITÉ" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F26419;strokeColor=none;fontColor=#FFFFFF;fontStyle=1;fontSize=10;align=center;arcSize=50;" parent="1" vertex="1">
+          <mxGeometry x="740" y="457" width="180" height="26" as="geometry" />
+        </mxCell>
+        <!-- Prometheus Column -->
+        <mxCell id="c6_prom_img" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/prometheus/prometheus-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="715" y="500" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c6_prom_label" value="Prometheus" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;fontStyle=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="700" y="560" width="80" height="20" as="geometry" />
+        </mxCell>
+        <!-- Grafana Column -->
+        <mxCell id="c6_gf_img" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/grafana/grafana-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="805" y="500" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c6_gf_label" value="Grafana" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;fontStyle=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="790" y="560" width="80" height="20" as="geometry" />
+        </mxCell>
+        <!-- Trivy Column -->
+        <mxCell id="c6_tr_img" value="" style="shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://raw.githubusercontent.com/aquasecurity/trivy/main/docs/images/logo.png;" parent="1" vertex="1">
+          <mxGeometry x="895" y="500" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="c6_tr_label" value="Trivy" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontColor=#333333;fontStyle=1;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="880" y="560" width="80" height="20" as="geometry" />
+        </mxCell>
+        <!-- Line 6 -->
+        <mxCell id="l6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#FFBC99;strokeWidth=2;dashed=1;endArrow=none;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" parent="1" source="card6_bg" target="hub" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

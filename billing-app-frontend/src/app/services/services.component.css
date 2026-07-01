@@ -62,6 +62,7 @@
 .service-card__tag.cat-sms { background: #fef9c3; color: #854d0e; }
 .service-card__tag.cat-roaming { background: #fce7f3; color: #be185d; }
 .service-card__tag.cat-value { background: #f0e7fe; color: #7c3aed; }
+.service-card__tag.cat-fixe { background: #ffe4e6; color: #e11d48; }
 .service-card__tag.cat-default { background: #f1f5f9; color: #64748b; }
 
 .service-card__name { font-size: 17px; font-weight: 700; color: var(--ink); margin: 0 0 8px; }

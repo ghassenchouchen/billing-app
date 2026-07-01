@@ -2,5 +2,6 @@ package com.telecom.authentication.domain.model;
 
 public enum UserStatus {
     ACTIVE,
-    DISABLED
+    DISABLED,
+    PENDING_PASSWORD
 }

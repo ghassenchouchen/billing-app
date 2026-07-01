@@ -28,57 +28,75 @@ public class InvoicePdfService {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public byte[] generatePdf(Facture facture) {
-        Context ctx = new Context();
+        log.info("Starting PDF generation for invoice: {}", facture.getNumeroFacture());
+        try {
+            Context ctx = new Context();
 
-        // Invoice header
-        ctx.setVariable("invoiceNumber", facture.getNumeroFacture());
-        ctx.setVariable("invoiceDate", facture.getDateFacture().format(DATE_FMT));
-        ctx.setVariable("dueDate", facture.getDateEcheance().format(DATE_FMT));
-        ctx.setVariable("status", facture.getStatut().name());
+            // Invoice header
+            ctx.setVariable("invoiceNumber", facture.getNumeroFacture());
+            ctx.setVariable("invoiceDate", facture.getDateFacture() != null ? facture.getDateFacture().format(DATE_FMT) : "—");
+            ctx.setVariable("dueDate", facture.getDateEcheance() != null ? facture.getDateEcheance().format(DATE_FMT) : "—");
+            ctx.setVariable("status", facture.getStatut() != null ? facture.getStatut().name() : "DRAFT");
 
-        if (facture.getPeriodeDebut() != null && facture.getPeriodeFin() != null) {
-            ctx.setVariable("periodStart", facture.getPeriodeDebut().format(DATE_FMT));
-            ctx.setVariable("periodEnd", facture.getPeriodeFin().format(DATE_FMT));
-        }
+            if (facture.getPeriodeDebut() != null && facture.getPeriodeFin() != null) {
+                ctx.setVariable("periodStart", facture.getPeriodeDebut().format(DATE_FMT));
+                ctx.setVariable("periodEnd", facture.getPeriodeFin().format(DATE_FMT));
+            } else {
+                ctx.setVariable("periodStart", null);
+                ctx.setVariable("periodEnd", null);
+            }
 
-        // Amounts
-        ctx.setVariable("montantHT", formatAmount(facture.getMontantHT()));
-        ctx.setVariable("montantTVA", formatAmount(facture.getMontantTVA()));
-        ctx.setVariable("montantTTC", formatAmount(facture.getMontantTTC()));
+            // Amounts
+            ctx.setVariable("montantHT", formatAmount(facture.getMontantHT()));
+            ctx.setVariable("montantTVA", formatAmount(facture.getMontantTVA()));
+            ctx.setVariable("montantTTC", formatAmount(facture.getMontantTTC()));
 
-        // Customer info
-        Map<String, String> customer = resolveCustomer(facture.getClientId());
-        ctx.setVariable("clientName", customer.get("name"));
-        ctx.setVariable("clientRef", customer.get("ref"));
-        ctx.setVariable("clientAddress", customer.get("address"));
-        ctx.setVariable("clientEmail", customer.get("email"));
-        ctx.setVariable("clientPhone", customer.get("phone"));
+            // Customer info
+            Map<String, String> customer = resolveCustomer(facture.getClientId());
+            ctx.setVariable("clientName", customer.get("name"));
+            ctx.setVariable("clientRef", customer.get("ref"));
+            ctx.setVariable("clientAddress", customer.get("address"));
+            ctx.setVariable("clientEmail", customer.get("email"));
+            ctx.setVariable("clientPhone", customer.get("phone"));
 
-        // Invoice lines
-        List<Map<String, String>> lines = facture.getLignes().stream().map(line -> {
-            Map<String, String> m = new HashMap<>();
-            m.put("description", line.getDescription() != null ? line.getDescription() : "—");
-            m.put("type", line.getType() != null ? line.getType().name() : "");
-            m.put("quantity", String.valueOf(line.getQuantite()));
-            m.put("unitPrice", formatAmount(line.getPrixUnitaire()));
-            m.put("total", formatAmount(line.getMontant()));
-            return m;
-        }).toList();
-        ctx.setVariable("lines", lines);
+            // Invoice lines
+            List<Map<String, String>> lines = facture.getLignes().stream().map(line -> {
+                Map<String, String> m = new HashMap<>();
+                m.put("description", line.getDescription() != null ? line.getDescription() : "—");
+                m.put("type", line.getType() != null ? line.getType().name() : "");
+                m.put("quantity", String.valueOf(line.getQuantite()));
+                m.put("unitPrice", formatAmount(line.getPrixUnitaire()));
+                m.put("total", formatAmount(line.getMontant()));
+                return m;
+            }).toList();
+            ctx.setVariable("lines", lines);
 
-        // Render HTML from Thymeleaf template
-        String html = templateEngine.process("invoice", ctx);
+            // Render HTML from Thymeleaf template
+            log.debug("Processing Thymeleaf template 'invoice'");
+            String html;
+            try {
+                html = templateEngine.process("invoice", ctx);
+            } catch (Exception te) {
+                log.error("Thymeleaf processing failed for invoice {}", facture.getNumeroFacture(), te);
+                throw new RuntimeException("Template processing failed: " + te.getMessage());
+            }
 
-        // Convert to PDF
-        try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            ITextRenderer renderer = new ITextRenderer();
-            renderer.setDocumentFromString(html);
-            renderer.layout();
-            renderer.createPDF(os, true);
-            return os.toByteArray();
+            // Convert to PDF
+            log.debug("Rendering PDF from HTML (length: {})", html.length());
+            try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+                ITextRenderer renderer = new ITextRenderer();
+                renderer.setDocumentFromString(html);
+                renderer.layout();
+                renderer.createPDF(os, true);
+                log.info("Successfully generated PDF for invoice {}", facture.getNumeroFacture());
+                return os.toByteArray();
+            } catch (Exception e) {
+                log.error("ITextRenderer failed for invoice {}: {}", facture.getNumeroFacture(), e.getMessage());
+                throw new RuntimeException("PDF rendering engine failed: " + e.getMessage());
+            }
         } catch (Exception e) {
-            log.error("Failed to generate PDF for invoice {}: {}", facture.getNumeroFacture(), e.getMessage(), e);
-            throw new RuntimeException("PDF generation failed", e);
+            log.error("Fatal error during PDF generation for invoice {}: {}", facture.getNumeroFacture(), e.getMessage(), e);
+            throw e;
         }
     }
 

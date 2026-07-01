@@ -13,7 +13,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * User management service. Only ADMIN can create/update/disable users.
@@ -32,6 +34,7 @@ public class UserService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final AuthEventRepository authEventRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Transactional(readOnly = true)
     public List<UserDto> getAllUsers() {
@@ -94,25 +97,62 @@ public class UserService {
             throw new IllegalArgumentException(request.role() + " must be assigned to a boutique");
         }
 
+        String tempPassword = request.password() != null && !request.password().isBlank() ? 
+                request.password() : UUID.randomUUID().toString();
+        String token = UUID.randomUUID().toString();
+
         User user = User.builder()
                 .username(request.username().toLowerCase().trim())
-                .passwordHash(passwordEncoder.encode(request.password()))
+                .passwordHash(passwordEncoder.encode(tempPassword))
+                .email(request.email().trim())
                 .firstName(request.firstName().trim())
                 .lastName(request.lastName().trim())
                 .role(request.role())
-                .status(UserStatus.ACTIVE)
+                .status(UserStatus.PENDING_PASSWORD)
+                .setPasswordToken(token)
+                .setPasswordTokenExpiresAt(LocalDateTime.now().plusHours(24))
                 .boutiqueId(request.boutiqueId())
                 .build();
 
         user = userRepository.save(user);
 
         logAuthEvent(request.username(), AuthEvent.AuthEventType.USER_CREATED,
-                "Created with role " + request.role());
+                "Created (pending password) with role " + request.role());
 
-        log.info("User created: {} [role={}, boutiqueId={}]",
-                user.getUsername(), user.getRole(), user.getBoutiqueId());
+        log.info("User created: {} [role={}, boutiqueId={}, email={}]",
+                user.getUsername(), user.getRole(), user.getBoutiqueId(), user.getEmail());
+
+        // Send activation email
+        emailService.sendSetPasswordEmail(user, token);
 
         return UserDto.from(user);
+    }
+
+    /**
+     * Complete the password setup/activation process using the set-password token.
+     */
+    @Transactional
+    public void setPassword(String token, String newPassword) {
+        if (newPassword == null || newPassword.length() < 8) {
+            throw new IllegalArgumentException("Password must be at least 8 characters");
+        }
+
+        User user = userRepository.findBySetPasswordToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired key token"));
+
+        if (user.getSetPasswordTokenExpiresAt() == null || 
+                user.getSetPasswordTokenExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Activation key token has expired");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        user.setStatus(UserStatus.ACTIVE);
+        user.setSetPasswordToken(null);
+        user.setSetPasswordTokenExpiresAt(null);
+        userRepository.save(user);
+
+        logAuthEvent(user.getUsername(), AuthEvent.AuthEventType.PASSWORD_CHANGED, "Password set and account activated");
+        log.info("User password set and activated: {}", user.getUsername());
     }
 
     /**

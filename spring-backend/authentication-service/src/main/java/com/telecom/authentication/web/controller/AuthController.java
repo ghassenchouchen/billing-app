@@ -1,8 +1,11 @@
 package com.telecom.authentication.web.controller;
 
 import com.telecom.authentication.application.AuthenticationService;
+import com.telecom.authentication.application.UserService;
+import com.telecom.authentication.domain.repository.UserRepository;
 import com.telecom.authentication.web.dto.LoginRequest;
 import com.telecom.authentication.web.dto.LoginResponse;
+import com.telecom.authentication.web.dto.SetPasswordRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +25,8 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthenticationService authenticationService;
+    private final UserService userService;
+    private final UserRepository userRepository;
 
     /**
      * Login with username and password.
@@ -85,5 +90,35 @@ public class AuthController {
 
         Map<String, Object> result = authenticationService.validateToken(authHeader.substring(7));
         return ResponseEntity.ok(result);
+    }
+
+    /**
+     * Check if a set-password token is valid.
+     */
+    @GetMapping("/verify-token")
+    public ResponseEntity<Map<String, Object>> verifyToken(@RequestParam String token) {
+        var userOpt = userRepository.findBySetPasswordToken(token);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("valid", false, "message", "Token invalide ou inexistant."));
+        }
+        var user = userOpt.get();
+        if (user.getSetPasswordTokenExpiresAt() != null && 
+                user.getSetPasswordTokenExpiresAt().isBefore(java.time.LocalDateTime.now())) {
+            return ResponseEntity.badRequest().body(Map.of("valid", false, "message", "Le lien a expiré. Veuillez contacter l'administrateur."));
+        }
+        return ResponseEntity.ok(Map.of("valid", true, "username", user.getUsername(), "email", user.getEmail()));
+    }
+
+    /**
+     * Set a user's password using the set-password token.
+     */
+    @PostMapping("/set-password")
+    public ResponseEntity<Map<String, String>> setPassword(@Valid @RequestBody SetPasswordRequest request) {
+        try {
+            userService.setPassword(request.token(), request.password());
+            return ResponseEntity.ok(Map.of("message", "Mot de passe défini avec succès ! Vous pouvez maintenant vous connecter."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 }

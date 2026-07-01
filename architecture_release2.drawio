@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mxfile host="Electron" modified="2026-06-30T00:00:00.000Z" agent="Antigravity" version="21.6.8" type="device">
+  <diagram id="arch-release2-aws" name="Release 2 - Infrastructure AWS">
+    <mxGraphModel dx="1300" dy="850" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="650" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ========================================================================== -->
+        <!-- AWS Cloud boundary (outermost)                                             -->
+        <!-- ========================================================================== -->
+        <mxCell id="aws_cloud" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#94A3B8;strokeWidth=1.5;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="30" width="1120" height="590" as="geometry" />
+        </mxCell>
+        <mxCell id="aws_cloud_lbl" value="AWS Cloud" style="text;html=1;fillColor=none;strokeColor=none;align=left;verticalAlign=top;fontColor=#475569;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="70" y="38" width="100" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ========================================================================== -->
+        <!-- LEFT SIDE: Sprint 4 — Docker local environment (compact)                   -->
+        <!-- ========================================================================== -->
+        <mxCell id="s4_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#E28743;strokeWidth=1.5;" parent="1" vertex="1">
+          <mxGeometry x="70" y="80" width="250" height="510" as="geometry" />
+        </mxCell>
+        <mxCell id="s4_accent" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E28743;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="70" y="80" width="250" height="4" as="geometry" />
+        </mxCell>
+        <mxCell id="s4_title" value="Sprint 4 — Conteneurisation" style="text;html=1;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;fontColor=#E28743;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="80" y="92" width="230" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s4_docker" value="" style="shape=image;html=1;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="170" y="120" width="48" height="48" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s4_net" value="docker-compose (bridge)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;dashed=1;align=center;verticalAlign=bottom;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="85" y="180" width="220" height="390" as="geometry" />
+        </mxCell>
+
+        <!-- containers list -->
+        <mxCell id="c_fe" value="frontend (nginx:alpine)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#CBD5E1;fontSize=9;fontColor=#475569;" parent="1" vertex="1">
+          <mxGeometry x="100" y="200" width="190" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="c_gw" value="api-gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#CBD5E1;fontSize=9;fontColor=#475569;" parent="1" vertex="1">
+          <mxGeometry x="100" y="230" width="190" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="c_1" value="customer-service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="100" y="265" width="90" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="c_2" value="catalog-service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="200" y="265" width="90" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="c_3" value="billing-service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="100" y="295" width="90" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="c_4" value="subscription-svc" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="200" y="295" width="90" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="c_5" value="boutique-service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="100" y="325" width="90" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="c_6" value="auth-service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="200" y="325" width="90" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="c_eur" value="eureka-server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFDF9;strokeColor=#E2D5A8;fontSize=8;fontColor=#8C6E2E;" parent="1" vertex="1">
+          <mxGeometry x="100" y="365" width="190" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="c_conf" value="config-server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFDF9;strokeColor=#E2D5A8;fontSize=8;fontColor=#8C6E2E;" parent="1" vertex="1">
+          <mxGeometry x="100" y="395" width="190" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="c_db" value="MySQL (local container)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E28743;fontSize=8;fontColor=#E28743;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="100" y="430" width="190" height="24" as="geometry" />
+        </mxCell>
+
+
+        <!-- ========================================================================== -->
+        <!-- TRANSITION ARROW                                                           -->
+        <!-- ========================================================================== -->
+        <mxCell id="arrow_s4_s5" value="" style="shape=flexArrow;endArrow=classic;html=1;fillColor=#F8FAFC;strokeColor=#475569;strokeWidth=1;width=10;endSize=5;" parent="1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="330" y="320" as="sourcePoint" />
+            <mxPoint x="400" y="320" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+
+
+        <!-- ========================================================================== -->
+        <!-- RIGHT SIDE: Sprint 5 — AWS EKS deployment (nested AWS groups style)        -->
+        <!-- ========================================================================== -->
+        <mxCell id="s5_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#E28743;strokeWidth=1.5;" parent="1" vertex="1">
+          <mxGeometry x="400" y="80" width="730" height="510" as="geometry" />
+        </mxCell>
+        <mxCell id="s5_accent" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E28743;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="400" y="80" width="730" height="4" as="geometry" />
+        </mxCell>
+        <mxCell id="s5_title" value="Sprint 5 — Déploiement AWS EKS" style="text;html=1;fillColor=none;strokeColor=none;align=center;verticalAlign=middle;fontColor=#E28743;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="600" y="92" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- VPC boundary (dashed, AWS style) -->
+        <mxCell id="vpc_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#475569;strokeWidth=1.5;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="425" y="120" width="480" height="450" as="geometry" />
+        </mxCell>
+        <mxCell id="vpc_lbl" value="Amazon VPC" style="text;html=1;fillColor=none;strokeColor=none;align=left;verticalAlign=top;fontColor=#475569;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="440" y="128" width="100" height="18" as="geometry" />
+        </mxCell>
+
+        <!-- ALB (top of VPC) -->
+        <mxCell id="alb_card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1;" parent="1" vertex="1">
+          <mxGeometry x="445" y="160" width="100" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="alb_ico" value="" style="shape=image;html=1;imageAspect=0;image=https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/NetworkingContentDelivery/ElasticLoadBalancing.png;" parent="1" vertex="1">
+          <mxGeometry x="474" y="168" width="42" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="alb_lbl" value="ALB" style="text;html=1;fillColor=none;strokeColor=none;align=center;verticalAlign=top;fontColor=#334155;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="470" y="218" width="50" height="18" as="geometry" />
+        </mxCell>
+
+        <!-- EKS Cluster boundary (inside VPC) -->
+        <mxCell id="eks_cluster" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#E28743;strokeWidth=1.5;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="570" y="155" width="320" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="eks_ico" value="" style="shape=image;html=1;imageAspect=0;image=https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/Containers/ElasticKubernetesService.png;" parent="1" vertex="1">
+          <mxGeometry x="578" y="160" width="22" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="eks_lbl" value="Amazon EKS Cluster" style="text;html=1;fillColor=none;strokeColor=none;align=left;verticalAlign=top;fontColor=#E28743;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="605" y="162" width="150" height="18" as="geometry" />
+        </mxCell>
+
+        <!-- ALB → EKS -->
+        <mxCell id="a_alb_eks" style="rounded=0;html=1;strokeColor=#475569;strokeWidth=1.2;endArrow=block;endFill=1;" parent="1" source="alb_card" target="eks_cluster" edge="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Pods inside EKS (compact grid) -->
+        <mxCell id="p_ing" value="Nginx Ingress" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#CBD5E1;fontSize=8;fontStyle=1;fontColor=#475569;" parent="1" vertex="1">
+          <mxGeometry x="600" y="195" width="260" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="p_fe" value="frontend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="600" y="228" width="125" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="p_gw" value="api-gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="735" y="228" width="125" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="p_c1" value="customer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="600" y="258" width="80" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="p_c2" value="catalog" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="690" y="258" width="80" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="p_c3" value="billing" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="780" y="258" width="80" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="p_c4" value="subscription" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="600" y="288" width="80" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="p_c5" value="boutique" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="690" y="288" width="80" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="p_c6" value="auth" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF;strokeColor=#E2E8F0;fontSize=8;fontColor=#64748B;" parent="1" vertex="1">
+          <mxGeometry x="780" y="288" width="80" height="22" as="geometry" />
+        </mxCell>
+
+        <mxCell id="p_eur" value="eureka-server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFDF9;strokeColor=#E2D5A8;fontSize=8;fontColor=#8C6E2E;" parent="1" vertex="1">
+          <mxGeometry x="600" y="325" width="125" height="22" as="geometry" />
+        </mxCell>
+        <mxCell id="p_cfg" value="config-server" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFDF9;strokeColor=#E2D5A8;fontSize=8;fontColor=#8C6E2E;" parent="1" vertex="1">
+          <mxGeometry x="735" y="325" width="125" height="22" as="geometry" />
+        </mxCell>
+
+        <!-- Helm + tools row at bottom of VPC -->
+        <mxCell id="tools_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#CBD5E1;strokeWidth=1;" parent="1" vertex="1">
+          <mxGeometry x="445" y="485" width="440" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tools_title" value="Outils de déploiement" style="text;html=1;fillColor=none;strokeColor=none;align=left;verticalAlign=top;fontColor=#64748B;fontSize=8;fontStyle=2;" parent="1" vertex="1">
+          <mxGeometry x="460" y="490" width="120" height="12" as="geometry" />
+        </mxCell>
+        <mxCell id="tool_helm_ico" value="" style="shape=image;html=1;imageAspect=0;image=https://raw.githubusercontent.com/devicons/devicon/master/icons/helm/helm-original.svg;" parent="1" vertex="1">
+          <mxGeometry x="465" y="510" width="24" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="tool_helm_lbl" value="Helm Charts" style="text;html=1;fillColor=none;strokeColor=none;align=left;verticalAlign=middle;fontColor=#475569;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="495" y="512" width="80" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="tool_seal" value="⬡ SealedSecrets" style="text;html=1;fillColor=none;strokeColor=none;align=left;verticalAlign=middle;fontColor=#475569;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="600" y="512" width="100" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="tool_cm" value="⬡ ConfigMaps" style="text;html=1;fillColor=none;strokeColor=none;align=left;verticalAlign=middle;fontColor=#475569;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="720" y="512" width="90" height="18" as="geometry" />
+        </mxCell>
+
+
+        <!-- ======================= AWS MANAGED SERVICES (right column) ======================= -->
+        <mxCell id="aws_ecr_card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1;" parent="1" vertex="1">
+          <mxGeometry x="950" y="130" width="120" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="aws_ecr_ico" value="" style="shape=image;html=1;imageAspect=0;image=https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/Containers/ElasticContainerRegistry.png;" parent="1" vertex="1">
+          <mxGeometry x="989" y="140" width="42" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="aws_ecr_lbl" value="Amazon ECR&lt;br&gt;&lt;span style=&quot;font-size:7px;color:#64748B;&quot;&gt;Image Registry&lt;/span&gt;" style="text;html=1;fillColor=none;strokeColor=none;align=center;verticalAlign=top;fontColor=#334155;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="955" y="190" width="110" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aws_rds_card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#E28743;strokeWidth=1.5;" parent="1" vertex="1">
+          <mxGeometry x="950" y="270" width="120" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="aws_rds_ico" value="" style="shape=image;html=1;imageAspect=0;image=https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/Database/RDS.png;" parent="1" vertex="1">
+          <mxGeometry x="989" y="280" width="42" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="aws_rds_lbl" value="Amazon RDS&lt;br&gt;&lt;span style=&quot;font-size:7px;color:#E28743;&quot;&gt;MySQL&lt;/span&gt;" style="text;html=1;fillColor=none;strokeColor=none;align=center;verticalAlign=top;fontColor=#334155;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="955" y="330" width="110" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="aws_ebs_card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#CBD5E1;strokeWidth=1;" parent="1" vertex="1">
+          <mxGeometry x="950" y="410" width="120" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="aws_ebs_ico" value="" style="shape=image;html=1;imageAspect=0;image=https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/main/dist/Storage/EBS.png;" parent="1" vertex="1">
+          <mxGeometry x="989" y="420" width="42" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="aws_ebs_lbl" value="Amazon EBS&lt;br&gt;&lt;span style=&quot;font-size:7px;color:#64748B;&quot;&gt;Persistent Volumes&lt;/span&gt;" style="text;html=1;fillColor=none;strokeColor=none;align=center;verticalAlign=top;fontColor=#334155;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="955" y="470" width="110" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Dashed links from EKS to AWS services -->
+        <mxCell id="a_ecr_pull" value="pull" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#64748B;strokeWidth=1;dashed=1;endArrow=block;endFill=1;fontSize=7;fontColor=#64748B;exitX=1;exitY=0.25;entryX=0;entryY=0.5;" parent="1" source="eks_cluster" target="aws_ecr_card" edge="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a_rds_jdbc" value="JDBC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#E28743;strokeWidth=1;dashed=1;endArrow=block;endFill=1;fontSize=7;fontColor=#E28743;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" parent="1" source="eks_cluster" target="aws_rds_card" edge="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a_ebs" value="PV" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#64748B;strokeWidth=1;dashed=1;endArrow=block;endFill=1;fontSize=7;fontColor=#64748B;exitX=1;exitY=0.75;entryX=0;entryY=0.5;" parent="1" source="eks_cluster" target="aws_ebs_card" edge="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

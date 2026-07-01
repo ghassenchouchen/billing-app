@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CustomerService } from '../../shared/services/customer.service';
 import { OffersService } from '../../shared/services/offers.service';
+import { AbonnementService } from '../../shared/services/abonnement.service';
 import { Offer } from '../../core/models';
 import { AuthService } from '../../core/services/auth.service';
 import { BoutiqueApiService, StockSim } from '../../core/services/boutique-api.service';
@@ -18,7 +19,6 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
   currentStep = 1;
   saving = false;
 
-  
   flowType: 'standard' | 'sim' = 'standard';
 
   clientForm = {
@@ -59,7 +59,8 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
     private customerService: CustomerService,
     private offersService: OffersService,
     private authService: AuthService,
-    private boutiqueApi: BoutiqueApiService
+    private boutiqueApi: BoutiqueApiService,
+    private abonnementService: AbonnementService
   ) {}
 
   ngOnInit(): void {
@@ -101,7 +102,6 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  //Navigation
   cancel(): void {
     this.router.navigate(['/Customers']);
   }
@@ -110,7 +110,6 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
     if (this.currentStep === 1 && this.validateStep1()) {
       this.currentStep = 2;
     } else if (this.currentStep === 2) {
-      // Flow selection done
       if (this.flowType === 'sim') {
         this.currentStep = 3;
         this.loadAvailableSims();
@@ -126,7 +125,7 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
         }
         this.formErrors = {};
         this.currentStep = 4;
-        this.loadOffers(true); // Mobile only
+        this.loadOffers(true);
       } else {
         if (!this.validateStepOffer()) return;
         this.currentStep = 4;
@@ -153,13 +152,11 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
 
   setFlowType(type: 'standard' | 'sim'): void {
     this.flowType = type;
-    // Reset SIM and offer selection when changing flow
     this.selectedSim = null;
     this.selectedOfferId = null;
   }
 
   onPhoneChange(): void {
-    // only 8 digits
     this.clientForm.telephone = this.clientForm.telephone.replace(/\D/g, '').slice(0, 8);
   }
 
@@ -287,6 +284,10 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
     return this.availableOffers.find(o => o.id === this.selectedOfferId) || null;
   }
 
+  // ──────────────────────────────────────────────────
+  // FIX: After creating the client, also create the subscription
+  // This aligns with Sprint 2 US08 (Souscrire un abonnement)
+  // ──────────────────────────────────────────────────
   submit(): void {
     this.saving = true;
     const localPhone = (this.clientForm.telephone || '').replace(/\D/g, '').slice(0, 8);
@@ -306,24 +307,30 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (createdCustomer) => {
-          if (this.flowType === 'sim' && this.selectedSim) {
-            // Extract client ID and activate SIM
-            const clientId = this.extractClientId(createdCustomer);
-            this.boutiqueApi.assignAndActivateSim(this.selectedSim.iccid, clientId)
+          const clientId = this.extractClientId(createdCustomer);
+
+          // Create the subscription if an offer was selected
+          if (this.selectedOfferId) {
+            const abonnementPayload = {
+              clientId: clientId,
+              clientRef: createdCustomer.customerRef,
+              offreId: this.selectedOfferId,
+              dateDebut: new Date().toISOString().split('T')[0],
+              status: 'ACTIVE',
+              billingFrequency: 'MONTHLY'
+            };
+
+            this.abonnementService.createAbonnement(abonnementPayload)
               .pipe(takeUntil(this.destroy$))
               .subscribe({
-                next: () => {
-                  this.saving = false;
-                  this.router.navigate(['/Customers']);
-                },
-                error: () => {
-                  this.saving = false;
-                  this.router.navigate(['/Customers']);
+                next: () => this.finalizeCreation(clientId),
+                error: (err) => {
+                  console.error('Subscription creation failed', err);
+                  this.finalizeCreation(clientId);
                 }
               });
           } else {
-            this.saving = false;
-            this.router.navigate(['/Customers']);
+            this.finalizeCreation(clientId);
           }
         },
         error: () => {
@@ -331,6 +338,26 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
           this.router.navigate(['/Customers']);
         }
       });
+  }
+
+  private finalizeCreation(clientId: number): void {
+    if (this.flowType === 'sim' && this.selectedSim) {
+      this.boutiqueApi.assignAndActivateSim(this.selectedSim.iccid, clientId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.saving = false;
+            this.router.navigate(['/Customers']);
+          },
+          error: () => {
+            this.saving = false;
+            this.router.navigate(['/Customers']);
+          }
+        });
+    } else {
+      this.saving = false;
+      this.router.navigate(['/Customers']);
+    }
   }
 
   extractClientId(customer: any): number {
@@ -375,5 +402,4 @@ export class CreateCustomerComponent implements OnInit, OnDestroy {
   getSimTypeLabel(type: string): string {
     return type === 'ESIM' ? 'eSIM' : 'Standard';
   }
-
 }
